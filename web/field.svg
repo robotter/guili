@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="drawing" height="600px" viewBox="-1700 -1200 3400 2400">
+  <defs id="defs">
+    <style type="text/css"><![CDATA[
+
+      #table-border {
+        fill: black;
+        stroke: none;
+      }
+
+      .beacon-support {
+        fill: black;
+        stroke: none;
+      }
+
+      .table-marker {
+        stroke: #888;
+        stroke-width: 2;
+        z-index: -10;
+      }
+
+      .beacon {
+        stroke: white;
+        stroke-width: 2;
+      }
+      .beacon-fov {
+        fill: none;
+        stroke: black;
+        stroke-width: 5;
+        opacity: 50%;
+      }
+
+      .reflector {
+        stroke: black;
+        stroke-width: 5;
+      }
+
+      ]]></style>
+
+    <rect id="beacon-support" class="beacon-support" width="80" height="80" transform="translate(-40,-40)" />
+
+    <circle id="beacon" class="beacon" r="35" />
+    <circle id="reflector" class="reflector" r="30" />
+
+    <clipPath id="clip-table">
+      <path d="M -1500,-1000 L 1500,-1000 L 1500,1000 L -1500,1000 Z" />
+    </clipPath>
+
+    <marker id="marker-vector-arrow" orient="auto" fill="none" viewBox="-10 -7 20 14" markerWidth="20" markerHeight="14">
+      <path d="M -10,-7 L 0,0 L -10,7" />
+    </marker>
+
+  </defs>
+
+  <g id="table">
+    <path id="table-border" fill-rule="evenodd" d="
+      M -1500,-1000 L 1500,-1000 L 1500,1000 L -1500,1000 Z
+      M -1522,-1022 L 1522,-1022 L 1522,1022 L -1522,1022 Z
+      " />
+
+    <use xlink:href="#beacon-support" x="-1562" y="-1062" />
+    <use xlink:href="#beacon-support" x="-1562" y="0" />
+    <use xlink:href="#beacon-support" x="-1562" y="1062" />
+    <use xlink:href="#beacon-support" x="1562" y="-1062" />
+    <use xlink:href="#beacon-support" x="1562" y="0" />
+    <use xlink:href="#beacon-support" x="1562" y="1062" />
+
+    <line class="table-marker" x1="0" y1="-1000" x2="0" y2="1000" />
+    <line class="table-marker" x1="-1500" y1="0" x2="1500" y2="0" />
+
+  </g>
+
+  <g id="fovs" clip-path="url(#clip-table)">
+  </g>
+
+  <script type="text/javascript"><![CDATA[
+    const xlinkNS = "http://www.w3.org/1999/xlink";
+
+    var drawing = document.getElementById("drawing");
+
+    // Various helper methods
+
+    drawing.createElement = function(tag) {
+      return document.createElementNS(this.namespaceURI, tag);
+    };
+
+    Element.prototype.setAttributes = function(attrs) {
+      for(var k in attrs) {
+        if(k == "xlink:href") {
+          this.setAttributeNS(xlinkNS, k, attrs[k]);
+        } else {
+          this.setAttribute(k, attrs[k]);
+        }
+      }
+    }
+
+    // compute distance between two objects
+    function distance(a,b) {
+      return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+    }
+
+  ]]></script>
+
+</svg>

@@ -1,0 +1,141 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  display: table;
+}
+
+#top-bar {
+  display: table-row;
+  overflow: auto;
+}
+
+#toolbar {
+  float: left;
+}
+
+#ws-status {
+  float: right;
+  background-color: #dddddd;
+  padding: 0.2ex 0.3em;
+}
+
+#ws-status-icon.status-neutral {
+  color: darkgray;
+}
+
+#ws-status-icon.status-ok {
+  color: darkgreen;
+}
+
+#ws-status-icon.status-error {
+  color: darkred;
+}
+
+/* cancel jQuery's default */
+.ui-state-disabled {
+  opacity: 1;
+  filter: none;
+}
+
+
+/* clickmenu */
+
+.clickmenu {
+  position: absolute;
+  border: 1px solid #888;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  z-index: 10;
+}
+.clickmenu .ui-corner-all {
+  border-radius: 0;
+}
+.clickmenu .ui-menu-item {
+  padding: 0;
+  border: none;
+}
+.clickmenu .ui-menu-item a {
+  padding: 0.3em 0.4em;
+}
+.clickmenu .ui-menu-item a.ui-state-focus {
+  background: #ccc;
+  border: none;
+  margin: 0;
+}
+
+
+/* portlets */
+
+#portlets {
+  clear: both;
+  display: table-row;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#portlet-template {
+  display: none;
+}
+
+.portlet {
+  border: 1px solid #888;
+  display: inline-block;
+  position: absolute;
+}
+
+.portlet-content {
+}
+
+.portlet-header {
+  font-size: 10px;
+  right: 0;
+  top: 0;
+  word-spacing: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.portlet-header i {
+  cursor: pointer;
+  font-size: 10px;
+  opacity: 0.5;
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+
+.portlet-header i:hover {
+  opacity: 1;
+}
+
+.portlet-title {
+  font-size: 110%;
+  font-weight: bold;
+  padding: 0.1em 0.2em;
+  margin: 0 0 0.1em 0;
+  background-color: #ccc;
+}
+
+.portlet-header .ui-corner-all {
+  border-radius: 0;
+}
+
+.portlet-content table {
+  border: none;
+}
+
+.portlet-content table th {
+  text-align: left;
+}
+
+td.data-number {
+  text-align: right;
+}
+
+
