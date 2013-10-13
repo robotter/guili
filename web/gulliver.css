@@ -15,7 +15,31 @@ body {
 
 #toolbar {
   float: left;
+  font-size: 15px;
+  background-color: #444;
+  padding: 0;
+  margin: 0;
 }
+
+#toolbar > i {
+  padding: none;
+  cursor: pointer;
+  display: inline-block;
+  color: white;
+  width: 1.7em;
+  line-height: 1.7em;
+  text-align: center;
+  vertical-align: center;
+}
+
+#toolbar > i:hover {
+  background-color: #888;
+}
+
+#toolbar .clickmenu {
+  font-size: 15px;
+}
+
 
 #ws-status {
   float: right;

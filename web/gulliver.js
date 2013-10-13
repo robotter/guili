@@ -113,13 +113,24 @@ Portlet.prototype = {
   // initialize the portlet
   // return a Promise if init is asynchronous
   init: function(options) {
+    var self = this;
     var handle = this.node.find('.portlet-header .icon-move');
     this.node.draggable({ containment: 'parent', handle: handle, snap: true, snapTolerance: 5 });
     if(options.position) {
       this.position(options.position.x, options.position.y);
     }
+    this.node.find('.portlet-header .icon-remove').click(function() {
+      self.destroy();
+    });
   },
 
+  // destroy the portlet
+  destroy: function() {
+    // unregister the portlet instance
+    Portlet.instances.splice($.inArray(this, Portlet.instances), 1);
+    this.node.remove();
+  },
+  
   // update the portlet with new data
   update: function(data) {},
 
@@ -129,6 +140,7 @@ Portlet.prototype = {
     var offset = this.node.parent().offset();
     this.node.offset({ left: left+offset.left, top: top+offset.top });
   },
+
 };
 
 // Load all portlet, return a Deferred object
@@ -209,6 +221,28 @@ $(document).ready(function() {
   gs.start("ws://"+hostname+":2080/");
 
   Portlet.loadAll(['coordinates', 'field', 'graph']).done(function() {
+    // create menu to add portlets
+    {
+      var icon = $('#add-portlet-icon');
+      var menu = $('#add-portlet-menu');
+      // sort portlets on name, to preserve order
+      Object.keys(Portlet.classes).sort().map(function(k) {
+        var cls = Portlet.classes[k].prototype;
+        var item = $('<li><a href="#"></a></li>').appendTo(menu);
+        item.data('name', cls.name);
+        item.children('a').text(cls.pretty_name)
+      });
+
+      menu.clickMenu(icon, {
+        select: function(ev, ui) {
+          Portlet.create($('#portlets'), ui.item.data('name'), {
+            //TODO compute a suitable position
+            position: { x: 300, y: 300 },
+          });
+        },
+      });
+    }
+
     var container = $('#portlets');
     Portlet.create(container, 'coordinates', {
       position: { x: 250, y: 0 },

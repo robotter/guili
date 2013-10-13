@@ -50,7 +50,6 @@ Portlet.register({
           self.view_menu.hide();
         },
       });
-      menu.hide();
       this.view_menu = menu;
     }
 
