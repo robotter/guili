@@ -82,7 +82,6 @@ Portlet.register({
 
     // set initial view
     this.setView(options.view ? options.view : this.views[0].name);
-
   },
 
   update: function(data) {

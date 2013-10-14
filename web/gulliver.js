@@ -112,13 +112,12 @@ Portlet.prototype = {
 
   // initialize the portlet
   // return a Promise if init is asynchronous
+  // The base method should be called after portlet size is known.
+  // In fact, it should be called after subclass initialization.
   init: function(options) {
     var self = this;
     var handle = this.node.find('.portlet-header .icon-move');
     this.node.draggable({ containment: 'parent', handle: handle, snap: true, snapTolerance: 5 });
-    if(options.position) {
-      this.position(options.position.x, options.position.y);
-    }
     this.node.find('.portlet-header .icon-remove').click(function() {
       self.destroy();
     });
@@ -136,9 +135,73 @@ Portlet.prototype = {
 
   // set portlet's position
   position: function(left, top) {
-    //this.node.offset({ left: left, top: top });
     var offset = this.node.parent().offset();
     this.node.offset({ left: left+offset.left, top: top+offset.top });
+  },
+
+  // set position to an empty space, if available
+  // note: this cannot be called before portlet size is known
+  positionAuto: function(margin) {
+    var self = this;
+    margin = margin === undefined ? 3 : margin; // default margin
+
+    // get dimensions of an object
+    var getBox = function(o, margin) {
+      var offset = o.offset();
+      return {
+        x0: offset.left - margin,
+        y0: offset.top - margin,
+        x1: offset.left + o.width() + margin,
+        y1: offset.top + o.height() + margin,
+      };
+    }
+
+    // portlet dimensions
+    var w = this.node.width();
+    var h = this.node.height();
+    // container bonding box
+    var limits = getBox(this.node.parent(), -margin);
+    // portlets bonding boxes
+    var boxes = [];
+    Portlet.instances.forEach(function(p) {
+      if(p !== self) {
+        boxes.push(getBox(p.node, margin+2)); // +2 for borders
+      }
+    });
+    // sort bonding boxes by y0
+    boxes.sort(function(a,b) { return a.y0 - b.y0; });
+
+    // find an empty place from top to bottom, from left to right
+    var next_x, next_y;
+    for(var y=limits.y0; y+h<limits.y1; y=next_y ) {
+      next_y = limits.y1;
+      for(var x=limits.x0; x+w<limits.x1; x=next_x) {
+        next_x = limits.x1;
+        var ok = true;
+        for(var i=0; i<boxes.length; ++i) {
+          var box = boxes[i];
+          if(box.y1 <= y) {
+            // this box will not be needed anymore
+            boxes.splice(i--, 1);
+            continue;
+          }
+          if(box.x1 > x && box.x1 < next_x) {
+            next_x = box.x1
+          }
+          if(box.y1 > y && box.y1 < next_y) {
+            next_y = box.y1
+          }
+          if(ok && box.y0 < y+h && x < box.x1 && x+w > box.x0) {
+            ok = false;
+          }
+        }
+        if(ok) {
+          this.node.offset({ left: x, top: y });
+          return;
+        }
+      }
+    }
+
   },
 
 };
@@ -188,6 +251,12 @@ Portlet.create = function(root, name, options) {
     var on_init_done = function() {
       self.instances.push(portlet);
       deferred.resolveWith(portlet);
+      // set position when element is initialized, because the size needs to be known
+      if(options.position) {
+        portlet.position(options.position.x, options.position.y);
+      } else {
+        portlet.positionAuto();
+      }
     };
     if(init_df) {
       init_df.done(on_init_done);
@@ -235,25 +304,18 @@ $(document).ready(function() {
 
       menu.clickMenu(icon, {
         select: function(ev, ui) {
-          Portlet.create($('#portlets'), ui.item.data('name'), {
-            //TODO compute a suitable position
-            position: { x: 300, y: 300 },
-          });
+          Portlet.create($('#portlets'), ui.item.data('name'))
+            .done(function() {
+              this.positionAuto();
+            });
         },
       });
     }
 
     var container = $('#portlets');
-    Portlet.create(container, 'coordinates', {
-      position: { x: 250, y: 0 },
-    });
-    Portlet.create(container, 'field', {
-      position: { x: 20, y: 0 },
-    });
-    Portlet.create(container, 'graph', {
-      view: 'position',
-      position: { x: 500, y: 0 },
-    });
+    Portlet.create(container, 'coordinates');
+    Portlet.create(container, 'field');
+    Portlet.create(container, 'graph', { view: 'position' });
   });
 
 });
