@@ -27,7 +27,8 @@ class GulliverServer(ThreadingMixIn, WebSocketServer):
   def on_new_data(self, data):
     with self.lock:
       for r in self.requests:
-        r.send_event('data', {'data': data})
+        if not r.paused:
+          r.send_event('data', {'data': data})
 
   def on_robot_event(self, ev):
     """Called on new event from the robot"""
@@ -68,11 +69,13 @@ class GulliverRequestHandler(WebSocketRequestHandler):
 
   Attributes:
     lock -- lock for concurrent accesses
+    paused -- client is paused
 
   """
 
   def handle(self):
     self.lock = threading.RLock()
+    self.paused = True
     WebSocketRequestHandler.handle(self)
 
   def finish(self):
@@ -92,8 +95,13 @@ class GulliverRequestHandler(WebSocketRequestHandler):
 
   def do_init(self):
     """Initialize a client"""
+    self.paused = False
     with self.server.lock:
       self.server.requests.add(self)
+
+  def do_pause(self, paused):
+    """Pause or unpause a client"""
+    self.paused = bool(paused)
 
 
 class TickThread(threading.Thread):

@@ -11,59 +11,40 @@ Number.prototype.toFixedHtml = function(n) {
 
 /*
  * WebSocket
+ *
+ * A custom 'wsstatus' event is triggered on WebSocket status change.
+ * The following event parameters are provided:
+ *   WebSocket event (null if type is 'connect')
+ *   event type ('open', 'error', 'close' or 'connect')
+ *   WebSocket readyState value
  */
 
 var gs = {
   ws: null,  // WebSocket object
 
-  // initialize the socket
+  // start or restart the socket
   start: function(uri) {
-    if(this.ws !== null) {
-      throw "WebSocket already started";
+    if(this.ws !== null && !uri) {
+      uri = this.ws.url;
     }
     var self = this;
     this.ws = new WebSocket(uri);
-    this.updateStatus();
+    this.triggerStatusEvent(null, 'connect');
     this.ws.onopen = this.handle.bind(this);
     this.ws.onmessage = this.onMessage.bind(this);
-    this.ws.onerror = function(ev) { self.updateStatus(ev.data); }
-    this.ws.onclose = function(ev) { self.updateStatus(ev.reason ? "disconnected: "+ev.reason : null); }
+    this.ws.onerror = function(ev) { self.triggerStatusEvent(ev, 'error'); }
+    this.ws.onclose = function(ev) { self.triggerStatusEvent(ev, 'close'); }
   },
 
   // handle the connection once opened
-  handle: function() {
-    this.updateStatus();
+  handle: function(ev) {
+    this.triggerStatusEvent(ev, 'open');
     this.callMethod('init', {});
   },
 
-  // update WS status indicator (icon and text)
-  updateStatus: function(text) {
-    var classes;
-    var default_text;
-    switch(this.ws.readyState) {
-      case WebSocket.CONNECTING:
-        classes = 'status-neutral icon-spinner icon-spin';
-        default_text = 'connecting...';
-        break;
-      case WebSocket.OPEN:
-        classes = 'status-ok icon-circle';
-        default_text = 'connected';
-        break;
-      case WebSocket.CLOSING:
-        classes = 'status-error icon-circle';
-        default_text = 'closing...'
-        break;
-      case WebSocket.CLOSED:
-        classes = 'status-error icon-circle';
-        default_text = 'disconnected'
-        break;
-    }
-
-    if(!text) {
-      text = default_text;
-    }
-    $('#ws-status-text').text(text);
-    $('#ws-status-icon').removeClass().addClass(classes);
+  // trigger a wsstatus event
+  triggerStatusEvent: function(ev, type) {
+    $.event.trigger('wsstatus', [ev, type, this.ws.readyState]);
   },
 
   // WebSocket onmessage handler
@@ -282,7 +263,83 @@ Portlet.instances = [];
 
 /*****/
 
+// set handler for WS status display
+$(document).on('wsstatus', function(ev, wsev, type, state) {
+  var classes;
+  var text;
+  switch(state) {
+    case WebSocket.CONNECTING:
+      classes = 'status-neutral icon-spinner icon-spin';
+      text = 'connecting...';
+      break;
+    case WebSocket.OPEN:
+      classes = 'status-opened icon-circle';
+      text = 'connected';
+      break;
+    case WebSocket.CLOSING:
+      classes = 'status-closed icon-circle';
+      text = 'closing...'
+      break;
+    case WebSocket.CLOSED:
+      classes = 'status-closed icon-circle';
+      text = 'disconnected'
+      break;
+  }
+  $('#ws-status-text').text(text);
+  $('#ws-status-icon').removeClass().addClass(classes);
+
+  if(type == 'error') {
+    if(wsev.data) {
+      console.log("WS error: "+wsev.data);
+    }
+  } else if(type == 'close') {
+    if(wsev.reason) {
+      console.log("WS close: "+wsev.reason);
+    } else {
+      console.log("WS close");
+    }
+  } else if(type == 'open') {
+    console.log("WS connected");
+  }
+});
+
+// change play/pause item on WS status change
+$(document).on('wsstatus', function(ev, wsev, type, state) {
+  if(type == 'connect') {
+    $('#play-pause-icon').removeClass().addClass('icon-refresh icon-spin');
+  } else if(type == 'open') {
+    $('#play-pause-icon').removeClass().addClass('icon-pause');
+  } else if(state == WebSocket.CLOSED) {
+    $('#play-pause-icon').removeClass().addClass('icon-refresh');
+  }
+});
+
+// play/pause actions
+$('#play-pause-icon').click(function() {
+  var self = $(this);
+  if(self.hasClass('icon-refresh')) {
+    if(gs.ws.readyState == WebSocket.CLOSED) {
+      gs.start();
+    }
+  } else if(self.hasClass('icon-pause')) {
+    gs.callMethod('pause', { paused: true });
+    self.removeClass().addClass('icon-play');
+  } else if(self.hasClass('icon-play')) {
+    gs.callMethod('pause', { paused: false });
+    self.removeClass().addClass('icon-pause');
+  }
+});
+
+// reopen socket when clicking on WS status
+$('#ws-status').click(function() {
+  if(gs.ws.readyState == WebSocket.CLOSED) {
+    gs.start();
+  }
+});
+
+
 $(document).ready(function() {
+  // open WS socket, create portlets
   var hostname = $('<a>').prop('href', document.location).prop('hostname');
   if(!hostname) {
     hostname = 'localhost';

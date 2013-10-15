@@ -35,6 +35,11 @@ body {
 #toolbar > i:hover {
   background-color: #888;
 }
+/* the background spins too, don't change it on spinning icons */
+#toolbar > i.icon-spin:hover {
+  background-color: transparent;
+}
+
 
 #toolbar .clickmenu {
   font-size: 15px;
@@ -51,11 +56,11 @@ body {
   color: darkgray;
 }
 
-#ws-status-icon.status-ok {
+#ws-status-icon.status-opened {
   color: darkgreen;
 }
 
-#ws-status-icon.status-error {
+#ws-status-icon.status-closed {
   color: darkred;
 }
 
