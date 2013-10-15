@@ -14,6 +14,11 @@ Portlet.register({
     var object = this.content.children('object')[0];
     object.onload = function() {
       var field = object.getSVGDocument().getElementById('drawing');
+      // explicitely initialize object height, webkit does not compute it
+      // according to SVG viewBox ratio
+      var viewBox = field.viewBox.baseVal;
+      $(object).height($(object).width() * viewBox.height / viewBox.width);
+
       // create SVG robot
       var svg_robot = field.createElement('use');
       svg_robot.setAttributes({
