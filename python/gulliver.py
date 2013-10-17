@@ -1,10 +1,18 @@
 #!/usr/bin/env python2.7
 import sys
+import os
 import json
 import threading
 import time
+import posixpath
+import urllib
+import mimetypes
+import shutil
 from websocket import WebSocketServer, WebSocketRequestHandler
 from SocketServer import ThreadingMixIn
+
+if not mimetypes.inited:
+  mimetypes.init()
 
 
 class GulliverServer(ThreadingMixIn, WebSocketServer):
@@ -64,7 +72,7 @@ class GulliverRequestHandler(WebSocketRequestHandler):
     method -- message type
     params -- map of message parameters
 
-  When receiving a message with method 'method', the 'do_method' method is
+  When receiving a message with method 'method', the 'wsdo_method' method is
   called with 'params' as keyword parameters.
 
   Attributes:
@@ -73,35 +81,116 @@ class GulliverRequestHandler(WebSocketRequestHandler):
 
   """
 
-  def handle(self):
+  ws_prefix = 'ws'
+  files_prefix = 'gulliver'
+  files_base_path = None  # disabled
+  files_extensions = ['.html', '.css', '.js', '.svg']
+  files_index = 'gulliver.html'
+
+
+  def do_GET(self):
+    # remove query and normalize the path
+    path = self.path.split('?', 1)[0]
+    path = posixpath.normpath(urllib.unquote(path))
+    path = path.strip('/')
+    # handle websocket case
+    if path == self.ws_prefix:
+      return self.handle_websocket()
+
+    if self.files_base_path is None:
+      return self.send_error(404)
+
+    parts = path.split('/')
+    if parts.pop(0) != self.files_prefix:
+      return self.send_error(404)
+    if not len(parts):
+      # index
+      parts = self.files_index.split('/')
+
+    # build filesystem path from (sanitized) request path
+    fspath = self.files_base_path
+    for p in parts:
+      p = os.path.splitdrive(p)[1]
+      p = os.path.split(p)[1]
+      if p in (os.curdir, os.pardir):
+        continue
+      fspath = os.path.join(fspath, p)
+
+    # filter by extension
+    ext = os.path.splitext(fspath)[1]
+    if ext not in self.files_extensions:
+      return self.send_error(404)
+
+    try:
+      f = open(fspath, 'rb')
+    except IOError:
+      return self.send_error(404)
+    # send HTTP reply
+    mimetype = mimetypes.types_map.get(ext, 'application/octet-stream')
+    self.send_response(200)
+    self.send_header('Content-type', mimetype)
+    fstat = os.fstat(f.fileno())
+    self.send_header('Content-Length', str(fstat[6]))
+    self.send_header('Last-Modified', self.date_time_string(fstat.st_mtime))
+    self.end_headers()
+    # output file content
+    shutil.copyfileobj(f, self.wfile)
+    f.close()
+
+
+  def ws_setup(self):
     self.lock = threading.RLock()
     self.paused = True
-    WebSocketRequestHandler.handle(self)
 
-  def finish(self):
+  def ws_finish(self):
     with self.server.lock:
       self.server.requests.discard(self)
-    WebSocketRequestHandler.finish(self)
 
   def send_event(self, name, params):
     """Send an event"""
     with self.lock:
-      self.send_frame(1, json.dumps({'event': name, 'params': params}))
+      self.ws_send_frame(1, json.dumps({'event': name, 'params': params}))
 
   def on_message(self, fo):
     data = json.load(fo)
-    getattr(self, 'do_'+data['method'].replace('-', '_'))(**data['params'])
+    getattr(self, 'wsdo_'+data['method'].replace('-', '_'))(**data['params'])
 
-
-  def do_init(self):
+  def wsdo_init(self):
     """Initialize a client"""
     self.paused = False
     with self.server.lock:
       self.server.requests.add(self)
 
-  def do_pause(self, paused):
+  def wsdo_pause(self, paused):
     """Pause or unpause a client"""
     self.paused = bool(paused)
+
+
+  def handle_file(self, path):
+    """Serve a GUI file"""
+
+    # get file path from 
+    def translate_path(self, path):
+        """Translate a /-separated PATH to the local filename syntax.
+
+        Components that mean special things to the local file system
+        (e.g. drive or directory names) are ignored.  (XXX They should
+        probably be diagnosed.)
+
+        """
+        # abandon query parameters
+        path = path.split('?',1)[0]
+        path = path.split('#',1)[0]
+        path = posixpath.normpath(urllib.unquote(path))
+        words = path.split('/')
+        words = filter(None, words)
+        path = os.getcwd()
+        for word in words:
+            drive, word = os.path.splitdrive(word)
+            head, word = os.path.split(word)
+            if word in (os.curdir, os.pardir): continue
+            path = os.path.join(path, word)
+        return path
 
 
 class TickThread(threading.Thread):
@@ -125,10 +214,15 @@ class TickThread(threading.Thread):
 def main():
   import argparse
   parser = argparse.ArgumentParser()
+  parser.add_argument('--web-dir',
+      help="path to web files")
   parser.add_argument('port', type=int,
       help="gulliver WebSocket server port")
 
   args = parser.parse_args()
+  if args.web_dir:
+    GulliverRequestHandler.files_base_path = os.path.abspath(args.web_dir)
+
   print "starting server on port %d" % args.port
   server = GulliverServer(('', args.port))
   TickThread(0.1, server.on_robot_event).start() #XXX

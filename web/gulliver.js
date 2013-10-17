@@ -344,7 +344,7 @@ $(document).ready(function() {
   if(!hostname) {
     hostname = 'localhost';
   }
-  gs.start("ws://"+hostname+":2080/");
+  gs.start("ws://"+hostname+":2080/ws");
 
   Portlet.loadAll(['coordinates', 'field', 'graph']).done(function() {
     // create menu to add portlets
