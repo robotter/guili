@@ -1,33 +1,14 @@
 #!/usr/bin/env python2.7
 import sys
 import BaseHTTPServer
-import SocketServer
-import httplib
-import urllib
-import mimetools
 import hashlib
 import base64
 import struct
-import time
 
 
-class WebSocketServer(SocketServer.TCPServer):
-  allow_reuse_address = 1
+class WebSocketServer(BaseHTTPServer.HTTPServer):
+  pass
 
-  def log(self, fmt, *args):
-    """Log a single message"""
-    date = time.strftime("%H:%M:%S")
-    sys.stderr.write("%s - %s\n" % (date, fmt % args))
-
-
-class WebSocketHttpError(Exception):
-  def __init__(self, code, msg=None):
-    self.code = code
-    if msg is None:
-      msg = httplib.responses[code]
-    self.msg = msg
-  def __str__(self):
-    return "(%d) %s" % (self.code, self.msg)
 
 class WebSocketCloseFrame(Exception):
   """Exception raised to close the connection"""
@@ -38,21 +19,16 @@ class WebSocketCloseFrame(Exception):
     return "(%d) %s" % (self.status, self.reason)
 
 
-class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
+class WebSocketRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   """
-  Handle WebSocket connections
-
-  Attributes:
-    close_connection -- set to True to close the connection
-
+  Add WebSocket support to an HTTP request handler
   """
 
-  MAX_CONTROL_PAYLOAD_LEN = 1024
-  # maximume message payload length (prevent DoS with very long messages)
-  MAX_PAYLOAD_LEN = 1024**2
+  WS_MAX_CONTROL_PAYLOAD_LEN = 1024
+  # maximum message payload length (prevent DoS with very long messages)
+  WS_MAX_PAYLOAD_LEN = 1024**2
 
-
-  class MessageFileObject(object):
+  class WebSocketMessageFileObject(object):
     """File object class for reading messages"""
 
     def __init__(self, handler):
@@ -86,7 +62,7 @@ class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
 
         # read frame data
         nread = self._len if n is None else min(n, self._len)
-        ret += self._h.read_masked(self._key, nread, self._offset)
+        ret += self._h.ws_read_masked(self._key, nread, self._offset)
         nread = len(ret)
         if n is not None:
           n -= nread
@@ -105,13 +81,13 @@ class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
       Return frame's opcode.
       """
       while True:
-        fin, opcode, key, pl_len = self._h.parse_frame()
+        fin, opcode, key, pl_len = self._h.ws_parse_frame()
         if opcode & 0x8:
-          self._h.process_control_frame(opcode, key, pl_len)
+          self._h.ws_process_control_frame(opcode, key, pl_len)
         else:
           break
       self._total_len += pl_len
-      if self._total_len > self._h.MAX_PAYLOAD_LEN:
+      if self._total_len > self._h.WS_MAX_PAYLOAD_LEN:
         raise WebSocketCloseFrame(1009, "payload is too large")
       self._fin, self._key, self._len = fin, key, pl_len
       self._offset = 0  # offset, for key
@@ -131,88 +107,67 @@ class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
     raise WebSocketCloseFrame(status, reason)
 
 
-  def handle(self):
-    """Parse a request"""
-
-    self.log("new connection")
-
-    # process handshake
-    try:
-      self.handle_handshake()
-    except WebSocketHttpError as e:
-      return self.send_http_error(e.code, e.msg)
-    except Exception as e:
-      return self.send_http_error(500, str(e))
-
-    # process frames/messages
-    try:
-      while True:
-        fo = self.MessageFileObject(self)
-        self.on_message(fo)
-        fo.read()  # consume remaining message data
-    except WebSocketCloseFrame as e:
-      return self.send_close_frame(e.status, e.reason)
-    except Exception as e:
-      return self.send_close_frame(1008, str(e))
-
-
-  def handle_handshake(self):
-    """Handle WebSocket handshake from client"""
-    request_line = self.rfile.readline()
-    if not request_line:
-      raise ValueError("no request")
-    l = request_line.rstrip('\r\n').split()
-    if len(l) != 3:
-      raise WebSocketHttpError(400, "invalid request line")
-    method, uri, version = l
-
-    # check version (at least 1.1)
-    if not version.startswith('HTTP/'):
-      raise WebSocketHttpError(400, "invalid version string: %r" % version)
-    try:
-      version = float(version[5:])
-    except ValueError:
-      raise WebSocketHttpError(400, "invalid version number: %r" % version[5:])
-    if version < 1.1:
-      raise WebSocketHttpError(505, "unsupported version")
-    # check method (must be GET)
-    if method != 'GET':
-      raise WebSocketHttpError(405, "unsupported method: %r" % method)
-    # parse/decode resource name
-    self.resource_name = urllib.unquote(uri)
+  def handle_websocket(self):
+    if self.request_version != 'HTTP/1.1':
+      return self.send_error(400, "Bad request version (%r)" % self.request_version)
 
     # parse headers
     #TODO 'Host' header is ignored
     #TODO 'Origin' header is ignored
-    self.headers = mimetools.Message(self.rfile, 0)
     if self.headers.get('Upgrade', '').lower() != 'websocket':
-      raise WebSocketHttpError(400, "invalid 'Upgrade' header")
+      return self.send_error(400, "Invalid 'Upgrade' header")
     if 'upgrade' not in (s.strip() for s in self.headers.get('Connection', '').lower().split(',')):
-      raise WebSocketHttpError(400, "invalid 'Connection' header")
+      return self.send_error(400, "invalid 'Connection' header")
     if self.headers.get('Sec-WebSocket-Version') != '13':
-      raise WebSocketHttpError(400, "invalid 'Sec-WebSocket-Version' header")
+      return self.send_error(400, "Invalid 'Sec-WebSocket-Version' header")
     # Sec-WebSocket-Key (no need to decode it)
     websocket_key = self.headers.get('Sec-WebSocket-Key')
     if websocket_key is None:
-      raise WebSocketHttpError(400, "missing 'Sec-WebSocket-Key' header")
+      return self.send_error(400, "Missing 'Sec-WebSocket-Key' header")
 
-    # reply
+    # reply, end handshake
     key_hash = hashlib.sha1()
     key_hash.update(websocket_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')
-    self.send_http_response(101, 'Switching Protocols', {
-      'Upgrade': 'websocket',
-      'Connection': 'Upgrade',
-      'Sec-WebSocket-Accept': base64.b64encode(key_hash.digest()),
-      })
+    self.send_response(101, 'Switching Protocols')
+    self.send_header('Upgrade', 'websocket')
+    self.send_header('Connection', 'Upgrade')
+    self.send_header('Sec-WebSocket-Accept', base64.b64encode(key_hash.digest()))
+    self.end_headers()
+    self.log_message("WebSocket handshake successful")
+
+    # from now, request will use WebSocket protocol
+    # process frames/messages and don't return
+    self.ws_setup()
+    try:
+      while True:
+        fo = self.WebSocketMessageFileObject(self)
+        self.on_message(fo)
+        fo.read()  # consume remaining message data
+    except WebSocketCloseFrame as e:
+      return self.ws_send_close_frame(e.status, e.reason)
+    except Exception as e:
+      return self.ws_send_close_frame(1008, str(e))
+    finally:
+      self.ws_finish()
+      self.close_connection = 1
 
 
-  def read_masked(self, key, n, offset=0):
+  def ws_setup(self):
+    """Called before after WebSocket handshake"""
+    pass
+
+  def ws_finish(self):
+    """Called before closing a WebSocket connection"""
+    pass
+
+
+  def ws_read_masked(self, key, n, offset=0):
     """Read data and unmask it"""
     data = self.rfile.read(n)
     return ''.join(chr(ord(c) ^ key[i%4]) for i,c in enumerate(data, offset))
 
 
-  def parse_frame(self):
+  def ws_parse_frame(self):
     """Parse a single frame from client
     Return a (fin, opcode, masking_key, payload_len) tuple.
     """
@@ -244,7 +199,7 @@ class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
     return fin, opcode, masking_key, payload_len
 
 
-  def send_frame(self, opcode, data, fin=True):
+  def ws_send_frame(self, opcode, data, fin=True):
     """Send a frame"""
 
     b1 = opcode
@@ -265,47 +220,30 @@ class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
     self.wfile.write(data)
 
 
-  def send_close_frame(self, status, reason=None):
+  def ws_send_close_frame(self, status, reason=None):
     """Send a close control frame"""
     data = struct.pack('>H', status)
     if reason is not None:
       data += reason.encode('utf-8')
-    self.send_frame(0x8, data)
-    self.log("closing connection: (%d) %s", status, reason)
+    self.ws_send_frame(0x8, data)
+    self.log_message("Closing connection: (%d) %s", status, reason)
 
 
-  def send_http_response(self, code, message=None, headers=None):
-    """Send HTTP response"""
-    if message is None:
-      message = httplib.responses[code]
-    self.wfile.write("%s %d %s\r\n" % ('HTTP/1.1', code, message))
-    for kv in headers.items():
-      self.wfile.write("%s: %s\r\n" % kv)
-    self.wfile.write("\r\n")
-
-  def send_http_error(self, code, reason):
-    self.log("HTTP error: (%d) %s", code, reason)
-    self.send_http_response(code, None, {
-      'Content-Type': 'text/plain',
-      'Connection': 'close',
-      })
-
-
-  def process_control_frame(self, opcode, masking_key, payload_len):
-    if payload_len > self.MAX_CONTROL_PAYLOAD_LEN:
+  def ws_process_control_frame(self, opcode, masking_key, payload_len):
+    if payload_len > self.WS_MAX_CONTROL_PAYLOAD_LEN:
       raise WebSocketCloseFrame(1009, "control frame is too large")
-    payload = self.read_masked(masking_key, payload_len)
+    payload = self.ws_read_masked(masking_key, payload_len)
     if opcode == 0x8:
-      self.process_close_frame(payload)
+      self.ws_process_close_frame(payload)
     elif opcode == 0x9:
-      self.process_ping_frame(payload)
+      self.ws_process_ping_frame(payload)
     elif opcode == 0xA:
-      self.process_pong_frame(payload)
+      self.ws_process_pong_frame(payload)
     else:
       raise WebSocketCloseFrame(1002, "unsupported control frame opcode: 0x%X" % opcode)
 
 
-  def process_close_frame(self, data):
+  def ws_process_close_frame(self, data):
     n = len(data)
     if not n:
       return
@@ -319,23 +257,17 @@ class WebSocketRequestHandler(SocketServer.StreamRequestHandler):
     # send reply
     raise WebSocketCloseFrame(status, "close frame received")
 
-  def process_ping_frame(self, data):
-    self.send_frame(0xA, data)
+  def ws_process_ping_frame(self, data):
+    self.ws_send_frame(0xA, data)
 
-  def process_pong_frame(self, data):
+  def ws_process_pong_frame(self, data):
     pass
-
-
-  def log(self, fmt, *args):
-    """Log a single message"""
-    date = time.strftime("%H:%M:%S")
-    source = '%s:%s' % self.client_address
-    sys.stderr.write("%s [%s] - %s\n" % (date, source, fmt % args))
-
 
 
 def main():
   class RequestHandler(WebSocketRequestHandler):
+    def do_GET(self):
+      return self.handle_websocket()
     def on_message(self, fo):
       s = "received message: %r" % fo.read()
       self.send_frame(1, s)
