@@ -15,9 +15,9 @@ if not mimetypes.inited:
   mimetypes.init()
 
 
-class GulliverServer(ThreadingMixIn, WebSocketServer):
+class GuiliServer(ThreadingMixIn, WebSocketServer):
   """
-  Gulliver application server
+  Guili application server
 
   Attributes:
     lock -- lock for concurrent accesses
@@ -29,7 +29,7 @@ class GulliverServer(ThreadingMixIn, WebSocketServer):
     self.data = None
     self.requests = set()
     self.lock = threading.RLock()
-    WebSocketServer.__init__(self, addr, GulliverRequestHandler)
+    WebSocketServer.__init__(self, addr, GuiliRequestHandler)
     self._gen_data = self.gen_data() #XXX
 
   def on_new_data(self, data):
@@ -64,9 +64,9 @@ class GulliverServer(ThreadingMixIn, WebSocketServer):
 
 
 
-class GulliverRequestHandler(WebSocketRequestHandler):
+class GuiliRequestHandler(WebSocketRequestHandler):
   """
-  Gulliver request handler
+  Guili request handler
 
   Messages are json-encoded maps with the following fields:
     method -- message type
@@ -82,10 +82,10 @@ class GulliverRequestHandler(WebSocketRequestHandler):
   """
 
   ws_prefix = 'ws'
-  files_prefix = 'gulliver'
+  files_prefix = 'guili'
   files_base_path = None  # disabled
   files_extensions = ['.html', '.css', '.js', '.svg']
-  files_index = 'gulliver.html'
+  files_index = 'guili.html'
 
 
   def do_GET(self):
@@ -217,14 +217,14 @@ def main():
   parser.add_argument('--web-dir',
       help="path to web files")
   parser.add_argument('port', type=int,
-      help="gulliver WebSocket server port")
+      help="guili WebSocket server port")
 
   args = parser.parse_args()
   if args.web_dir:
-    GulliverRequestHandler.files_base_path = os.path.abspath(args.web_dir)
+    GuiliRequestHandler.files_base_path = os.path.abspath(args.web_dir)
 
   print "starting server on port %d" % args.port
-  server = GulliverServer(('', args.port))
+  server = GuiliServer(('', args.port))
   TickThread(0.1, server.on_robot_event).start() #XXX
   server.serve_forever()
 
