@@ -35,7 +35,7 @@ Portlet.register({
 
     // create the view menu
     {
-      var icon = $('<i class="icon-eye-open" />').prependTo(this.header);
+      var icon = $('<i class="fa fa-eye" />').prependTo(this.header);
       var menu = $('<ul class="portlet-header-menu" />').appendTo(this.header);
       for(var i=0; i<this.views.length; ++i) {
         var view = this.views[i];

@@ -97,9 +97,9 @@ Portlet.prototype = {
   // In fact, it should be called after subclass initialization.
   init: function(options) {
     var self = this;
-    var handle = this.node.find('.portlet-header .icon-move');
+    var handle = this.node.find('.portlet-header .fa-arrows');
     this.node.draggable({ containment: 'parent', handle: handle, snap: true, snapTolerance: 5 });
-    this.node.find('.portlet-header .icon-remove').click(function() {
+    this.node.find('.portlet-header .fa-times').click(function() {
       self.destroy();
     });
   },
@@ -269,19 +269,19 @@ $(document).on('wsstatus', function(ev, wsev, type, state) {
   var text;
   switch(state) {
     case WebSocket.CONNECTING:
-      classes = 'status-neutral icon-spinner icon-spin';
+      classes = 'status-neutral fa fa-spinner fa-spin';
       text = 'connecting...';
       break;
     case WebSocket.OPEN:
-      classes = 'status-opened icon-circle';
+      classes = 'status-opened fa fa-circle';
       text = 'connected';
       break;
     case WebSocket.CLOSING:
-      classes = 'status-closed icon-circle';
+      classes = 'status-closed fa fa-circle';
       text = 'closing...'
       break;
     case WebSocket.CLOSED:
-      classes = 'status-closed icon-circle';
+      classes = 'status-closed fa fa-circle';
       text = 'disconnected'
       break;
   }
@@ -306,27 +306,27 @@ $(document).on('wsstatus', function(ev, wsev, type, state) {
 // change play/pause item on WS status change
 $(document).on('wsstatus', function(ev, wsev, type, state) {
   if(type == 'connect') {
-    $('#play-pause-icon').removeClass().addClass('icon-refresh icon-spin');
+    $('#play-pause-icon').removeClass().addClass('fa fa-refresh fa-spin');
   } else if(type == 'open') {
-    $('#play-pause-icon').removeClass().addClass('icon-pause');
+    $('#play-pause-icon').removeClass().addClass('fa fa-pause');
   } else if(state == WebSocket.CLOSED) {
-    $('#play-pause-icon').removeClass().addClass('icon-refresh');
+    $('#play-pause-icon').removeClass().addClass('fa fa-refresh');
   }
 });
 
 // play/pause actions
 $('#play-pause-icon').click(function() {
   var self = $(this);
-  if(self.hasClass('icon-refresh')) {
+  if(self.hasClass('fa-refresh')) {
     if(gs.ws.readyState == WebSocket.CLOSED) {
       gs.start();
     }
-  } else if(self.hasClass('icon-pause')) {
+  } else if(self.hasClass('fa-pause')) {
     gs.callMethod('pause', { paused: true });
-    self.removeClass().addClass('icon-play');
-  } else if(self.hasClass('icon-play')) {
+    self.removeClass().addClass('fa fa-play');
+  } else if(self.hasClass('fa-play')) {
     gs.callMethod('pause', { paused: false });
-    self.removeClass().addClass('icon-pause');
+    self.removeClass().addClass('fa fa-pause');
   }
 });
 
