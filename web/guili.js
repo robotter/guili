@@ -67,9 +67,17 @@ var gs = {
     this.ws.send(JSON.stringify({'method': name, 'params': params}));
   },
 
+  // send a ROME message
+  sendRome: function(name, params) {
+    this.callMethod('rome', { 'name': name, 'params': params });
+  },
+
   // event handlers
   event_handler: {
     data: function(params) { Portlet.updateAll(params.data); },
+    messages: function(params) {
+      $.event.trigger('rome-messages', [params.messages]);
+    },
   },
 
 };
@@ -346,7 +354,7 @@ $(document).ready(function() {
   }
   gs.start("ws://"+hostname+":2080/ws");
 
-  Portlet.loadAll(['coordinates', 'field', 'graph']).done(function() {
+  Portlet.loadAll(['coordinates', 'field', 'graph', 'console']).done(function() {
     // create menu to add portlets
     {
       var icon = $('#add-portlet-icon');
@@ -373,6 +381,7 @@ $(document).ready(function() {
     Portlet.create(container, 'coordinates');
     Portlet.create(container, 'field');
     Portlet.create(container, 'graph', { view: 'position' });
+    Portlet.create(container, 'console');
   });
 
 });

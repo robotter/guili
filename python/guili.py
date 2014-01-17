@@ -25,12 +25,19 @@ class GuiliServer(ThreadingMixIn, WebSocketServer):
 
   """
 
+  daemon_threads = True
+
   def __init__(self, addr):
     self.data = None
     self.requests = set()
     self.lock = threading.RLock()
     WebSocketServer.__init__(self, addr, GuiliRequestHandler)
     self._gen_data = self.gen_data() #XXX
+    #XXX
+    self.messages = {
+        'goto_xy': [('x', 'int16'), ('y', 'int16')],
+        'dummy': [],
+        }
 
   def on_new_data(self, data):
     with self.lock:
@@ -61,6 +68,9 @@ class GuiliServer(ThreadingMixIn, WebSocketServer):
       data['robot']['x'] = r * math.cos(2*i*math.pi/N)
       data['robot']['y'] = r * math.sin(2*i*math.pi/N)
       yield data
+
+  def rome_goto_xy(self, x, y):
+    print "received goto_xy(%r, %r)" % (x, y)
 
 
 
@@ -153,7 +163,10 @@ class GuiliRequestHandler(WebSocketRequestHandler):
 
   def on_message(self, fo):
     data = json.load(fo)
-    getattr(self, 'wsdo_'+data['method'].replace('-', '_'))(**data['params'])
+    try:
+      getattr(self, 'wsdo_'+data['method'].replace('-', '_'))(**data['params'])
+    except Exception:
+      pass #TODO send back error
 
   def wsdo_init(self):
     """Initialize a client"""
@@ -164,6 +177,14 @@ class GuiliRequestHandler(WebSocketRequestHandler):
   def wsdo_pause(self, paused):
     """Pause or unpause a client"""
     self.paused = bool(paused)
+
+  def wsdo_rome(self, name, params):
+    """Send a ROME message"""
+    getattr(self.server, 'rome_'+name)(**params)
+
+  def wsdo_rome_messages(self):
+    """Send ROME message definitions"""
+    self.send_event('messages', {'messages': self.server.messages})
 
 
 class TickThread(threading.Thread):
