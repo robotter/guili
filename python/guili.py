@@ -166,33 +166,6 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     self.paused = bool(paused)
 
 
-  def handle_file(self, path):
-    """Serve a GUI file"""
-
-    # get file path from 
-    def translate_path(self, path):
-        """Translate a /-separated PATH to the local filename syntax.
-
-        Components that mean special things to the local file system
-        (e.g. drive or directory names) are ignored.  (XXX They should
-        probably be diagnosed.)
-
-        """
-        # abandon query parameters
-        path = path.split('?',1)[0]
-        path = path.split('#',1)[0]
-        path = posixpath.normpath(urllib.unquote(path))
-        words = path.split('/')
-        words = filter(None, words)
-        path = os.getcwd()
-        for word in words:
-            drive, word = os.path.splitdrive(word)
-            head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir): continue
-            path = os.path.join(path, word)
-        return path
-
-
 class TickThread(threading.Thread):
   """
   Dummy thread to trigger periodic GulliServer.on_robot_event() calls
