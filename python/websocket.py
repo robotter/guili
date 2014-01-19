@@ -98,7 +98,7 @@ class WebSocketRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """Method called to handle messages
     fo is a file object from which message data can be read.
     """
-    return NotImplemented
+    raise NotImplementedError()
 
   def close(self, status, reason=None):
     """Send a close frame and close the connection
