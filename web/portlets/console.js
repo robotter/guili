@@ -1,3 +1,30 @@
+/*
+ * Console use a Web Worker to execute commands in a sandboxed environment.
+ *
+ * Main and worker threads communicate using messages. Message data is an
+ * Object with (at least) a method property giving the type of the message.
+ * Other properties depend on the method.
+ * - main -> worker
+ *   - id: unique ID identifying the message
+ *   Methods and their parameters are given below
+ *     - eval: evaluate a Javascript expression
+ *       - code: code to execute (string)
+ *     - scope: add values to worker scope
+ *       - scope: Object to merge to current scope
+ *     - complete: autocomplete given dotted variable
+ *       - variable: a dotted variable name
+ * - worker -> main
+ *   - response: response to a message
+ *     - id: id of the origin message
+ *     - data: response data (depends on method)
+ *     - error: error message string, in case of error
+ *   - log: a message to log to the browser console (used for debug)
+ *     - data: data to log
+ *   - rome: a ROME message to send
+ *     - name: name of the ROME message
+ *     - params: ROME message parameters as an Object
+ */
+
 
 Portlet.register({
   name: 'console',
@@ -14,16 +41,16 @@ Portlet.register({
 
     this.worker.onmessage = function(ev) {
       var data = ev.data;
-      var type = data.type;
-      if(type == 'response') {
+      var method = data.method;
+      if(method == 'response') {
         var cb = self.callbacks[data.id];
         if(cb) {
           delete self.callbacks[data.id];
           cb(data);
         }
-      } else if(type == 'rome') {
-        gs.sendRome(data.name, data.params);
-      } else if(type == 'log') {
+      } else if(method == 'rome') {
+        gs.sendRomeMessage(data.name, data.params);
+      } else if(method == 'log') {
         console.log(data.data);  // for debug
       }
     };
@@ -31,7 +58,11 @@ Portlet.register({
     this.worker.send = function(method, params, cb) {
       var id = self.request_id++;
       self.callbacks[id] = cb;
-      this.postMessage({ id: id, method: method, params: params });
+      var data = { id: id, method: method };
+      for(var k in params) {
+        data[k] = params[k];
+      }
+      this.postMessage(data);
     };
 
     $(document).on('rome-messages', function(ev, messages) {
@@ -127,7 +158,7 @@ Portlet.register({
   },
 
   completeCurrent: function() {
-    // display a list of autocomplete suggestions for current input
+    // complete suggestions for current input
     var input = this.input;
     var text = input.val();
     var start = input[0].selectionStart;

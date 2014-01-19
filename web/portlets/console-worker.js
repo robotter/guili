@@ -10,7 +10,7 @@
   var postMessage = self.postMessage;
 
   // for debug
-  var log = function(data) { postMessage({ type: 'log', data: data }); };
+  var log = function(data) { postMessage({ method: 'log', data: data }); };
 
   // pack positional message parameters into an object
   var packRomeParams = function(msg, args) {
@@ -79,25 +79,24 @@
   var message_handler = function(ev) {
     var request = ev.data;
     var method = request.method;
-    var params = request.params;
 
-    var response = { type: 'response', id: request.id };
+    var response = { method: 'response', id: request.id };
     try {
       if(method == 'eval') {
         // evaluate an expression
-        response.data = stringify(myeval(params.code));
+        response.data = stringify(myeval(request.code));
 
       } else if(method == 'scope') {
         // add values to worker scope
-        for(var k in params.scope) {
-          self[k] = params.scope[k];
+        for(var k in request.scope) {
+          self[k] = request.scope[k];
         }
 
       } else if(method == 'complete') {
         // autocomplete the given dotted variable
         // return a list of suggestions
         var v = self;
-        var words = params.variable.split('.');
+        var words = request.variable.split('.');
         var last = words.pop();
         for(var i; i<words.length; i++) {
           v = self[words[k]];
@@ -126,17 +125,17 @@
         }
         // define new ones
         self.rome = {};
-        for(var k in params.messages) {
+        for(var k in request.messages) {
           (function() {
             var name = k;
-            var ptypes = params.messages[k];
+            var ptypes = request.messages[k];
             var msg = { name: k, ptypes: ptypes, name2type: {} };
             for(var i=0; i<ptypes.length; i++) {
               var p = ptypes[i];
               msg.name2type[p[0]] = p[1];
             }
             self.rome[k] = function() {
-              postMessage({ type: 'rome', name: name, params: packRomeParams(msg, arguments) });
+              postMessage({ method: 'rome', name: name, params: packRomeParams(msg, arguments) });
             };
             if(self[k] === undefined) {
               self[k] = self.rome[k];

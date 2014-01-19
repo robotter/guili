@@ -12,7 +12,7 @@ Number.prototype.toFixedHtml = function(n) {
 /*
  * WebSocket
  *
- * A custom 'wsstatus' event is triggered on WebSocket status change.
+ * A custom 'ws-status' event is triggered on WebSocket status change.
  * The following event parameters are provided:
  *   WebSocket event (null if type is 'connect')
  *   event type ('open', 'error', 'close' or 'connect')
@@ -42,9 +42,9 @@ var gs = {
     this.callMethod('init', {});
   },
 
-  // trigger a wsstatus event
+  // trigger a ws-status event
   triggerStatusEvent: function(ev, type) {
-    $.event.trigger('wsstatus', [ev, type, this.ws.readyState]);
+    $.event.trigger('ws-status', [ev, type, this.ws.readyState]);
   },
 
   // WebSocket onmessage handler
@@ -64,12 +64,12 @@ var gs = {
 
   // send a method call
   callMethod: function(name, params) {
-    this.ws.send(JSON.stringify({'method': name, 'params': params}));
+    this.ws.send(JSON.stringify({method: name, params: params}));
   },
 
   // send a ROME message
-  sendRome: function(name, params) {
-    this.callMethod('rome', { 'name': name, 'params': params });
+  sendRomeMessage: function(name, params) {
+    this.callMethod('rome', { name: name, params: params });
   },
 
   // event handlers
@@ -275,7 +275,7 @@ Portlet.instances = [];
 /*****/
 
 // set handler for WS status display
-$(document).on('wsstatus', function(ev, wsev, type, state) {
+$(document).on('ws-status', function(ev, wsev, type, state) {
   var classes;
   var text;
   switch(state) {
@@ -315,7 +315,7 @@ $(document).on('wsstatus', function(ev, wsev, type, state) {
 });
 
 // change play/pause item on WS status change
-$(document).on('wsstatus', function(ev, wsev, type, state) {
+$(document).on('ws-status', function(ev, wsev, type, state) {
   if(type == 'connect') {
     $('#play-pause-icon').removeClass().addClass('fa fa-refresh fa-spin');
   } else if(type == 'open') {
