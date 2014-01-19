@@ -93,6 +93,27 @@
           self[k] = params.scope[k];
         }
 
+      } else if(method == 'complete') {
+        // autocomplete the given dotted variable
+        // return a list of suggestions
+        var v = self;
+        var words = params.variable.split('.');
+        var last = words.pop();
+        for(var i; i<words.length; i++) {
+          v = self[words[k]];
+          if(! v instanceof Object) {
+            break;
+          }
+        }
+        if(v instanceof Object) {
+          response.data = Object.keys(v).filter(function(k) {
+            return k.substring(0, last.length) == last;
+          });
+          response.data.sort();
+        } else {
+          response.data = [];
+        }
+
       } else if(method == 'messages') {
         // defined ROME messages
         if(self.rome instanceof Object) {

@@ -66,8 +66,10 @@ Portlet.register({
           self.history_index = self.history.length;
           self.input.val("");
         }
-        ev.stopPropagation();
-
+      } else if(ev.keyCode == 9) {
+        // tab: autocomplete
+        ev.preventDefault();
+        self.completeCurrent();
       } else if(ev.keyCode == 38) {
         // up: previous history entry
         if(self.history_index == self.history.length) {
@@ -87,7 +89,10 @@ Portlet.register({
             self.input.val(self.history[self.history_index]);
           }
         }
+      } else {
+        return; // skip stopPropagation()
       }
+      ev.stopPropagation();
     });
 
     $(document).on('ws-log', function(ev, sev, msg) {
@@ -118,6 +123,39 @@ Portlet.register({
         out.append("=> "+ev.data);
       }
       backlog.scrollTop(backlog[0].scrollHeight);
+    });
+  },
+
+  completeCurrent: function() {
+    // display a list of autocomplete suggestions for current input
+    var input = this.input;
+    var text = input.val();
+    var start = input[0].selectionStart;
+    if(start != input[0].selectionEnd) {
+      return;
+    }
+    var text_end = text.substring(start);
+    var m = text.substring(0, start).match(/((?:[a-zA-Z_]\w*\.)*)([a-zA-Z_]\w*)?$/);
+    if(m === null) {
+      return;
+    }
+    this.worker.send('complete', { variable: m[0] }, function(ev) {
+      var words = ev.data;
+      start -= (m[2] || '').length;
+      if(words.length == 0) {
+        return; // nothing to do
+      } if(words.length == 1) {
+        m[2] = words[0];
+      } else {
+        // find longest common prefix
+        var wfirst = words[0];
+        var wlast = words[words.length-1];
+        var i;
+        for(i=0; wfirst.charAt(i) == wlast.charAt(i); i++) ;
+        m[2] = wfirst.substring(0, i);
+      }
+      input.val(m[1] + m[2] + text_end);
+      input[0].selectionStart = input[0].selectionEnd = start + m[2].length
     });
   },
 
