@@ -176,3 +176,19 @@ div.portlet-console-entry {
   border-bottom: 1px solid #888;
 }
 
+.portlet-console-backlog .log-error {
+  background-color: #ffd0d0;
+}
+
+.portlet-console-backlog .log-warning {
+  background-color: #ffffd0;
+}
+
+.portlet-console-backlog .log-info {
+  background-color: #e0e0ff;
+}
+
+.portlet-console-backlog .log-debug {
+  background-color: #f0f0f0;
+}
+

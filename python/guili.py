@@ -165,8 +165,8 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     data = json.load(fo)
     try:
       getattr(self, 'wsdo_'+data['method'].replace('-', '_'))(**data['params'])
-    except Exception:
-      pass #TODO send back error
+    except Exception as e:
+      self.send_event('log', {'severity': 'error', 'message': str(e)})
 
   def wsdo_init(self):
     """Initialize a client"""

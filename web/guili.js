@@ -78,6 +78,9 @@ var gs = {
     messages: function(params) {
       $.event.trigger('rome-messages', [params.messages]);
     },
+    log: function(params) {
+      $.event.trigger('ws-log', [params.severity, params.message]);
+    },
   },
 
 };

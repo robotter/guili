@@ -90,6 +90,11 @@ Portlet.register({
       }
     });
 
+    $(document).on('ws-log', function(ev, sev, msg) {
+      var entry = $('<div class="portlet-console-entry" />').appendTo(self.backlog);
+      entry.addClass('log-'+sev).append(msg);
+    });
+
     // create the clean icon
     $('<i class="fa fa-trash-o" />').prependTo(this.header).click(function() {
       self.backlog.empty();
@@ -108,7 +113,7 @@ Portlet.register({
     this.worker.send('eval', {code: text}, function(ev) {
       var out = $('<div class="portlet-console-output" />').appendTo(entry);
       if(ev.error) {
-        out.css('color', 'red').append(ev.error);
+        out.addClass('log-error').append(ev.error);
       } else {
         out.append("=> "+ev.data);
       }
