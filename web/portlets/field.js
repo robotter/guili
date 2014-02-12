@@ -49,19 +49,22 @@ Portlet.register({
       self.svg_robot = svg_robot;
       self.svg_velocity = svg_velocity;
 
+      self.bindFrame('asserv_tm_xya', self.updatePosition);
+
       df.resolve();
     };
+
     return df.promise();
   },
 
-  update: function(data) {
+  updatePosition: function(params) {
     this.svg_robot.setAttributes({
-      'transform': "translate("+data.robot.x+","+data.robot.y+")",
+      'transform': "translate("+params.x+","+params.y+")",
     });
 
     this.svg_velocity.setAttributes({
-      'x1': data.robot.x, 'y1': data.robot.y,
-      'x2': data.robot.x + data.robot.vx, 'y2': data.robot.y + data.robot.vy,
+      'x1': params.x, 'y1': params.y,
+      'x2': params.x + 100, 'y2': params.y + 100,
     });
   },
 

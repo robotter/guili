@@ -137,10 +137,6 @@ Portlet.register({
     });
   },
 
-  update: function(data) {
-    // nothing to do
-  },
-
   validateInput: function(text) {
     var backlog = this.backlog;
     var entry = $('<div class="portlet-console-entry" />').appendTo(backlog);

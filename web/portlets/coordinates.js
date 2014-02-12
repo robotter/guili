@@ -3,14 +3,13 @@ Portlet.register({
   name: 'coordinates',
   pretty_name: 'Coordinates',
 
-  update: function(data) {
-    var tds = this.content.find('td');
-    $(tds[0]).text(data.robot.x.toFixedHtml(0));
-    $(tds[1]).text(data.robot.y.toFixedHtml(0));
-    $(tds[2]).text(data.robot.vx.toFixedHtml(0));
-    $(tds[3]).text(data.robot.vy.toFixedHtml(0));
-    $(tds[4]).text(data.robot.ax.toFixedHtml(0));
-    $(tds[5]).text(data.robot.ay.toFixedHtml(0));
+  init: function(options) {
+    Portlet.prototype.init.call(this, options);
+    this.bindFrame('asserv_tm_xya', function(params) {
+      var tds = this.content.find('td');
+      $(tds[0]).text(params.x.toFixedHtml(0));
+      $(tds[1]).text(params.y.toFixedHtml(0));
+    });
   },
 });
 

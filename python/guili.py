@@ -149,11 +149,12 @@ class GuiliServer(ThreadingMixIn, WebSocketServer):
     self.lock = threading.RLock()
     WebSocketServer.__init__(self, addr, self.GuiliRequestHandlerClass)
 
-  def on_new_data(self, data):
+  def on_frame(self, frame):
+    data = {'name': frame.msg.name, 'params': dict(zip(frame.params._fields, frame.params))}
     with self.lock:
       for r in self.requests:
         if not r.paused:
-          r.send_event('data', {'data': data})
+          r.send_event('frame', data)
 
   def start(self):
     self.serve_forever()
@@ -170,7 +171,7 @@ class TestGuiliServer(GuiliServer):
 
   def __init__(self, addr):
     GuiliServer.__init__(self, addr)
-    self._gen_data = self.gen_data()
+    self._gen_frames = self.gen_frames()
 
   def start(self):
     TickThread(0.1, self.on_robot_event).start()
@@ -178,25 +179,18 @@ class TestGuiliServer(GuiliServer):
 
   def on_robot_event(self, ev):
     """Called on new event from the robot"""
-    self.on_new_data(self._gen_data.next())
+    self.on_frame(self._gen_frames.next())
 
-  def gen_data(self):
-    data = {
-        'robot': {
-          'x': None, 'y': None,
-          'vx': 120., 'vy': -200.,
-          'ax': 34., 'ay': 78.,
-          },
-        }
-
+  def gen_frames(self):
     import itertools
     import math
     r = 600
     N = 100
     for i in itertools.cycle(range(N)):
-      data['robot']['x'] = r * math.cos(2*i*math.pi/N)
-      data['robot']['y'] = r * math.sin(2*i*math.pi/N)
-      yield data
+      yield rome.Frame('asserv_tm_xya',
+          int(r * math.cos(2*i*math.pi/N)),
+          int(r * math.sin(2*i*math.pi/N)),
+          0)
 
 
 class TickThread(threading.Thread):
@@ -226,7 +220,7 @@ class RomeClientGuiliServer(GuiliServer):
 
   class RomeClientClass(rome.Client):
     def on_frame(self, frame):
-      pass #TODO
+      self.guili_server.on_frame(frame)
 
   def __init__(self, addr, rome_fo):
     GuiliServer.__init__(self, addr)

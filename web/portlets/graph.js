@@ -10,18 +10,20 @@ Portlet.register({
     {
       name: 'position',
       pretty_name: 'Position',
+      frameName: 'asserv_tm_xya',
       series: [
-        { label: 'x', getter: function(data) { return data.robot.x; } },
-        { label: 'y', getter: function(data) { return data.robot.y; } },
+        { label: 'x', getter: function(params) { return params.x; } },
+        { label: 'y', getter: function(params) { return params.y; } },
       ],
       yaxis: { min: -800., max: 800. },
     },
     {
       name: 'velocity',
       pretty_name: 'Velocity',
+      frameName: 'asserv_tm_xya',
       series: [
-        { label: 'vx', getter: function(data) { return data.robot.vx; } },
-        { label: 'vy', getter: function(data) { return data.robot.vy; } },
+        { label: 'vx', getter: function(params) { return params.vx; } },
+        { label: 'vy', getter: function(params) { return params.vy; } },
       ],
       yaxis: { min: -800., max: 800. },
     },
@@ -84,10 +86,10 @@ Portlet.register({
     this.setView(options.view ? options.view : this.views[0].name);
   },
 
-  update: function(data) {
+  updateData: function(params) {
     for(var i=0; i<this.data.length; ++i) {
       var d = this.data[i].data;
-      d.push([this.t, this.view.series[i].getter(data)]);
+      d.push([this.t, this.view.series[i].getter(params)]);
       while(d.length > this.value_count) {
         d.shift();
       }
@@ -108,6 +110,9 @@ Portlet.register({
   },
 
   setView: function(name) {
+    // unregister previous handlers
+    this.unbindFrame();
+
     var view;
     for(var i=0; i<this.views.length; ++i) {
       view = this.views[i];
@@ -134,6 +139,9 @@ Portlet.register({
     this.plot.setData(this.data);
     this.plot.setupGrid();
     this.plot.draw();
+
+    // register new frame handler
+    this.bindFrame(view.frameName, this.updateData);
   },
 
 });

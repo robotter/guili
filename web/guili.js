@@ -74,7 +74,10 @@ var gs = {
 
   // event handlers
   event_handler: {
-    data: function(params) { Portlet.updateAll(params.data); },
+    frame: function(params) {
+      Portlet.handleFrame(params.name, params.params);
+      $.event.trigger('rome-frame', [params.name, params.params]);
+    },
     messages: function(params) {
       $.event.trigger('rome-messages', [params.messages]);
     },
@@ -119,12 +122,11 @@ Portlet.prototype = {
   destroy: function() {
     // unregister the portlet instance
     Portlet.instances.splice($.inArray(this, Portlet.instances), 1);
+    // unregister the portlet handlers
+    this.unbindFrame();
     this.node.remove();
   },
   
-  // update the portlet with new data
-  update: function(data) {},
-
   // set portlet's position
   position: function(left, top) {
     var offset = this.node.parent().offset();
@@ -196,6 +198,31 @@ Portlet.prototype = {
 
   },
 
+  // register a ROME frame handler
+  bindFrame: function(name, cb) {
+    if(!(name in Portlet.frame_handlers)) {
+      Portlet.frame_handlers[name] = [];
+    }
+    Portlet.frame_handlers[name].push([this, cb]);
+  },
+
+  // unregister ROME frame handlers
+  // if name is not provided, unregister all frame handlers
+  unbindFrame: function(name) {
+    if(name) {
+      var handlers = Portlet.frame_handlers[name];
+      for(var i=handlers.length-1; i>=0; i--) {
+        if(handlers[i][0] === this) {
+          handlers.splice(i, 1);
+        }
+      }
+    } else {
+      for(var name in Portlet.frame_handlers) {
+        this.unbindFrame(name);
+      }
+    }
+  },
+
 };
 
 // Load all portlet, return a Deferred object
@@ -259,17 +286,21 @@ Portlet.create = function(root, name, options) {
   return deferred.promise();
 };
 
-// Update all portlet instances
-Portlet.updateAll = function(data) {
-  this.instances.forEach(function(p) {
-    p.update(data);
-  });
+// Trigger ROME frame handlers
+Portlet.handleFrame = function(name, params) {
+  var handlers = this.frame_handlers[name];
+  if(handlers) {
+    handlers.forEach(function(v) { v[1].call(v[0], params); });
+  }
 };
 
 // Map of registered portlet classes
 Portlet.classes = {};
 // List of portlet instances
 Portlet.instances = [];
+// Map or ROME frame handlers
+// indexes are frame name, values are lists of (portlet, handler) pairs
+Portlet.frame_handlers = {};
 
 
 /*****/
