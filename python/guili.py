@@ -36,7 +36,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
   ws_prefix = 'ws'
   files_prefix = 'guili'
   files_base_path = None  # disabled
-  files_extensions = ['.html', '.css', '.js', '.svg']
+  files_extensions = ['.html', '.css', '.js', '.svg', '.png', '.eot', '.ttf', '.woff']
   files_index = 'guili.html'
 
 
