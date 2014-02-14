@@ -1,0 +1,8 @@
+{
+  "default": [
+    ["coordinates"],
+    ["field"],
+    ["graph", {"view": "position"}],
+    ["console"]
+  ]
+}

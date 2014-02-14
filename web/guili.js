@@ -23,23 +23,30 @@ var gs = {
   ws: null,  // WebSocket object
 
   // start or restart the socket
+  // return a Deferred object resolved when connection is opened
   start: function(uri) {
     if(this.ws !== null && !uri) {
       uri = this.ws.url;
     }
     var self = this;
+    this.start_deferred = $.Deferred();
     this.ws = new WebSocket(uri);
     this.triggerStatusEvent(null, 'connect');
     this.ws.onopen = this.handle.bind(this);
     this.ws.onmessage = this.onMessage.bind(this);
     this.ws.onerror = function(ev) { self.triggerStatusEvent(ev, 'error'); }
     this.ws.onclose = function(ev) { self.triggerStatusEvent(ev, 'close'); }
+    return this.start_deferred;
   },
 
   // handle the connection once opened
   handle: function(ev) {
     this.triggerStatusEvent(ev, 'open');
     this.callMethod('init', {});
+    if(this.start_deferred !== null) {
+      this.start_deferred.resolve();
+      this.start_deferred = null;
+    }
   },
 
   // trigger a ws-status event
@@ -84,6 +91,9 @@ var gs = {
     log: function(params) {
       $.event.trigger('ws-log', [params.severity, params.message]);
     },
+    configurations: function(params) {
+      $.event.trigger('portlets-configurations', [params.configurations]);
+    },
   },
 
 };
@@ -126,7 +136,7 @@ Portlet.prototype = {
     this.unbindFrame();
     this.node.remove();
   },
-  
+
   // set portlet's position
   position: function(left, top) {
     var offset = this.node.parent().offset();
@@ -272,7 +282,16 @@ Portlet.create = function(root, name, options) {
       deferred.resolveWith(portlet);
       // set position when element is initialized, because the size needs to be known
       if(options.position) {
-        portlet.position(options.position.x, options.position.y);
+        var pos = options.position;
+        if(pos.x !== undefined && pos.y !== undefined) {
+          portlet.position(pos.x, pos.y);
+        }
+        if(pos.h) {
+          portlet.node.height(pos.h);
+        }
+        if(pos.w) {
+          portlet.node.width(pos.w);
+        }
       } else {
         portlet.positionAuto();
       }
@@ -292,6 +311,24 @@ Portlet.handleFrame = function(name, params) {
   if(handlers) {
     handlers.forEach(function(v) { v[1].call(v[0], params); });
   }
+};
+
+// Set a new portlets configuration
+Portlet.setConfiguration = function(conf) {
+  if(!conf) {
+    return;
+  }
+
+  // remove current portlets
+  Portlet.instances.slice(0).forEach(function(p) {
+    p.destroy();
+  });
+
+  // create new ones
+  var container = $('#portlets');
+  conf.forEach(function(o) {
+    Portlet.create(container, o[0], o[1]);
+  });
 };
 
 // Map of registered portlet classes
@@ -380,15 +417,45 @@ $('#ws-status').click(function() {
 });
 
 
+$(document).on('portlets-configurations', function(ev, configs) {
+  var set_default = false;
+
+  // create/update the menu to change configuration
+  var icon = $('#set-configuration-icon');
+  var menu = $('#set-configuration-menu');
+  // sort configurations by name, to preserve order
+  Object.keys(configs).sort().map(function(k) {
+    var conf = configs[k];
+    var item = $('<li><a href="#"></a></li>').appendTo(menu);
+    item.data('name', k);
+    item.children('a').text(k)
+  });
+
+  menu.clickMenu(icon, {
+    select: function(ev, ui) {
+      Portlet.setConfiguration(configs[ui.item.data('name')]);
+    },
+  });
+
+  // if there are no portlets, assume startup and load the default conf
+  if(Portlet.instances.length == 0) {
+    Portlet.setConfiguration(configs['default']);
+  }
+});
+
+
+
 $(document).ready(function() {
   // open WS socket, create portlets
   var hostname = $('<a>').prop('href', document.location).prop('hostname');
   if(!hostname) {
     hostname = 'localhost';
   }
-  gs.start("ws://"+hostname+":2080/ws");
 
-  Portlet.loadAll(['coordinates', 'field', 'graph', 'console']).done(function() {
+  $.when(
+    gs.start("ws://"+hostname+":2080/ws"),
+    Portlet.loadAll(['coordinates', 'field', 'graph', 'console'])
+  ).done(function() {
     // create menu to add portlets
     {
       var icon = $('#add-portlet-icon');
@@ -411,11 +478,8 @@ $(document).ready(function() {
       });
     }
 
-    var container = $('#portlets');
-    Portlet.create(container, 'coordinates');
-    Portlet.create(container, 'field');
-    Portlet.create(container, 'graph', { view: 'position' });
-    Portlet.create(container, 'console');
+    // load configurations
+    gs.callMethod('configurations', {});
   });
 
 });

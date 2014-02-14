@@ -129,6 +129,10 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     messages = { msg.name: [(k,t.name) for k,t in msg.ptypes] for msg in rome.messages.values() }
     self.send_event('messages', {'messages': messages})
 
+  def wsdo_configurations(self):
+    """Send portlets configurations"""
+    self.send_event('configurations', {'configurations': self.server.configurations})
+
 
 class GuiliServer(ThreadingMixIn, WebSocketServer):
   """
@@ -148,6 +152,12 @@ class GuiliServer(ThreadingMixIn, WebSocketServer):
     self.requests = set()
     self.lock = threading.RLock()
     WebSocketServer.__init__(self, addr, self.GuiliRequestHandlerClass)
+    # load configurations
+    try:
+      with open(os.path.join(os.path.dirname(__file__), 'configurations.json')) as f:
+        self.configurations = json.load(f)
+    except IOError:
+      self.configurations = {}
 
   def on_frame(self, frame):
     data = {'name': frame.msg.name, 'params': dict(zip(frame.params._fields, frame.params))}
