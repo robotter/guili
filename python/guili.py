@@ -200,7 +200,7 @@ class TestGuiliServer(GuiliServer):
       yield rome.Frame('asserv_tm_xya',
           int(r * math.cos(2*i*math.pi/N)),
           int(r * math.sin(2*i*math.pi/N)),
-          0)
+          0, 100, 200, -1.2345)
 
 
 class TickThread(threading.Thread):
