@@ -296,19 +296,20 @@ Portlet.create = function(root, name, options) {
       self.instances.push(portlet);
       deferred.resolveWith(portlet);
       // set position when element is initialized, because the size needs to be known
-      if(options.position) {
-        var pos = options.position;
-        if(pos.x !== undefined && pos.y !== undefined) {
-          portlet.position(pos.x, pos.y);
-        }
-        if(pos.h) {
-          portlet.node.height(pos.h);
-        }
-        if(pos.w) {
-          portlet.node.width(pos.w);
-        }
-      } else {
+      var pos = options.position;
+      if(options.position === undefined) {
+        pos = {};
+      }
+      if(pos.h) {
+        portlet.node.height(pos.h);
+      }
+      if(pos.w) {
+        portlet.node.width(pos.w);
+      }
+      if(pos.x === undefined && pos.y === undefined) {
         portlet.positionAuto();
+      } else {
+        portlet.position(pos.x, pos.y);
       }
     };
     if(init_df) {

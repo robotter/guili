@@ -43,6 +43,9 @@ Portlet.register({
 
 
   init: function(options) {
+    // set default portlet size
+    options.position = $.extend({ w: 300, h: 200 }, options.position);
+
     Portlet.prototype.init.call(this, options);
     this.value_count = options.value_count ? options.value_count : this.default_value_count;
     var self = this;
@@ -69,8 +72,8 @@ Portlet.register({
 
     // create and configure the plot
     var plotdiv = $(this.content.children('div')[0]);
-    plotdiv.css('width', '300px');
-    plotdiv.css('height', '200px');
+    plotdiv.css('width', options.position.w+'px');
+    plotdiv.css('height', options.position.h+'px');
 
     this.node.resizable({
       containment: 'parent', alsoResize: plotdiv,
