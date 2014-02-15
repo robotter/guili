@@ -8,6 +8,9 @@ Number.prototype.toFixedHtml = function(n) {
   }
 }
 
+// Disable jQuery caching, especially for portlets' .html
+$.ajaxSetup({ cache: false });
+
 
 /*
  * WebSocket
