@@ -140,6 +140,18 @@ Portlet.prototype = {
     this.node.remove();
   },
 
+  // return portlet's configuration options
+  getOptions: function() {
+    var poffset = this.node.parent().offset();
+    var offset = this.node.offset()
+    return {
+      position: {
+        x: offset.left-poffset.left, y: offset.top-poffset.top,
+        w: this.node.width(), h: this.node.height(),
+      },
+    };
+  },
+
   // set portlet's position
   position: function(left, top) {
     var offset = this.node.parent().offset();
@@ -314,6 +326,13 @@ Portlet.handleFrame = function(name, params) {
   if(handlers) {
     handlers.forEach(function(v) { v[1].call(v[0], params); });
   }
+};
+
+// Get current portlets configuration
+Portlet.getConfiguration = function() {
+  return Portlet.instances.map(function(p) {
+    return [p.name, p.getOptions()];
+  });
 };
 
 // Set a new portlets configuration

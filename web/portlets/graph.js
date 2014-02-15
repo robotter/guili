@@ -81,6 +81,12 @@ Portlet.register({
     this.setView(options.view ? options.view : this.views[0].name);
   },
 
+  getOptions: function() {
+    var options = Portlet.prototype.getOptions.call(this);
+    options.view = this.view.name;
+    return options;
+  },
+
   updateData: function(params) {
     for(var i=0; i<this.data.length; ++i) {
       var d = this.data[i].data;
