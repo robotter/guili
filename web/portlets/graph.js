@@ -14,18 +14,30 @@ Portlet.register({
       series: [
         { label: 'x', getter: function(params) { return params.x; } },
         { label: 'y', getter: function(params) { return params.y; } },
+        { label: 'a', yaxis: 2, getter: function(params) { return params.a; } },
       ],
-      yaxis: { min: -800., max: 800. },
+      yaxes: [
+        { min: -800., max: 800. },
+        { min: -3.2, max: 3.2, position: 'right',
+          zoomRange: false,
+          panRange: false,
+          ticks: [[-Math.PI, '\u2212π'], [-Math.PI/2, '\u2212π/2'], [0, '0'], [Math.PI/2, 'π/2'], [Math.PI, 'π']],
+        }
+      ],
     },
     {
       name: 'velocity',
-      pretty_name: 'Velocity',
+      pretty_name: 'Velocity (x/y/a)',
       frameName: 'asserv_tm_xya',
       series: [
         { label: 'vx', getter: function(params) { return params.vx; } },
         { label: 'vy', getter: function(params) { return params.vy; } },
+        { label: 'ω', yaxis: 2, getter: function(params) { return params.omega; } },
       ],
-      yaxis: { min: -800., max: 800. },
+      yaxes: [
+        { min: -800., max: 800. },
+        { min: -Math.PI*2, max: Math.PI*2, position: 'right' },
+      ],
     },
   ],
 
@@ -60,29 +72,12 @@ Portlet.register({
     plotdiv.css('width', '300px');
     plotdiv.css('height', '200px');
 
-    this.plot = $.plot(plotdiv, [], {
-      series: {
-        lines: { show: true },
-        points: { show: false },
-        shadowSize: 0,
-      },
-      legend: { position: 'nw' },
-      xaxis: {
-        zoomRange: false,
-        panRange: false,
-        min: 0, max: this.value_count-1,
-      },
-      yaxis: {},
-			zoom: { interactive: true },
-			pan: { interactive: true },
-    });
-
     this.node.resizable({
       containment: 'parent', alsoResize: plotdiv,
       minWidth: 100, minHeight: 50,
     });
 
-    // set initial view
+    // set initial view, also create the plot
     this.setView(options.view ? options.view : this.views[0].name);
   },
 
@@ -110,9 +105,6 @@ Portlet.register({
   },
 
   setView: function(name) {
-    // unregister previous handlers
-    this.unbindFrame();
-
     var view;
     for(var i=0; i<this.views.length; ++i) {
       view = this.views[i];
@@ -129,18 +121,36 @@ Portlet.register({
     }
     this.view = view;
 
+    // initialize data
     this.t = 0;
     this.data = view.series.map(function(o) {
-      return { label: o.label, data: [] };
+      return { label: o.label, yaxis: o.yaxis, data: [] };
     });
-    var options = this.plot.getOptions();
-    $.extend(options.yaxes[0], view.yaxis);
 
-    this.plot.setData(this.data);
-    this.plot.setupGrid();
+    // create the plot
+    var options = {
+      series: {
+        lines: { show: true },
+        points: { show: false },
+        shadowSize: 0,
+      },
+      legend: { position: 'nw' },
+      xaxis: {
+        zoomRange: false,
+        panRange: false,
+        min: 0, max: this.value_count-1,
+      },
+			zoom: { interactive: true },
+			pan: { interactive: true },
+      yaxes: view.yaxes,
+    };
+
+    this.plot = $.plot($(this.content.children('div')[0]), this.data, options);
     this.plot.draw();
+    var options = this.plot.getOptions();
 
-    // register new frame handler
+    // register new frame handlers
+    this.unbindFrame();
     this.bindFrame(view.frameName, this.updateData);
   },
 
