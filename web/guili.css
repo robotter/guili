@@ -46,6 +46,20 @@ body {
 }
 
 
+.ui-dialog {
+  font-size: 80%;
+}
+
+#edit-configuration-dialog {
+  height: 80%;
+}
+
+#edit-configuration-dialog textarea {
+  font-size: 80%;
+  width: 100%;
+  height: 100%;
+}
+
 #ws-status {
   float: right;
   background-color: #dddddd;

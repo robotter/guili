@@ -446,6 +446,7 @@ $(document).on('portlets-configurations', function(ev, configs) {
   // create/update the menu to change configuration
   var icon = $('#set-configuration-icon');
   var menu = $('#set-configuration-menu');
+  menu.children('li:gt(0)').remove();
   // sort configurations by name, to preserve order
   Object.keys(configs).sort().map(function(k) {
     var conf = configs[k];
@@ -505,5 +506,31 @@ $(document).ready(function() {
     gs.callMethod('configurations', {});
   });
 
+});
+
+
+$('#edit-configuration-icon').click(function() {
+  var conf = Portlet.getConfiguration();
+  var dlg = $('#edit-configuration-dialog');
+  var txt = dlg.children('textarea');
+  txt.val(JSON.stringify(conf, null, '  '));
+  dlg.dialog({
+    title: "Configuration",
+    width: $(window).width() * 0.6,
+    height: $(window).height() * 0.8,
+    buttons: {
+      "Update": function() {
+        var new_conf;
+        try {
+          new_conf = JSON.parse(txt.val());
+        } catch(e) {
+          console.error("invalid configuration:", e);
+        }
+        Portlet.setConfiguration(new_conf);
+        $(this).dialog('close');
+      },
+      "Cancel": function() { $(this).dialog('close'); },
+    },
+  });
 });
 
