@@ -181,7 +181,7 @@ Portlet.register({
         for(i=0; wfirst.charAt(i) == wlast.charAt(i); i++) ;
         m[2] = wfirst.substring(0, i);
       }
-      input.val(m[1] + m[2] + text_end);
+      input.val(m.input.substring(0, m.index) + m[1] + m[2] + text_end);
       input[0].selectionStart = input[0].selectionEnd = start + m[2].length
     });
   },
