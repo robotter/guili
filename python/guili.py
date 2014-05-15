@@ -250,13 +250,19 @@ def main():
       help="path to web files")
   parser.add_argument('port', type=int,
       help="guili WebSocket server port")
+  parser.add_argument('device',
+      help="ROME serial device, 'TEST' for a dummy packet generator")
 
   args = parser.parse_args()
   if args.web_dir:
     GuiliRequestHandler.files_base_path = os.path.abspath(args.web_dir)
 
   print "starting server on port %d" % args.port
-  server = TestGuiliServer(('', args.port))
+  if args.device == 'TEST':
+    server = TestGuiliServer(('', args.port))
+  else:
+    import serial
+    server = RomeClientGuiliServer(('', args.port), serial.Serial(args.device, 38400))
   server.start()
 
 if __name__ == '__main__':
