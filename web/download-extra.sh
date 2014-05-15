@@ -55,9 +55,9 @@ get_jquery_ui() {
   download "http://jqueryui.com/resources/download/jquery-ui-$1.zip"
   rm -fr "$dl_dir/$name"
   ( cd _dl && unzip -x "$name.zip" )
-  install "$dl_dir/$name/ui/minified/jquery-ui.min.js" js/
-  install "$dl_dir/$name/themes/base/minified/jquery-ui.min.css" css/
-  for f in "$dl_dir/$name/themes/base/minified/images"/*; do
+  install "$dl_dir/$name/development-bundle/ui/minified/jquery-ui.min.js" js/
+  install "$dl_dir/$name/development-bundle/themes/base/minified/jquery-ui.min.css" css/
+  for f in "$dl_dir/$name/development-bundle/themes/base/minified/images"/*; do
     install "$f" css/images/
   done
   rm -fr "$dl_dir/$name"
