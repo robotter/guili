@@ -25,20 +25,6 @@ Portlet.register({
         }
       ],
     },
-    {
-      name: 'velocity',
-      pretty_name: 'Velocity (x/y/a)',
-      frameName: 'asserv_tm_xya',
-      series: [
-        { label: 'vx', getter: function(params) { return params.vx; } },
-        { label: 'vy', getter: function(params) { return params.vy; } },
-        { label: 'ω', yaxis: 2, getter: function(params) { return params.omega; } },
-      ],
-      yaxes: [
-        { min: -800., max: 800. },
-        { min: -Math.PI*2, max: Math.PI*2, position: 'right' },
-      ],
-    },
   ],
 
 
