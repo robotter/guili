@@ -472,12 +472,16 @@ $(document).on('portlets-configurations', function(ev, configs) {
 $(document).ready(function() {
   // open WS socket, create portlets
   var hostname = $('<a>').prop('href', document.location).prop('hostname');
+  var port = $('<a>').prop('href', document.location).prop('port');
   if(!hostname) {
     hostname = 'localhost';
   }
+  if(!port) {
+    port = '80';
+  }
 
   $.when(
-    gs.start("ws://"+hostname+":2080/ws"),
+    gs.start("ws://"+hostname+":"+port+"/ws"),
     Portlet.loadAll(['coordinates', 'field', 'graph', 'console'])
   ).done(function() {
     // create menu to add portlets
