@@ -25,6 +25,20 @@ Portlet.register({
         }
       ],
     },
+    {
+      name: 'arm',
+      pretty_name: 'Arm',
+      frameName: 'meca_tm_arm',
+      series: [
+        { label: 's', getter: function(params) { return params.upper; }, yaxis: 2 },
+        { label: 'e', getter: function(params) { return params.elbow; } },
+        { label: 'w', getter: function(params) { return params.wrist; } },
+      ],
+      yaxes: [
+        { min: -0x210, max: 0x210 },
+        { min: -13000, max: 13000, position: 'right' },
+      ],
+    },
   ],
 
 
