@@ -1,8 +1,24 @@
 {
   "default": [
-    ["coordinates"],
+    ["console"],
+    ["graph"],
     ["field"],
-    ["graph", {"view": "position"}],
-    ["console"]
+    ["coordinates"],
+    ["meca"]
+  ],
+  "monitoring": [
+    ["console", {
+      "position": { "x": 575, "y": 5 }
+    }],
+    ["graph", {
+      "position": { "x": 260, "y": 5 },
+      "view": "position"
+    }],
+    ["coordinates", {
+      "position": { "x": 5, "y": 5 }
+    }],
+    ["meca", {
+      "position": { "x": 5, "y": 65 }
+    }]
   ]
 }
