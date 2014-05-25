@@ -180,6 +180,10 @@ td.data-number {
   text-align: right;
 }
 
+td.data-boolean {
+  text-align: center;
+}
+
 .portlet-code {
   font-family: monospace;
 }
