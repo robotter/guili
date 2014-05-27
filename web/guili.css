@@ -60,6 +60,13 @@ body {
   height: 100%;
 }
 
+#battery-status {
+  float: left;
+  font-size: 15px;
+  padding: 0.2ex 1em;
+  margin: 0;
+}
+
 #ws-status {
   float: right;
   background-color: #dddddd;
@@ -150,6 +157,10 @@ body {
   display: inline-block;
   width: 1.25em;
   text-align: center;
+}
+
+body.battery-low {
+  background-color: red;
 }
 
 .portlet-header i:hover {

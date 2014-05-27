@@ -439,6 +439,14 @@ $('#ws-status').click(function() {
   }
 });
 
+// battery check
+$(document).on('rome-frame', function(ev, name, params) {
+  if(name == 'strat_tm_battery') {
+    var voltage = params.voltage;
+    $('#battery-status').text((voltage/1000).toFixedHtml(1) +' V');
+    $('body').toggleClass('battery-low', voltage < 13500);
+  }
+});
 
 $(document).on('portlets-configurations', function(ev, configs) {
   var set_default = false;
