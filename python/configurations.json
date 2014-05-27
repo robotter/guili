@@ -3,7 +3,7 @@
     ["console"],
     ["graph"],
     ["field"],
-    ["coordinates"],
+    ["asserv"],
     ["meca"]
   ],
   "monitoring": [
@@ -14,7 +14,7 @@
       "position": { "x": 260, "y": 5 },
       "view": "position"
     }],
-    ["coordinates", {
+    ["asserv", {
       "position": { "x": 5, "y": 5 }
     }],
     ["meca", {

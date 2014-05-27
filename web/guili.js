@@ -482,7 +482,7 @@ $(document).ready(function() {
 
   $.when(
     gs.start("ws://"+hostname+":"+port+"/ws"),
-    Portlet.loadAll(['coordinates', 'field', 'graph', 'console', 'meca'])
+    Portlet.loadAll(['asserv', 'field', 'graph', 'console', 'meca'])
   ).done(function() {
     // create menu to add portlets
     {

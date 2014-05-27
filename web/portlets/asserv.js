@@ -1,7 +1,7 @@
 
 Portlet.register({
-  name: 'coordinates',
-  pretty_name: 'Coordinates',
+  name: 'asserv',
+  pretty_name: 'Asserv',
 
   init: function(options) {
     Portlet.prototype.init.call(this, options);
