@@ -11,6 +11,21 @@ Portlet.register({
       $(tds[1]).text(params.y.toFixedHtml(0));
       $(tds[2]).text(params.a.toFixedHtml(2));
     });
+    this.bindFrame('asserv_tm_htraj_carrot_xy', function(params) {
+      var tds = this.content.find('td');
+      $(tds[3]).text(params.x.toFixedHtml(0));
+      $(tds[4]).text(params.y.toFixedHtml(0));
+    });
+    this.bindFrame('asserv_tm_htraj_done', function(params) {
+      var tds = this.content.find('td');
+      $(tds[0]).toggleClass('portlet-asserv-done', params.xy);
+      $(tds[1]).toggleClass('portlet-asserv-done', params.xy);
+      $(tds[2]).toggleClass('portlet-asserv-done', params.a);
+    });
+    this.bindFrame('asserv_tm_htraj_path_index', function(params) {
+      var tds = this.content.find('td');
+      $(tds[5]).text(params.i + " / " + params.size);
+    });
   },
 });
 
