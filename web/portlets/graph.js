@@ -17,7 +17,7 @@ Portlet.register({
         { label: 'a', yaxis: 2, getter: function(params) { return params.a; } },
       ],
       yaxes: [
-        { min: -800., max: 800. },
+        { min: -1500., max: 1500. },
         { min: -3.2, max: 3.2, position: 'right',
           zoomRange: false,
           panRange: false,
