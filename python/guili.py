@@ -228,8 +228,9 @@ class RomeClientGuiliServer(GuiliServer):
       frame = rome.Frame(name, **params)
       self.server.client.send(frame)
 
-  class RomeClientClass(rome.Client):
+  class RomeClientClass(rome.ClientEcho):
     def on_frame(self, frame):
+      rome.ClientEcho.on_frame(self, frame)
       self.guili_server.on_frame(frame)
 
   def __init__(self, addr, rome_fo):
