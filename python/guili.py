@@ -248,6 +248,7 @@ def main():
   import argparse
   parser = argparse.ArgumentParser()
   parser.add_argument('--web-dir',
+      default=os.path.join(os.path.dirname(__file__), '..', 'web'),
       help="path to web files")
   parser.add_argument('port', type=int,
       help="guili WebSocket server port")
@@ -255,7 +256,7 @@ def main():
       help="ROME serial device, 'TEST' for a dummy packet generator")
 
   args = parser.parse_args()
-  if args.web_dir:
+  if args.web_dir != '':
     GuiliRequestHandler.files_base_path = os.path.abspath(args.web_dir)
 
   print "starting server on port %d" % args.port
