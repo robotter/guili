@@ -180,6 +180,13 @@ class TestGuiliServer(GuiliServer):
       print "ROME: %s %r" % (name, params)
 
   def __init__(self, addr):
+    # define only our messages
+    rome.frame.unregister_all_messages()
+    rome.frame.register_messages(
+        (0x20, [
+          ('asserv_tm_xya',   [('x','dist'), ('y','dist'), ('a','angle')]),
+          ]),
+        )
     GuiliServer.__init__(self, addr)
     self._gen_frames = self.gen_frames()
 
