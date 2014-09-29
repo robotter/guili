@@ -77,7 +77,7 @@ get_flot() {
 
 rm -fr "$inst_dir"/*
 
-get_fontawesome 4.1.0
+get_fontawesome 4.2.0
 get_jquery 1.11.0
 get_jquery_ui 1.10.4
 get_flot 0.8.2
