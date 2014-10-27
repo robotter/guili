@@ -278,6 +278,7 @@ def main():
   args = parser.parse_args()
   if args.web_dir != '':
     GuiliRequestHandler.files_base_path = os.path.abspath(args.web_dir)
+  rome.Frame.set_ack_range(128, 256)
 
   print "starting server on port %d" % args.port
   if args.device == 'TEST':
