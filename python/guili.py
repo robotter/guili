@@ -45,17 +45,30 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     path = self.path.split('?', 1)[0]
     path = posixpath.normpath(urllib.unquote(path))
     path = path.strip('/')
-    # handle websocket case
-    if path == self.ws_prefix:
-      return self.handle_websocket()
 
+    # dispatch to the correct handler
+    if self.command == 'GET' and path == self.ws_prefix:
+      return self.handle_websocket()
+    parts = path.split('/', 1)
+    prefix = parts[0]
+    subpath = parts[1] if len(parts) > 1 else ''
+    if prefix == self.files_prefix:
+      return self.handle_files(subpath)
+    else:
+      return self.send_error(404)
+
+  do_POST = do_GET
+
+
+  def handle_files(self, path):
+    if self.command != 'GET':
+      return self.send_error(405)
     if self.files_base_path is None:
       return self.send_error(404)
 
-    parts = path.split('/')
-    if parts.pop(0) != self.files_prefix:
-      return self.send_error(404)
-    if not len(parts):
+    if path:
+      parts = path.split('/')
+    else:
       # index
       parts = self.files_index.split('/')
 
