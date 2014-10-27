@@ -8,12 +8,20 @@ import posixpath
 import urllib
 import mimetypes
 import shutil
+from cStringIO import StringIO
 from websocket import WebSocketServer, WebSocketRequestHandler
 from SocketServer import ThreadingMixIn
 import rome
+from contextlib import contextmanager
 
 if not mimetypes.inited:
   mimetypes.init()
+
+# define bootloader client, if bootloader module is available
+try:
+  import bootloader
+except ImportError:
+  bootloader = None
 
 
 class GuiliRequestHandler(WebSocketRequestHandler):
@@ -38,6 +46,9 @@ class GuiliRequestHandler(WebSocketRequestHandler):
   files_base_path = None  # disabled
   files_extensions = ['.html', '.css', '.js', '.svg', '.png', '.eot', '.ttf', '.woff']
   files_index = 'guili.html'
+  bootloader_prefix = 'bl'
+  bootloader_sync_tries = 3
+  bootloader_sync_timeout = 2
 
 
   def do_GET(self):
@@ -54,6 +65,8 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     subpath = parts[1] if len(parts) > 1 else ''
     if prefix == self.files_prefix:
       return self.handle_files(subpath)
+    elif prefix == self.bootloader_prefix:
+      return self.handle_bootloader(subpath)
     else:
       return self.send_error(404)
 
@@ -101,6 +114,46 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     # output file content
     shutil.copyfileobj(f, self.wfile)
     f.close()
+
+
+  def handle_bootloader(self, path):
+    if self.command != 'POST':
+      return self.send_error(405)
+
+    if path == 'program':
+      fhex = StringIO(self.rfile.read(int(self.headers.getheader('content-length'))))
+      return self.bootloader_program(fhex)
+    else:
+      return self.send_error(404)
+
+  def bootloader_program(self, fhex):
+    if bootloader is None:
+      return self.send_error(400, "Bootloader client not found")
+    if 'reset' not in rome.frame.messages_by_name:
+      return self.send_error(400, "No reset message")
+    reset_frame_data = rome.Frame('reset').data()
+
+    # prepare the bootloader client
+    bl = bootloader.Client(self.server.client.fo)
+    self.log_message("prepare to program using bootloader")
+
+    with self.server.exclusive_mode():
+      for i in range(self.bootloader_sync_tries):
+        self.server.client.fo.write(reset_frame_data)
+        try:
+          with bl.timeout(self.bootloader_sync_timeout):
+            bl.synchronize()
+          # we're synchronized and ready to program
+          self.log_message("synchronized with bootloader")
+          bl.program(fhex)
+          self.log_message("program uploaded")
+          bl.boot()
+          self.send_response(200)
+          return
+        except bootloader.TimeoutError:
+          continue
+      else:
+        return self.send_error(500, "Bootloader timeout")
 
 
   def ws_setup(self):
@@ -257,10 +310,25 @@ class RomeClientGuiliServer(GuiliServer):
     GuiliServer.__init__(self, addr)
     self.client = self.RomeClientClass(rome_fo)
     self.client.guili_server = self
+    self.__exclusive_mode_lock = threading.Lock()
 
   def start(self):
     self.client.start(self)
     GuiliServer.start(self)
+
+  @contextmanager
+  def exclusive_mode(self):
+    """Return a context with exlusive access to the UART connection
+
+    The ROME client is stopped and the UART connection can be used directly.
+    """
+    with self.__exclusive_mode_lock:
+      try:
+        self.client.stop()
+        with self.lock:
+          yield
+      finally:
+        self.client.start()
 
 
 
@@ -285,7 +353,7 @@ def main():
     server = TestGuiliServer(('', args.port))
   else:
     import serial
-    server = RomeClientGuiliServer(('', args.port), serial.Serial(args.device, 38400))
+    server = RomeClientGuiliServer(('', args.port), serial.Serial(args.device, 38400, timeout=0.5))
   server.start()
 
 if __name__ == '__main__':
