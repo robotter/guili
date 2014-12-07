@@ -270,6 +270,10 @@ class TestGuiliServer(GuiliServer):
     r = 600
     N = 100
     for i in itertools.cycle(range(N)):
+      if i == 0:
+        yield rome.Frame('log', 'notice', "new turn")
+      elif i == N/2:
+        yield rome.Frame('log', 'info', "half turn")
       yield rome.Frame('asserv_tm_xya',
           int(r * math.cos(2*i*math.pi/N)),
           int(r * math.sin(2*i*math.pi/N)),
