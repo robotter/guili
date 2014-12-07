@@ -1,6 +1,7 @@
 {
   "default": [
     ["console"],
+    ["logs"],
     ["graph"],
     ["field"],
     ["asserv"],
@@ -9,6 +10,9 @@
   "monitoring": [
     ["console", {
       "position": { "x": 575, "y": 5 }
+    }],
+    ["logs", {
+      "position": { "x": 575, "y": 210 }
     }],
     ["graph", {
       "position": { "x": 260, "y": 5 },
