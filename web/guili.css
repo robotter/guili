@@ -205,20 +205,35 @@ div.portlet-console-entry {
   border-bottom: 1px solid #888;
 }
 
-.portlet-console-backlog .log-error {
+.log-error {
   background-color: #ffd0d0;
 }
 
-.portlet-console-backlog .log-warning {
+.log-warning {
   background-color: #ffffd0;
 }
 
-.portlet-console-backlog .log-info {
+.log-notice {
   background-color: #e0e0ff;
 }
 
-.portlet-console-backlog .log-debug {
+.log-info {
+  background-color: #e0ffff;
+}
+
+.log-debug {
   background-color: #f0f0f0;
+}
+
+div.portlet-logs-entry {
+  margin: 0;
+  padding: 0.1em;
+  border-bottom: 1px solid #888;
+}
+
+div.portlet-logs-entry .log-date {
+  font-size: 90%;
+  padding-right: 1em;
 }
 
 
