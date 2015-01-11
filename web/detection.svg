@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="drawing" viewBox="-200 -200 400 400">
+  <defs id="defs">
+    <style type="text/css"><![CDATA[
+      .area {
+        stroke: black;
+        fill: none;
+        stroke-width: 1;
+      }
+      .ping-red {
+        fill:red;
+      }
+      .ping-blue {
+        fill:blue;
+      }
+			.arc {
+				stroke:orange;
+				stroke-width:1;
+			}
+      ]]></style>
+
+  </defs>
+
+  <g>
+
+		<line class="area" x1="0" y1="0" x2="150" y2="0"/>
+    <circle class="area" cx="0" cy="0" r="150" />
+    <circle class="area" cx="0" cy="0" r="100" />
+    <circle class="area" cx="0" cy="0" r="50" />
+    <circle class="area" cx="0" cy="0" r="20" />
+    <circle class="area" cx="0" cy="0" r="10" />
+
+  </g>
+
+  <script type="text/javascript"><![CDATA[
+    const xlinkNS = "http://www.w3.org/1999/xlink";
+
+    var drawing = document.getElementById("drawing");
+
+    // Various helper methods
+
+    drawing.createElement = function(tag) {
+      return document.createElementNS(this.namespaceURI, tag);
+    };
+
+    Element.prototype.setAttributes = function(attrs) {
+      for(var k in attrs) {
+        if(k == "xlink:href") {
+          this.setAttributeNS(xlinkNS, k, attrs[k]);
+        } else {
+          this.setAttribute(k, attrs[k]);
+        }
+      }
+    }
+
+    // compute distance between two objects
+    function distance(a,b) {
+      return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+    }
+
+  ]]></script>
+
+</svg>
