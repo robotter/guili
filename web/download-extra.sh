@@ -55,9 +55,9 @@ get_jquery_ui() {
   download "http://jqueryui.com/resources/download/jquery-ui-$1.zip"
   rm -fr "$dl_dir/$name"
   ( cd _dl && unzip -x "$name.zip" )
-  install "$dl_dir/$name/development-bundle/ui/minified/jquery-ui.min.js" js/
-  install "$dl_dir/$name/development-bundle/themes/base/minified/jquery-ui.min.css" css/
-  for f in "$dl_dir/$name/development-bundle/themes/base/minified/images"/*; do
+  install "$dl_dir/$name/ui/minified/jquery-ui.min.js" js/
+  install "$dl_dir/$name/themes/base/minified/jquery-ui.min.css" css/
+  for f in "$dl_dir/$name/themes/base/minified/images"/*; do
     install "$f" css/images/
   done
   rm -fr "$dl_dir/$name"
@@ -77,7 +77,7 @@ get_flot() {
 
 rm -fr "$inst_dir"/*
 
-get_fontawesome 4.2.0
+get_fontawesome 4.3.0
 get_jquery 1.11.0
 get_jquery_ui 1.10.4
 get_flot 0.8.2
