@@ -13,6 +13,7 @@ Portlet.register({
     this.node.resizable({ containment: 'parent', minWidth: 100, minHeight: 40 });
 
     this.backlog = $(this.content.find('div.portlet-code')[0]);
+    this.backlog_size = options.backlog_size ? options.backlog_size : 5000;
 
     this.bindFrame('log', function(params) {
       var entry = $('<div class="portlet-logs-entry" />').appendTo(self.backlog);
@@ -23,6 +24,12 @@ Portlet.register({
         '.' + ("00"+date.getMilliseconds()).slice(-3);
       entry.append('<span class="log-date">'+str_date+'</span><span class="log-msg">'+params.msg+'</span>');
       entry.addClass('log-'+params.sev);
+
+      var nremove = self.backlog.children().length - self.backlog_size;
+      console.log("nremove: "+nremove);
+      if(nremove > 0) {
+        self.backlog.children(':lt('+nremove+')').remove();
+      }
       self.backlog.scrollTop(self.backlog[0].scrollHeight);
     });
 

@@ -77,6 +77,7 @@ Portlet.register({
 
     this.input = $(this.content.children('input')[0]);
     this.backlog = $(this.content.find('div.portlet-code')[0]);
+    this.backlog_size = options.backlog_size ? options.backlog_size : 5000;
     this.history = [];
     this.history_index = 0;
     this.history_last = null;
@@ -141,6 +142,11 @@ Portlet.register({
     var backlog = this.backlog;
     var entry = $('<div class="portlet-console-entry" />').appendTo(backlog);
     $('<div class="portlet-console-input" />').append(text).appendTo(entry);
+
+    var nremove = backlog.children().length - this.backlog_size;
+    if(nremove > 0) {
+      backlog.children(':lt('+nremove+')').remove();
+    }
     backlog.scrollTop(backlog[0].scrollHeight);
     this.worker.send('eval', {code: text}, function(ev) {
       var out = $('<div class="portlet-console-output" />').appendTo(entry);
