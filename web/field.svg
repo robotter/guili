@@ -45,10 +45,6 @@
       <path d="M -1500,-1000 L 1500,-1000 L 1500,1000 L -1500,1000 Z" />
     </clipPath>
 
-    <marker id="marker-vector-arrow" orient="auto" fill="none" viewBox="-10 -7 20 14" markerWidth="20" markerHeight="14">
-      <path d="M -10,-7 L 0,0 L -10,7" />
-    </marker>
-
   </defs>
 
   <g id="table">

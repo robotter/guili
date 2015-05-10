@@ -26,28 +26,10 @@ Portlet.register({
         'xlink:href': '#def-galipeur',
       });
       field.appendChild(svg_robot);
-      // create a marker for velocity vectors
-      var marker = field.getElementById('marker-vector-arrow').cloneNode(true);
-      marker.setAttributes({
-        'id': 'marker-vector-velocity',
-        'stroke': 'blue',
-        'stroke-width': 1,
-      });
-      field.getElementById('defs').appendChild(marker);
-      // create SVG robot's velocity vector
-      var svg_velocity = field.createElement('line');
-      svg_velocity.setAttributes({
-        'id': 'robot-velocity',
-        'stroke': 'blue',
-        'stroke-width': 5,
-        'marker-end': 'url(#marker-vector-velocity)',
-      });
-      field.appendChild(svg_velocity);
 
       // set portlet properties
       self.field = field;
       self.svg_robot = svg_robot;
-      self.svg_velocity = svg_velocity;
 
       self.bindFrame('asserv_tm_xya', self.updatePosition);
 
@@ -60,11 +42,6 @@ Portlet.register({
   updatePosition: function(params) {
     this.svg_robot.setAttributes({
       'transform': "translate("+params.x+","+params.y+")",
-    });
-
-    this.svg_velocity.setAttributes({
-      'x1': params.x, 'y1': params.y,
-      'x2': params.x + 100, 'y2': params.y + 100,
     });
   },
 
