@@ -1,28 +1,27 @@
-
 Portlet.register({
   name: 'meca',
   pretty_name: 'Meca',
 
   init: function(options) {
     Portlet.prototype.init.call(this, options);
-    this.bindFrame('meca_tm_arm', function(params) {
-      var tds = this.content.find('td');
-      $(tds[0]).text(params.upper.toFixedHtml(0));
-      $(tds[1]).text(params.elbow.toFixedHtml(0));
-      $(tds[2]).text(params.wrist.toFixedHtml(0));
+
+    var state_to_color = {
+      busy: 'red',
+      ready: 'orange',
+      ground_clear: 'green',
+    };
+
+    var self = this;
+    function tm_elevator_cb(side, params) {
+      var tds = self.content.find('tr.meca-elevator-'+side+' td');
+      $(tds[0]).find('i').css('color', state_to_color[params.state]);
+      $(tds[1]).text(params.nb_spots);
+    }
+    this.bindFrame('meca_tm_left_elevator', function(params) {
+      tm_elevator_cb('left', params)
     });
-    this.bindFrame('meca_tm_suckers', function(params) {
-      var tds = this.content.find('td');
-      if(params.a) {
-        $(tds[3]).find('i').switchClass('fa-question fa-circle-thin', 'fa-circle');
-      } else {
-        $(tds[3]).find('i').switchClass('fa-question fa-circle', 'fa-circle-thin');
-      }
-      if(params.b) {
-        $(tds[4]).find('i').switchClass('fa-question fa-circle-thin', 'fa-circle');
-      } else {
-        $(tds[4]).find('i').switchClass('fa-question fa-circle', 'fa-circle-thin');
-      }
+    this.bindFrame('meca_tm_right_elevator', function(params) {
+      tm_elevator_cb('right', params)
     });
   },
 });
