@@ -262,7 +262,11 @@ class TestGuiliServer(GuiliServer):
 
   def on_robot_event(self, ev):
     """Called on new event from the robot"""
-    self.on_frame(self._gen_frames.next())
+    while True:
+      frame = self._gen_frames.next()
+      if frame is None:
+        break
+      self.on_frame(frame)
 
   def gen_frames(self):
     import itertools
@@ -278,6 +282,7 @@ class TestGuiliServer(GuiliServer):
           int(r * math.cos(2*i*math.pi/N)),
           int(r * math.sin(2*i*math.pi/N)),
           0)
+      yield None
 
 
 class TickThread(threading.Thread):
