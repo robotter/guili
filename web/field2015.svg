@@ -54,10 +54,17 @@
 				z-index: -10;
 			}
 
-			.reflector {
+			#galipeur polygon {
+				fill: #00ff00;
+				stroke: black;
+				stroke-width: 10;
+			}
+			#galipeur circle {
+				fill: #ff0000;
 				stroke: black;
 				stroke-width: 5;
 			}
+
 
 		]]></style>
 
@@ -203,7 +210,11 @@
 		<circle id="popcorn" r="20" stroke="black" stroke-width="2" fill="whitesmoke"/>
 
 
-		<circle id="reflector" class="reflector" r="30" />
+		<g id="def-galipeur">
+			<polygon points="0,170 147,-85 -147,-85"/>
+			<circle r="40" cx="70" cy="-70" />
+			<circle r="40" cx="-70" cy="-70" />
+		</g>
 
 		<marker id="marker-vector-arrow" orient="auto" fill="none" viewBox="-10 -7 20 14" markerWidth="20" markerHeight="14">
 			<path d="M -10,-7 L 0,0 L -10,7" />

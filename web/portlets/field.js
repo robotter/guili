@@ -22,8 +22,8 @@ Portlet.register({
       // create SVG robot
       var svg_robot = field.createElement('use');
       svg_robot.setAttributes({
-        'id': 'robot',
-        'xlink:href': '#reflector',
+        'id': 'galipeur',
+        'xlink:href': '#def-galipeur',
       });
       field.appendChild(svg_robot);
       // create a marker for velocity vectors
