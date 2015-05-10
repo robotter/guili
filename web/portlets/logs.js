@@ -26,7 +26,6 @@ Portlet.register({
       entry.addClass('log-'+params.sev);
 
       var nremove = self.backlog.children().length - self.backlog_size;
-      console.log("nremove: "+nremove);
       if(nremove > 0) {
         self.backlog.children(':lt('+nremove+')').remove();
       }
