@@ -1,8 +1,9 @@
 <svg version="1.1"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 	xmlns="http://www.w3.org/2000/svg"
-	width="2300" height="3300"
-	viewBox="-1150 -1650 2300 3300">
+	width="3300" height="2300"
+	viewBox="-1650 -1150 3300 2300"
+	id="drawing">
 
 	<!--
 		Copyright (c) 2015, Roboterclub Aachen e.V.
@@ -44,7 +45,22 @@
 
 		The colors are hardcoded since this significantly speeds up drawing.
 	-->
-	<defs>
+	<defs id="defs">
+		<style type="text/css"><![CDATA[
+
+			.table-marker {
+				stroke: #888;
+				stroke-width: 2;
+				z-index: -10;
+			}
+
+			.reflector {
+				stroke: black;
+				stroke-width: 5;
+			}
+
+		]]></style>
+
 		<!-- helper objects -->
 		<circle id="light-hole" r="17.5" stroke="black" stroke-width="1" fill-opacity="0"/>
 		<clipPath id="clip-half-line">
@@ -185,14 +201,17 @@
 		</g>
 		<circle id="light" r="32.5" stroke="black" stroke-width="2" fill="yellow"/>
 		<circle id="popcorn" r="20" stroke="black" stroke-width="2" fill="whitesmoke"/>
+
+
+		<circle id="reflector" class="reflector" r="30" />
+
+		<marker id="marker-vector-arrow" orient="auto" fill="none" viewBox="-10 -7 20 14" markerWidth="20" markerHeight="14">
+			<path d="M -10,-7 L 0,0 L -10,7" />
+		</marker>
+
 	</defs>
 
-	<!-- Our internal coordinate system is:
-
-		- the origin is in the center of the game area
-		- x axis: goes from the stairs to the building area from negative to positive (left to right)
-		- y axis: goes from the yellow to green start area from negative to positive (down to up)
-	-->
+	<g transform="rotate(90) scale(1,-1)">
 
 	<!-- red -->
 	<rect x="-1022" y="-1522" width="2044" height="3044" fill="#bb1e10"/>
@@ -348,4 +367,35 @@
 		<use x="-965" y="900"   id="popcorn-3" xlink:href="#popcorn"/>
 		<use x="-965" y="1200"  id="popcorn-4" xlink:href="#popcorn"/>
 	</g>
+
+	</g>
+
+	<script type="text/javascript"><![CDATA[
+		const xlinkNS = "http://www.w3.org/1999/xlink";
+
+		var drawing = document.getElementById("drawing");
+
+		// Various helper methods
+
+		drawing.createElement = function(tag) {
+			return document.createElementNS(this.namespaceURI, tag);
+		};
+
+		Element.prototype.setAttributes = function(attrs) {
+			for(var k in attrs) {
+				if(k == "xlink:href") {
+					this.setAttributeNS(xlinkNS, k, attrs[k]);
+				} else {
+					this.setAttribute(k, attrs[k]);
+				}
+			}
+		}
+
+		// compute distance between two objects
+		function distance(a,b) {
+			return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+		}
+
+	]]></script>
+
 </svg>
