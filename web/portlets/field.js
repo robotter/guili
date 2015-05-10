@@ -41,7 +41,7 @@ Portlet.register({
 
   updatePosition: function(params) {
     this.svg_robot.setAttributes({
-      'transform': "translate("+params.x+","+params.y+") rotate("+(params.a*180/Math.PI)+")",
+      'transform': "translate("+params.x+","+(-params.y - 1000)+") rotate("+(params.a*180/Math.PI)+")",
     });
   },
 
