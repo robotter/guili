@@ -37,7 +37,7 @@ Portlet.register({
     // init worker
     this.request_id = 0;
     this.callbacks = {};
-    this.worker = new Worker("portlets/console-worker.js");
+    this.worker = new Worker("portlets/console-worker.js?_="+(new Date().getTime()));
 
     this.worker.onmessage = function(ev) {
       var data = ev.data;
