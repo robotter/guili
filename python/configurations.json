@@ -1,28 +1,50 @@
 {
-  "default": [
-    ["console"],
-    ["logs"],
-    ["graph"],
-    ["field"],
-    ["asserv"],
-    ["meca"]
-  ],
-  "monitoring": [
-    ["console", {
-      "position": { "x": 575, "y": 5 }
-    }],
-    ["logs", {
-      "position": { "x": 575, "y": 210 }
-    }],
-    ["graph", {
-      "position": { "x": 260, "y": 5 },
-      "view": "position"
-    }],
-    ["asserv", {
-      "position": { "x": 5, "y": 5 }
-    }],
-    ["meca", {
-      "position": { "x": 5, "y": 90 }
-    }]
-  ]
+	"default": [
+		["console"],
+		["logs"],
+		["graph"],
+		["field"],
+		["asserv"],
+		["meca"]
+			],
+		"monitoring": [
+			["console", {
+				"position": { "x": 575, "y": 5 }
+			}],
+		["logs", {
+			"position": { "x": 575, "y": 210 }
+		}],
+		["graph", {
+			"position": { "x": 260, "y": 5 },
+			"view": "position"
+		}],
+		["asserv", {
+			"position": { "x": 5, "y": 5 }
+		}],
+		["meca", {
+			"position": { "x": 5, "y": 90 }
+		}]
+	],
+	"og": 
+	[
+		["asserv",{
+			"position": {"x": 494,"y": 186,"w": 230,"h": 76}
+		}],
+		["console",{
+		"position": {"x": 3,"y": 535,"w": 781,"h": 172}
+		}],
+		["graph",{
+		"position": {"x": 494,"y": 0,"w": 298,"h": 184},
+		"view": "position"
+		}],
+		["logs",{
+		"position": {"x": 3,"y": 342,"w": 780,"h": 191}
+		}],
+		["field",{
+		"position": {"x": 3,"y": 0,"w": 489,"h": 340}
+		}],
+		["meca",{
+		"position": {"x": 494,"y": 264,"w": 117,"h": 76}
+		}]
+	]
 }
