@@ -17,7 +17,7 @@
     var ptypes = msg.ptypes
     var nargs = args.length;
     var kw;
-    if(args[nargs-1] instanceof Object) {
+    if(args[nargs-1] instanceof Object && !args[nargs-1] instanceof Array) {
       // last parameter contains keyword parameters
       kw = args[--nargs];
     }
