@@ -471,7 +471,11 @@ $(document).on('portlets-configurations', function(ev, configs) {
 
   // if there are no portlets, assume startup and load the default conf
   if(Portlet.instances.length == 0) {
-    Portlet.setConfiguration(configs['default']);
+    var conf = window.location.hash.substr(1);
+    if(conf == "" || configs[conf] === undefined) {
+      conf = "default";
+    }
+    Portlet.setConfiguration(configs[conf]);
   }
 });
 
