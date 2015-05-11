@@ -48,23 +48,16 @@
 	<defs id="defs">
 		<style type="text/css"><![CDATA[
 
-			.table-marker {
-				stroke: #888;
-				stroke-width: 2;
-				z-index: -10;
-			}
-
-			#galipeur polygon {
+			#def-galipeur polygon {
 				fill: #00ff00;
 				stroke: black;
 				stroke-width: 10;
 			}
-			#galipeur circle {
+			#def-galipeur circle {
 				fill: #ff0000;
 				stroke: black;
 				stroke-width: 5;
 			}
-
 
 		]]></style>
 
