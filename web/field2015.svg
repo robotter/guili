@@ -370,6 +370,9 @@
 
 	</g>
 
+	<g id="reference-frame" transform="translate(0, 1000) scale(1,-1)">
+	</g>
+
 	<script type="text/javascript"><![CDATA[
 		const xlinkNS = "http://www.w3.org/1999/xlink";
 
