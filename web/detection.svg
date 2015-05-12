@@ -31,6 +31,9 @@
 
   </g>
 
+  <g id="reference-frame" transform="rotate(180)">
+  </g>
+
   <script type="text/javascript"><![CDATA[
     const xlinkNS = "http://www.w3.org/1999/xlink";
 
