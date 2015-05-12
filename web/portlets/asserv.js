@@ -26,6 +26,13 @@ Portlet.register({
       var tds = this.content.find('td');
       $(tds[5]).text(params.i + " / " + params.size);
     });
+
+    var self = this;
+    $(document).on('field-point-xy', function(ev, x, y) {
+      var tds = self.content.find('td');
+      $(tds[6]).text(x.toFixedHtml(0));
+      $(tds[7]).text(y.toFixedHtml(0));
+    });
   },
 });
 

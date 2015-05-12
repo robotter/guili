@@ -28,6 +28,17 @@ Portlet.register({
       });
       frame.appendChild(svg_robot);
 
+      // send event when clicking on field
+      $(field).on('mousedown', function(ev) {
+        // get drawing position from mouse position
+        var pos = field.createSVGPoint();
+        pos.x = ev.clientX;
+        pos.y = ev.clientY;
+        pos = pos.matrixTransform(frame.getScreenCTM().inverse());
+        // send event
+        $.event.trigger('field-point-xy', [pos.x, pos.y]);
+      });
+
       // set portlet properties
       self.field = field;
       self.frame = frame;
