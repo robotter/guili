@@ -7,8 +7,8 @@ Portlet.register({
 
     var state_to_color = {
       busy: 'red',
-      ready: 'orange',
-      ground_clear: 'green',
+      ready: 'green',
+      ground_clear: 'orange',
     };
 
     var self = this;
