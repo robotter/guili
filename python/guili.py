@@ -109,7 +109,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     self.send_header('Content-type', mimetype)
     fstat = os.fstat(f.fileno())
     self.send_header('Content-Length', str(fstat[6]))
-    self.send_header('Last-Modified', self.date_time_string(fstat.st_mtime))
+    #self.send_header('Last-Modified', self.date_time_string(fstat.st_mtime))
     self.end_headers()
     # output file content
     shutil.copyfileobj(f, self.wfile)
