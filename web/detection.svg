@@ -22,12 +22,15 @@
 
   <g>
 
-		<line class="area" x1="0" y1="0" x2="150" y2="0"/>
     <circle class="area" cx="0" cy="0" r="150" />
+    <text x="153" y="-5" font-size="12">150</text>
     <circle class="area" cx="0" cy="0" r="100" />
+    <text x="103" y="-5" font-size="12">100</text>
     <circle class="area" cx="0" cy="0" r="50" />
+    <text x="53" y="-5" font-size="12">50</text>
     <circle class="area" cx="0" cy="0" r="20" />
-    <circle class="area" cx="0" cy="0" r="10" />
+    <text x="23" y="-5" font-size="12">20</text>
+    <line class="area" x1="0" y1="0" x2="150" y2="0"/>
 
   </g>
 
