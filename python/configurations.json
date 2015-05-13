@@ -51,8 +51,8 @@
     [ "asserv", { "position": { "x": 494, "y": 0, "w": 252, "h": 102 } } ],
     [ "console", { "position": { "x": 756, "y": 336, "w": 595, "h": 263 } } ],
     [ "logs", { "position": { "x": 756, "y": 0, "w": 595, "h": 334 } } ],
-    [ "graph", { "position": { "x": 3, "y": 349, "w": 488, "h": 250 }, "view": "position" } ],
     [ "meca", { "position": { "x": 494, "y": 126, "w": 117, "h": 76 } } ],
-    [ "field", { "position": { "x": 3, "y": 0, "w": 489, "h": 340 } } ]
+    [ "field", { "position": { "x": 3, "y": 0, "w": 489, "h": 340 } } ],
+    [ "detection", { "position": { "x": 424, "y": 306, "w": 330, "h": 293 } } ]
   ]
 }
