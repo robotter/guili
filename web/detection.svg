@@ -9,13 +9,10 @@
       .ping-red {
         fill:red;
       }
-      .ping-blue {
-        fill:blue;
+      .arc {
+        stroke:orange;
+        stroke-width:1;
       }
-			.arc {
-				stroke:orange;
-				stroke-width:1;
-			}
       ]]></style>
 
   </defs>
@@ -56,11 +53,6 @@
           this.setAttribute(k, attrs[k]);
         }
       }
-    }
-
-    // compute distance between two objects
-    function distance(a,b) {
-      return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
     }
 
   ]]></script>
