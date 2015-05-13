@@ -31,26 +31,29 @@ Portlet.register({
   },
 
   addDetection: function() {
-    var d = {};
     var self = this;
+    var d = {};
+
+    // add container SVG object
+    d.svg = this.field.createElement('g');
+    this.frame.appendChild(d.svg);
 
     // add "ping" SVG object
     d.ping = this.field.createElement('circle');
     d.ping.setAttributes({
-      'class':'ping-red',
-      'cx':'100', 'cy':'0',
-      'r':'4',
+      'class': 'ping-red',
+      'cx': '100', 'cy': '0', 'r': '4',
     });
-    this.frame.appendChild(d.ping);
+    d.svg.appendChild(d.ping);
 
-    // add arc SVG object (two lines)
+    // add arc SVG objects (two lines)
     ['arc1', 'arc2'].forEach(function(name) {
       var arc = self.field.createElement('line');
       arc.setAttributes({
-        'class':'arc',
-        'x1':'0', 'y1':'0',
+        'class': 'arc',
+        'x1': '0', 'y1': '0',
       });
-      self.frame.appendChild(arc);
+      d.svg.appendChild(arc);
       d[name] = arc;
     });
 
@@ -63,15 +66,7 @@ Portlet.register({
     if(d === undefined) {
       d = this.addDetection();
     }
-    if(params.detected) {
-      d.ping.setAttribute('opacity', '1');
-      d.arc1.setAttribute('opacity', '1');
-      d.arc2.setAttribute('opacity', '1');
-    } else {
-      d.ping.setAttribute('opacity', '0');
-      d.arc1.setAttribute('opacity', '0');
-      d.arc2.setAttribute('opacity', '0');
-    }
+    d.svg.setAttribute('opacity', params.detected ? '1' : '0');
 
     var r = params.r/10.0;
     var radius;
