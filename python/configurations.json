@@ -28,14 +28,13 @@
 	"og": 
 	[
 		["asserv",{
-			"position": {"x": 494,"y": 186,"w": 252,"h": 102}
+			"position": {"x": 494,"y": 0,"w": 252,"h": 102}
 		}],
 		["console",{
 		"position": {"x": 3,"y": 535,"w": 781,"h": 172}
 		}],
-		["graph",{
-		"position": {"x": 494,"y": 0,"w": 298,"h": 184},
-		"view": "position"
+		["detection",{
+		"position": {"x": 494,"y": 26,"w": 287,"h": 287}
 		}],
 		["logs",{
 		"position": {"x": 3,"y": 342,"w": 780,"h": 191}
