@@ -20,7 +20,6 @@ Portlet.register({
 
       self.detections = [];
       self.field = field;
-      self.frame = field.getElementById('reference-frame')
 
       self.bindFrame('r3d2_tm_detection', self.updateDetections);
       self.bindFrame('r3d2_tm_arcs', self.updateArcs);
@@ -33,10 +32,13 @@ Portlet.register({
   addDetection: function() {
     var self = this;
     var d = {};
+    var ref_frame = self.field.getElementById('reference-frame');
+    var txt_frame = self.field.getElementById('coords-frame');
+
 
     // add container SVG object
     d.svg = this.field.createElement('g');
-    this.frame.appendChild(d.svg);
+    ref_frame.appendChild(d.svg);
 
     // add "ping" SVG object
     d.ping = this.field.createElement('circle');
@@ -57,6 +59,24 @@ Portlet.register({
       d[name] = arc;
     });
 
+    // add texts for coordinates
+    d.txt_r = this.field.createElement('text');
+    d.txt_r.setAttributes({
+      'x': 0, 'y': 18 * this.detections.length,
+      'text-align': 'right', 'text-anchor': 'end',
+      'font-size': 15, 'fill': 'red',
+    });
+    d.txt_r.textContent = '?'
+    txt_frame.appendChild(d.txt_r);
+    d.txt_a = this.field.createElement('text');
+    d.txt_a.setAttributes({
+      'x': 60, 'y': 18 * this.detections.length,
+      'text-align': 'right', 'text-anchor': 'end',
+      'font-size': 15, 'fill': 'red',
+    });
+    d.txt_a.textContent = '?'
+    txt_frame.appendChild(d.txt_a);
+
     this.detections.push(d);
     return d;
   },
@@ -66,7 +86,16 @@ Portlet.register({
     if(d === undefined) {
       d = this.addDetection();
     }
-    d.svg.setAttribute('opacity', params.detected ? '1' : '0');
+    if(params.detected) {
+      d.svg.setAttribute('opacity', 1);
+      d.txt_r.textContent = params.r.toFixedHtml(0);
+      d.txt_a.textContent = params.a.toFixedHtml(2);
+    } else {
+      d.svg.setAttribute('opacity', 0);
+      d.txt_r.textContent = '';
+      d.txt_a.textContent = '';
+      return;
+    }
 
     var r = params.r/10.0;
     var radius;
