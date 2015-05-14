@@ -28,6 +28,14 @@ Portlet.register({
       });
       frame.appendChild(svg_robot);
 
+      // create SVG carrot
+      var svg_carrot = field.createElement('use');
+      svg_carrot.setAttributes({
+        'id': 'carrot',
+        'xlink:href': '#def-carrot',
+      });
+      frame.appendChild(svg_carrot);
+
       // send event when clicking on field
       $(field).on('mousedown', function(ev) {
         // get drawing position from mouse position
@@ -43,8 +51,12 @@ Portlet.register({
       self.field = field;
       self.frame = frame;
       self.svg_robot = svg_robot;
+      self.svg_carrot = svg_carrot;
 
       self.bindFrame('asserv_tm_xya', self.updatePosition);
+      self.bindFrame('asserv_tm_htraj_carrot_xy', function(params) {
+        self.svg_carrot.setAttributes({x: params.x, y: params.y});
+      });
 
       df.resolve();
     };

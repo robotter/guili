@@ -59,6 +59,12 @@
 				stroke-width: 5;
 			}
 
+			#def-carrot circle {
+				fill: #00ff00;
+				stroke: black;
+				stroke-width: 10;
+			}
+
 		]]></style>
 
 		<!-- helper objects -->
@@ -207,6 +213,10 @@
 			<polygon points="0,170 147,-85 -147,-85"/>
 			<circle r="40" cx="70" cy="-70" />
 			<circle r="40" cx="-70" cy="-70" />
+		</g>
+
+		<g id="def-carrot">
+			<circle r="40" />
 		</g>
 
 	</defs>
