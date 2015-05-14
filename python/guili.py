@@ -260,6 +260,9 @@ class TestGuiliServer(GuiliServer):
     rome.frame.register_messages(
         (0x20, [
           ('asserv_tm_xya',   [('x','dist'), ('y','dist'), ('a','angle')]),
+          ('asserv_tm_htraj_carrot_xy', [('x','dist'), ('y','dist')]),
+          ('r3d2_tm_detection', [('i','uint8'), ('detected','bool'), ('a','angle'), ('r','dist')]),
+          ('r3d2_tm_arcs', [('i','uint8'), ('a1','angle'), ('a2','angle')]),
           ('order_dummy', [('arg1','dist'), ('arg2','uint8')]),
           ]),
         )
@@ -286,15 +289,40 @@ class TestGuiliServer(GuiliServer):
     import math
     r = 600 / (idev + 1)
     N = 100 / (idev + 1)
+
+    # detection frames
+    detection = [
+            [None,              (math.pi/3, 1000)],
+            [(-math.pi/6,  50), (math.pi/3,  800)],
+            [(-math.pi/3, 100), (math.pi/4,  500)],
+            [(-math.pi/3, 500), (math.pi/4,  500)],
+            [(-math.pi/6, 500),  None],
+            [None,  None],
+            ]
+    detection = { N*i/len(detection): v for i,v in enumerate(detection) }
+
     for i in itertools.cycle(range(N)):
       if i == 0:
         yield rome.Frame('log', 'notice', "%s: new turn" % robot)
       elif i == N/2:
         yield rome.Frame('log', 'info', "%s: half turn" % robot)
+      # asserv carrot
+      if i % (N/6) == 0:
+        yield rome.Frame('asserv_tm_htraj_carrot_xy',
+            int(r * math.cos(2*((i+N/6) % N)*math.pi/N)),
+            int(r * math.sin(2*((i+N/6) % N)*math.pi/N))+1000)
+      # asserv position
       yield rome.Frame('asserv_tm_xya',
           int(r * math.cos(2*i*math.pi/N)),
           int(r * math.sin(2*i*math.pi/N))+1000,
           math.pi*(2.0*i/N))
+      if i in detection:
+        d = detection[i]
+        for j,v in enumerate(detection[i]):
+          if v is None:
+            yield rome.Frame('r3d2_tm_detection', j, False, 0, 0)
+          else:
+            yield rome.Frame('r3d2_tm_detection', j, True, *v)
       yield None
 
 
