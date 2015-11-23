@@ -1,0 +1,724 @@
+<svg version="1.1"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns="http://www.w3.org/2000/svg"
+	width="3300" height="2500"
+	viewBox="-1650 -1250 3300 2500"
+	id="drawing">
+
+	<!--
+		Copyright (c) 2015-2016, Roboterclub Aachen e.V.
+		All rights reserved.
+
+		Redistribution and use in source and binary forms, with or without
+		modification, are permitted provided that the following conditions are met:
+
+		 * Redistributions of source code must retain the above copyright
+		   notice, this list of conditions and the following disclaimer.
+		 * Redistributions in binary form must reproduce the above copyright
+		   notice, this list of conditions and the following disclaimer in the
+		   documentation and/or other materials provided with the distribution.
+		 * Neither the name of the Roboterclub Aachen e.V. nor the
+		   names of its contributors may be used to endorse or promote products
+		   derived from this software without specific prior written permission.
+
+		THIS SOFTWARE IS PROVIDED BY ROBOTERCLUB AACHEN E.V. ''AS IS'' AND ANY
+		EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+		WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+		DISCLAIMED. IN NO EVENT SHALL ROBOTERCLUB AACHEN E.V. BE LIABLE FOR ANY
+		DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+		(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+		ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+		(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+		SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 	-->
+
+ 	<title>Eurobot 2016 Game Arena</title>
+
+ 	<!-- The official eurobot colors are:
+		- sky blue:			RAL5015		#007cb0
+		- traffic yellow:	RAL1023		#f7b500
+		- signal violet:	RAL4008		#844c82
+		- emerald green:	RAL6001		#366735
+		- dark black:		RAL9005		#0e0e10
+		- traffic white:	RAL9016		#f1f0ea
+		- pebble gray:		RAL7032		#b5b0a1
+		- daffodil yellow:	RAL1007		#e88c00
+
+		The colors are hardcoded since this significantly speeds up drawing.
+	-->
+	<defs id="defs">
+		<style type="text/css"><![CDATA[
+
+			#def-galipeur polygon {
+				fill: #00ff00;
+				stroke: black;
+				stroke-width: 10;
+			}
+			#def-galipeur circle {
+				fill: #ff0000;
+				stroke: black;
+				stroke-width: 5;
+			}
+
+			#def-carrot circle {
+				fill: #00ff00;
+				stroke: black;
+				stroke-width: 10;
+			}
+
+		]]></style>
+
+		<!-- beacons are always the same -->
+		<g id="beacon" z="350">
+			<!-- drawn so that the origin is in the middle of the beacon -->
+			<rect x="-40" y="-40" width="80" height="80" fill="black"/>
+			<!-- the small gray squares in the corners -->
+			<rect x="-40" y="-40" width="20" height="20"/>
+			<rect x="20" y="-40" width="20" height="20"/>
+			<rect x="20" y="20" width="20" height="20"/>
+			<rect x="-40" y="20" width="20" height="20"/>
+			<!-- the small screws -->
+			<circle cx="-30" cy="-30" r="2.5" stroke="black" stroke-width="1" fill-opacity="0"/>
+			<circle cx="30" cy="-30" r="2.5" stroke="black" stroke-width="1" fill-opacity="0"/>
+			<circle cx="-30" cy="30" r="2.5" stroke="black" stroke-width="1" fill-opacity="0"/>
+			<circle cx="30" cy="30" r="2.5" stroke="black" stroke-width="1" fill-opacity="0"/>
+
+			<!-- the border -->
+			<rect x="-40" y="-40" width="80" height="80" stroke="black" stroke-width="2" fill-opacity="0"/>
+		</g>
+
+		<!-- the start areas are 500x300mm with two white stripes -->
+		<g id="start-area">
+			<rect x="-400" y="-1500" width="500" height="300"/>
+			<rect x="-350" y="-1500" width="50" height="300" fill="#f1f0ea"/>
+			<rect x="0" y="-1500" width="50" height="300" fill="#f1f0ea"/>
+		</g>
+
+		<!-- the dolphin ground painting -->
+		<g id="delphin">
+			<path stroke="#0e0e10" fill-opacity="0" stroke-width="20" d="
+				M458 507
+				A329,329   0 0 0 496.6 536
+				A7.7,7.7   0 0 0 506.3 532.4
+				A80,80     0 0 0 510 455
+				"/>
+			<path stroke="#f7b500" fill-opacity="0" stroke-width="20" d="
+				M436.5 518
+				A324,324   0 0 0 525 430
+				"/>
+			<path stroke="#0e0e10" fill-opacity="0" stroke-width="20" d="
+				M265,300
+				A180,180   0 0 0 256 495
+				A128,128   0 0 0 250 552
+				A51,51     0 0 0 296 591
+				A231,231   0 0 0 366 535
+				A325,325   0 0 0 549 337
+				A162,162   0 0 0 684 212
+				A180,180   0 0 1 562 245
+				A189,189   0 0 0 264 126
+				A466,466   0 0 0 143 55
+				A10.5,10.5 0 0 0 131 69
+				A2045,2045 1 0 0 222 171
+				A463,463   0 0 1 123 334
+				A98,98     0 0 0 32 310
+				A24,24     0 0 0 26.5 335
+				A250,250   0 0 1 16 552
+				A23,23     0 0 0 53 574
+				A171,171   0 0 0 138.6 438.6
+				A145,145   0 0 1 231.6 405
+				"/>
+			</g>
+
+		<!-- static game elements -->
+
+		<!-- the rocks are two quarter circles with radius 150mm (66z) and 250mm (44z) -->
+		<g id="rock">
+			<path zheight="44" stroke="black" stroke-width="1" fill="#b5b0a1" d="
+				M750,-1500
+				A250,250 0 0 0 1000 -1250
+				L1000,-1500
+				Z
+				"/>
+			<path zheight="66" stroke="black" stroke-width="1" fill="#b5b0a1" d="
+				M850,-1500
+				A150,150 0 0 0 1000 -1350
+				L1000,-1500
+				Z
+				"/>
+		</g>
+
+		<!-- the fish net pattern consisting of only a diagonal cross -->
+		<pattern id="net" x="1022" y="0" width="70" height="55" stroke="black" stroke-width="6" patternUnits="userSpaceOnUse">
+			<line x1="0" y1="0" x2="70" y2="55"/>
+			<line x1="0" y1="55" x2="70" y2="0"/>
+		</pattern>
+		<!-- the holder includes the two holder structures and the net pattern -->
+		<g id="net-holder" stroke="black" stroke-width="1">
+			<rect x="1022" y="-550" z="60" width="210" height="1100" stroke-width="0" fill="url(#net)"/>
+			<line x1="1229" y1="-550" x2="1229" y2="550" stroke-width="6"/>
+			<rect x="978" y="550" width="254" height="22" zheight="100" fill="#007cb0"/>
+			<rect x="978" y="-572" width="254" height="22" zheight="100" fill="#007cb0"/>
+		</g>
+
+		<!-- the water tank walls are 5mm acryllic and it is filled with water -->
+		<g id="water-tank" z="-5" zheight="75" stroke="black" stroke-width="1">
+			<rect x="1022" y="-1002" width="210" height="410" fill="white"/>
+			<rect x="1027" y="-997" width="200" height="400" fill="blue" fill-opacity="0.15"/>
+		</g>
+
+		<g id="dune-area" stroke="black" stroke-width="1">
+			<rect x="-1022" y="0" width="22" height="700" zheight="390" fill="#e88c00"/>
+			<rect x="-1022" y="-700" width="22" height="700" zheight="390" fill="#f7b500"/>
+
+			<rect x="-1000" y="678" width="200" height="22" zheight="22" fill="#e88c00"/>
+			<rect x="-1000" y="-700" width="200" height="22" zheight="22" fill="#e88c00"/>
+		</g>
+
+		<!-- origin (-250, 0) -->
+		<g id="windbreaker" stroke="black" stroke-width="1">
+			<!-- the filled circumfence -->
+			<path stroke-width="0" d="
+				M-250,-600
+				A600,600 0 0 1 350 0
+				L330,0
+				A580,580 0 0 0 -250 -580
+				Z
+				"/>
+			<!-- Rod No. 1 -->
+			<rect x="-250" y="-600" width="22" height="576" zheight="22" fill="#e88c00"/>
+			<!-- Rod No. 2 -->
+			<rect x="-228" y="-24" width="556" height="22" zheight="22" fill="#e88c00"/>
+			<!-- Lines for Rods No. 3 -->
+			<line x1="-206" y1="-24" x2="-206" y2="-2"/>
+			<line x1="306"  y1="-24" x2="306"  y2="-2"/>
+
+			<!-- Fills for Rods No. 5 -->
+			<rect x="-250" y="-24" width="22" height="25" zheight="350" stroke-width="0" fill="#e88c00"/>
+			<rect x="328"  y="-24" width="22" height="25" zheight="350" stroke-width="0" fill="#e88c00"/>
+			<!-- Lines for Rods No. 5 -->
+			<path fill="#e88c00" z="350" d="
+				M-250,1
+				L-250,-24
+				L-228,-24
+				L-228,1
+				M328,1
+				L328,-24
+				L350,-24
+				L350,1
+				"/>
+		</g>
+
+		<!-- origin (-1000, 0), as well as centered on y-axis -->
+		<g id="hut" stroke="black" stroke-width="1" transform="translate(-999,0)">
+			<!-- door hinge -->
+			<!-- <path fill="#f1f0ea" d="
+				M-22,-40
+				L-22,-61
+				A11,11 0 0 1 0 -61
+				L0,-40
+				Z
+				"/> -->
+			<!-- the actual door -->
+			<g transform="translate(-11,-61) rotate(-30)" movement="rotate:-30,0">
+				<!-- the hinge mechanism with hole -->
+				<path z="71" zheight="22" fill="#f1f0ea" fill-rule="evenodd" d="
+					M+11,0
+					A11,11 0 0 0 -11 0
+					L-11,22
+					L-90,22
+					A95,95 0 0 0 0 95
+					L11,95
+					Z
+					M-39,46
+					A15,15 0 0 0 -39 76
+					A15,15 0 0 0 -39 46
+					"/>
+				<!-- hinge axis -->
+				<circle cx="0" cy="0" r="3" fill="#f1f0ea"/>
+				<!-- door base color -->
+				<rect x="11" y="11" width="10" height="100" zheight="200" stroke-width="0"/>
+				<!-- white stripes -->
+				<rect x="11" y="11" width="10" height="25" zheight="200" stroke-width="0" fill="#f1f0ea"/>
+				<rect x="11" y="61" width="10" height="25" zheight="200" stroke-width="0" fill="#f1f0ea"/>
+				<!-- door outline -->
+				<rect x="11" y="11" z="200" width="10" height="100" fill-opacity="0"/>
+
+			</g>
+			<!-- base color -->
+			<rect x="-100" y="-60" width="100" height="120" zheight="210" stroke-width="0"/>
+			<!-- white stripes -->
+			<rect x="-100" y="-60" width="25"  height="120" zheight="210" stroke-width="0" fill="#f1f0ea"/>
+			<rect x="-50"  y="-60" width="25"  height="120" zheight="210" stroke-width="0" fill="#f1f0ea"/>
+			<!-- roof outline -->
+			<rect x="-100" y="-60" z="210" width="100" height="120" fill-opacity="0"/>
+			<!-- roof lines -->
+			<line x1="-100" y1="0" x2="0" y2="0" z="210"/>
+			<line x1="-100" y1="-7" x2="0" y2="-7" z="210"/>
+			<!-- cutout for the flag -->
+			<rect x="-60" y="-10" z="210" width="20" height="20" fill="#f1f0ea"/>
+			<!-- flag -->
+			<rect x="-52" y="8" z="425" width="4" height="75" zheight="75"/>
+			<!-- flag pole -->
+			<circle cx="-50" cy="0" zheight="500" r="9"/>
+		</g>
+
+		<!-- mobile game elements: have a 2px border! -->
+
+		<!-- sand cube, cone & cylinder -->
+		<rect id="sand-cube" x="-29" y="-29" width="58" height="58" zheight="58" mobility="any" stroke="black" stroke-width="2" fill="#e88c00"/>
+		<circle id="sand-cylinder" r="29" zheight="58" mobility="any" stroke="black" stroke-width="2" fill="#e88c00"/>
+		<g id="sand-cone" zheight="58" mobility="any" stroke="black" stroke-width="2" fill="#e88c00">
+			<circle r="29"/>
+			<circle r="20" stroke-width="0.5"/>
+			<circle r="10" stroke-width="0.5"/>
+			<circle r="1" stroke-width="0.5"/>
+		</g>
+
+		<!-- seashells -->
+		<g id="seashell" mobility="any" stroke="black" stroke-width="2">
+			<circle r="38.1" zheight="25"/>
+			<rect x="-2" y="-30" width="4" height="60" zheight="100"/>
+		</g>
+
+		<!-- fish -->
+		<g id="fish" mobility="any" stroke="black" stroke-width="2">
+			<path z="21.5" zheight="10" d="
+				M-41,5
+				A50,50 0 0 0 41 5
+				L56,5
+				L56,-5
+				L41,-5
+				A50,50 0 0 0 -41 -5
+				"/>
+			<rect x="-41" y="-5" width="82" height="10" zheight="53"/>
+			<rect x="-2" y="-69" width="4" height="138" zheight="92" stroke-width="1" fill="gray"/>
+		</g>
+
+		<!-- aliases to all seashell positions -->
+		<!-- our rocks -->
+		<use x="935" y="-1435" z="66" id="seashell-1"  xlink:href="#seashell"/>
+		<use x="815" y="-1420" z="44" id="seashell-2"  xlink:href="#seashell"/>
+		<use x="920" y="-1315" z="44" id="seashell-3"  xlink:href="#seashell"/>
+		<!-- right of our start area -->
+		<use x="250" y="-1300" z="0"  id="seashell-4"  xlink:href="#seashell"/>
+		<use x="550" y="-1300" z="0"  id="seashell-5"  xlink:href="#seashell"/>
+		<!-- top right of our start area -->
+		<use x="250" y="-800"  z="0"  id="seashell-6"  xlink:href="#seashell"/>
+		<use x="550" y="-800"  z="0"  id="seashell-7"  xlink:href="#seashell"/>
+		<use x="850" y="-800"  z="0"  id="seashell-8"  xlink:href="#seashell" fill="#f1f0ea"/>
+		<!-- diagonal top right of our start area -->
+		<use x="450" y="-600"  z="0"  id="seashell-9"  xlink:href="#seashell"/>
+		<use x="650" y="-300"  z="0"  id="seashell-10" xlink:href="#seashell"/>
+		<!-- the middle -->
+		<use x="550" y="0"     z="0"  id="seashell-11" xlink:href="#seashell" fill="#f1f0ea"/>
+		<use x="850" y="0"     z="0"  id="seashell-12" xlink:href="#seashell" fill="#f1f0ea"/>
+		<!-- diagonal top left of their start area -->
+		<use x="650" y="300"   z="0"  id="seashell-13" xlink:href="#seashell"/>
+		<use x="450" y="600"   z="0"  id="seashell-14" xlink:href="#seashell"/>
+		<!-- top left of their start area -->
+		<use x="250" y="800"   z="0"  id="seashell-15" xlink:href="#seashell"/>
+		<use x="550" y="800"   z="0"  id="seashell-16" xlink:href="#seashell"/>
+		<use x="850" y="800"   z="0"  id="seashell-17" xlink:href="#seashell" fill="#f1f0ea"/>
+		<!-- left of their start area -->
+		<use x="250" y="1300"  z="0"  id="seashell-18" xlink:href="#seashell"/>
+		<use x="550" y="1300"  z="0"  id="seashell-19" xlink:href="#seashell"/>
+		<!-- their rocks -->
+		<use x="920" y="1315"  z="44" id="seashell-20" xlink:href="#seashell"/>
+		<use x="815" y="1420"  z="44" id="seashell-21" xlink:href="#seashell"/>
+		<use x="935" y="1435"  z="66" id="seashell-22" xlink:href="#seashell"/>
+
+		<g id="def-galipeur">
+			<polygon points="0,170 147,-85 -147,-85"/>
+			<circle r="40" cx="70" cy="-70" />
+			<circle r="40" cx="-70" cy="-70" />
+		</g>
+
+		<g id="def-carrot">
+			<circle r="40" />
+		</g>
+
+	</defs>
+
+	<g transform="rotate(90) scale(1,-1)">
+
+	<!-- yellow game area including border -->
+	<rect x="-1022" y="-1522" width="2044" height="3044" fill="#f7b500"/>
+	<!-- blue game area including border:
+		- small circle: origin (550, ±900) with radius 350
+	 	- big circle: origin (-650, 0) with radius 1150
+		Collision points: (270, ±690)
+	-->
+	<path fill="#007cb0" d="
+		M+200,-1522
+		L+200,-900
+		A350,350   0 0 0 270,-690
+		A1150,1150 0 0 1 270,+690
+		A350,350   0 0 0 200,+900
+		L+200,+1522
+		L+1022,+1522
+		L+1022,-1522
+		Z
+	"/>
+
+	<use id="rock-ours"   xlink:href="#rock"/>
+	<use id="rock-theirs" xlink:href="#rock" transform="scale(1,-1)"/>
+
+	<use id="delphin-ours"   xlink:href="#delphin" transform="translate(-1000,-1500)"/>
+	<use id="delphin-theirs" xlink:href="#delphin" transform="translate(-1000,+1500) scale(1,-1)"/>
+
+	<use id="starting-area-ours"   xlink:href="#start-area" fill="#844c82"/>
+	<use id="starting-area-theirs" xlink:href="#start-area" fill="#366735" transform="scale(1,-1)"/>
+
+	<use id="windbreaker-ours"   xlink:href="#windbreaker" fill="#844c82"/>
+	<use id="windbreaker-theirs" xlink:href="#windbreaker" fill="#366735" transform="scale(1,-1)"/>
+
+	<use id="dune" xlink:href="#dune-area"/>
+
+	<!-- draw the borders of the game area -->
+	<g fill-opacity="0" stroke="black" stroke-width="2">
+		<rect x="-1022" y="-1522" width="2044" height="3044"/>
+		<rect x="-1000" y="-1500" width="2000" height="3000"/>
+	</g>
+
+	<!-- draw the beacons -->
+	<g id="beacons">
+		<!-- ordered -x=>+x -->
+		<use x="-1062" y="-1562" id="beacon-theirs-1" xlink:href="#beacon" fill="#366735"/>
+		<use x="0"     y="-1562" id="beacon-ours-2"   xlink:href="#beacon" fill="#844c82"/>
+		<use x="1062"  y="-1562" id="beacon-theirs-3" xlink:href="#beacon" fill="#366735"/>
+
+		<use x="-1062" y="1562"  id="beacon-ours-1"   xlink:href="#beacon" fill="#844c82"/>
+		<use x="0"     y="1562"  id="beacon-theirs-2" xlink:href="#beacon" fill="#366735"/>
+		<use x="1062"  y="1562"  id="beacon-ours-3"   xlink:href="#beacon" fill="#844c82"/>
+	</g>
+
+	<!-- draw the fish net -->
+	<use id="fish-net" xlink:href="#net-holder"/>
+
+	<!-- draw the fish net -->
+	<use id="fish-tank-ours"   xlink:href="#water-tank"/>
+	<use id="fish-tank-theirs" xlink:href="#water-tank" transform="scale(1,-1)"/>
+
+	<!-- draw the huts -->
+	<g id="huts">
+		<use x="0" y="-1200" id="hut-ours-1" xlink:href="#hut" fill="#844c82"/>
+		<use x="0" y="-900"  id="hut-ours-2" xlink:href="#hut" fill="#844c82"/>
+
+		<use x="0" y="-1200" id="hut-theirs-1" xlink:href="#hut" fill="#366735" transform="scale(1,-1)"/>
+		<use x="0" y="-900"  id="hut-theirs-2" xlink:href="#hut" fill="#366735" transform="scale(1,-1)"/>
+	</g>
+
+	<!-- mobile game elements -->
+
+	<!-- how much is the fish? -->
+	<g id="fishs">
+		<!-- our fish -->
+		<use x="1160" y="-915" id="fish-ours-1" xlink:href="#fish" fill="#844c82"/>
+		<use x="1080" y="-835" id="fish-ours-2" xlink:href="#fish" fill="#844c82"/>
+		<use x="1160" y="-755" id="fish-ours-3" xlink:href="#fish" fill="#844c82"/>
+		<use x="1080" y="-675" id="fish-ours-4" xlink:href="#fish" fill="#844c82"/>
+		<!-- their fish -->
+		<use x="1080" y="675"  id="fish-theirs-1" xlink:href="#fish" fill="#366735"/>
+		<use x="1160" y="755"  id="fish-theirs-2" xlink:href="#fish" fill="#366735"/>
+		<use x="1080" y="835"  id="fish-theirs-3" xlink:href="#fish" fill="#366735"/>
+		<use x="1160" y="915"  id="fish-theirs-4" xlink:href="#fish" fill="#366735"/>
+	</g>
+
+	<!-- All sand related things -->
+	<g id="sand">
+		<!-- identifiers ordered -z => +z then -y => +y then -x => +x -->
+		<!-- Note: there is no 'z' element in SVG, we use that internally for 2.5D support -->
+
+		<!-- Z layer 0 -->
+		<!-- the cubes right in front of our starting zone -->
+		<use x="-129" y="-879"  z="0"   id="sand-1" xlink:href="#sand-cube"/>
+		<use x="-71"  y="-879"  z="0"   id="sand-2" xlink:href="#sand-cube"/>
+		<use x="-129" y="-821"  z="0"   id="sand-3" xlink:href="#sand-cube"/>
+		<use x="-71"  y="-821"  z="0"   id="sand-4" xlink:href="#sand-cube"/>
+		<!-- the cubes left of the dune -->
+		<use x="-971" y="-649"  z="0"   id="sand-5" xlink:href="#sand-cube"/>
+		<use x="-913" y="-649"  z="0"   id="sand-6" xlink:href="#sand-cube"/>
+		<use x="-971" y="-591"  z="0"   id="sand-7" xlink:href="#sand-cube"/>
+		<use x="-913" y="-591"  z="0"   id="sand-8" xlink:href="#sand-cube"/>
+		<!-- the cubes and one cylinder in the middle of the dune -->
+		<use x="-971" y="-232"  z="0"   id="sand-9"  xlink:href="#sand-cube"/>
+		<use x="-971" y="-174"  z="0"   id="sand-10" xlink:href="#sand-cube"/>
+		<use x="-971" y="-116"  z="0"   id="sand-11" xlink:href="#sand-cube"/>
+		<use x="-971" y="-58"   z="0"   id="sand-12" xlink:href="#sand-cube"/>
+		<use x="-913" y="-58"   z="0"   id="sand-13" xlink:href="#sand-cube"/>
+		<use x="-971" y="0"     z="0"   id="sand-14" xlink:href="#sand-cube"/>
+		<use x="-913" y="0"     z="0"   id="sand-15" xlink:href="#sand-cube"/>
+		<use x="-855" y="0"     z="0"   id="sand-16" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="58"    z="0"   id="sand-17" xlink:href="#sand-cube"/>
+		<use x="-913" y="58"    z="0"   id="sand-18" xlink:href="#sand-cube"/>
+		<use x="-971" y="116"   z="0"   id="sand-19" xlink:href="#sand-cube"/>
+		<use x="-971" y="174"   z="0"   id="sand-20" xlink:href="#sand-cube"/>
+		<use x="-971" y="232"   z="0"   id="sand-21" xlink:href="#sand-cube"/>
+		<!-- the cubes right of the dune -->
+		<use x="-971" y="591"   z="0"   id="sand-22" xlink:href="#sand-cube"/>
+		<use x="-913" y="591"   z="0"   id="sand-23" xlink:href="#sand-cube"/>
+		<use x="-971" y="649"   z="0"   id="sand-24" xlink:href="#sand-cube"/>
+		<use x="-913" y="649"   z="0"   id="sand-25" xlink:href="#sand-cube"/>
+		<!-- the cubes right in front of their starting zone -->
+		<use x="-129" y="821"   z="0"   id="sand-26" xlink:href="#sand-cube"/>
+		<use x="-71"  y="821"   z="0"   id="sand-27" xlink:href="#sand-cube"/>
+		<use x="-129" y="879"   z="0"   id="sand-28" xlink:href="#sand-cube"/>
+		<use x="-71"  y="879"   z="0"   id="sand-29" xlink:href="#sand-cube"/>
+
+		<!-- Z layer 1 -->
+		<!-- the cylinder on top of the cubes in front of our starting zone -->
+		<use x="-100" y="-850" z="58"  id="sand-30" xlink:href="#sand-cylinder"/>
+		<!-- the cubes on top of the cubes left of the dune -->
+		<use x="-971" y="-649" z="58"  id="sand-31" xlink:href="#sand-cube"/>
+		<use x="-913" y="-649" z="58"  id="sand-32" xlink:href="#sand-cube"/>
+		<use x="-971" y="-591" z="58"  id="sand-33" xlink:href="#sand-cube"/>
+		<use x="-913" y="-591" z="58"  id="sand-34" xlink:href="#sand-cube"/>
+		<!-- the cubes and cylinders in the middle of the dune -->
+		<use x="-971" y="-174" z="58"  id="sand-35" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="-116" z="58"  id="sand-36" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="-58"  z="58"  id="sand-37" xlink:href="#sand-cube"/>
+		<use x="-913" y="-58"  z="58"  id="sand-38" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="0"    z="58"  id="sand-39" xlink:href="#sand-cube"/>
+		<use x="-913" y="0"    z="58"  id="sand-40" xlink:href="#sand-cube"/>
+		<use x="-971" y="58"   z="58"  id="sand-41" xlink:href="#sand-cube"/>
+		<use x="-913" y="58"   z="58"  id="sand-42" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="116"  z="58"  id="sand-43" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="174"  z="58"  id="sand-44" xlink:href="#sand-cylinder"/>
+		<!-- the cubes on top of the cubes right of the dune -->
+		<use x="-971" y="591"  z="58"  id="sand-45" xlink:href="#sand-cube"/>
+		<use x="-913" y="591"  z="58"  id="sand-46" xlink:href="#sand-cube"/>
+		<use x="-971" y="649"  z="58"  id="sand-47" xlink:href="#sand-cube"/>
+		<use x="-913" y="649"  z="58"  id="sand-48" xlink:href="#sand-cube"/>
+		<!-- the cylinder on top of the cubes in front of their starting zone -->
+		<use x="-100" y="850"  z="58"  id="sand-49" xlink:href="#sand-cylinder"/>
+
+		<!-- Z layer 2 -->
+		<!-- the cone on top of the cylinder on top of the cubes in front of our starting zone -->
+		<use x="-100" y="-850" z="116" id="sand-50" xlink:href="#sand-cone"/>
+		<!-- the cylinder on top of the cubes left of the dune -->
+		<use x="-942" y="-620" z="116" id="sand-51" xlink:href="#sand-cylinder"/>
+		<!-- the cylinders in the middle of the dune -->
+		<use x="-971" y="-116" z="116" id="sand-52" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="-58"  z="116" id="sand-53" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="0"    z="116" id="sand-54" xlink:href="#sand-cylinder"/>
+		<use x="-913" y="0"    z="116" id="sand-55" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="58"   z="116" id="sand-56" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="116"  z="116" id="sand-57" xlink:href="#sand-cylinder"/>
+		<!-- the cylinder on top of the cubes right of the dune -->
+		<use x="-942" y="620"  z="116" id="sand-58" xlink:href="#sand-cylinder"/>
+		<!-- the cone on top of the cylinder on top of the cubes in front of their starting zone -->
+		<use x="-100" y="850"  z="116" id="sand-59" xlink:href="#sand-cone"/>
+
+		<!-- Z layer 3 -->
+		<!-- the cone on top of the cylinder on top of the cubes left of the dune -->
+		<use x="-942" y="-620" z="174" id="sand-60" xlink:href="#sand-cone"/>
+		<!-- the cones and cylinders in the middle of the dune -->
+		<use x="-971" y="-116" z="174" id="sand-61" xlink:href="#sand-cone"/>
+		<use x="-971" y="-58"  z="174" id="sand-62" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="0"    z="174" id="sand-63" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="58"   z="174" id="sand-64" xlink:href="#sand-cylinder"/>
+		<use x="-971" y="116"  z="174" id="sand-65" xlink:href="#sand-cone"/>
+		<!-- the cone on top of the cylinder on top of the cubes right of the dune -->
+		<use x="-942" y="620"  z="174" id="sand-66" xlink:href="#sand-cone"/>
+
+		<!-- Z layer 4 -->
+		<!-- the cones in the middle of the dune -->
+		<use x="-971" y="-58"  z="232" id="sand-67" xlink:href="#sand-cone"/>
+		<use x="-971" y="0"    z="232" id="sand-68" xlink:href="#sand-cone"/>
+		<use x="-971" y="58"   z="232" id="sand-69" xlink:href="#sand-cone"/>
+	</g>
+
+	<!-- she sells sea shells on the seashore -->
+	<!-- we use the system language to switch between the 5 position cards -->
+	<!-- The language tags were chosen for hilarity and are:
+		- Card #1: ha
+		- Card #2: he
+		- Card #3: hi
+		- Card #4: ho
+		- Card #5: hr
+		The typical non-exotic audience will however just see the default
+		Card #6 which paints a seashell in all possible positions.
+	-->
+	<switch id="seashells">
+		<!-- Card #1 -->
+		<g systemLanguage="ha"> <!-- Hausa -->
+			<use id="seashell-ours-1"   xlink:href="#seashell-1"  fill="#844c82"/>
+			<use id="seashell-ours-2"   xlink:href="#seashell-2"  fill="#844c82"/>
+			<use id="seashell-ours-3"   xlink:href="#seashell-3"  fill="#844c82"/>
+
+			<use id="seashell-1"        xlink:href="#seashell-4"  fill="#f1f0ea"/>
+			<use id="seashell-2"        xlink:href="#seashell-5"  fill="#f1f0ea"/>
+
+			<use id="seashell-ours-4"   xlink:href="#seashell-9"  fill="#844c82"/>
+			<use id="seashell-theirs-1" xlink:href="#seashell-10" fill="#366735"/>
+			<use id="seashell-1"        xlink:href="#seashell-11"/>
+			<use id="seashell-2"        xlink:href="#seashell-12"/>
+			<use id="seashell-ours-5"   xlink:href="#seashell-13" fill="#844c82"/>
+			<use id="seashell-theirs-2" xlink:href="#seashell-14" fill="#366735"/>
+
+			<use id="seashell-3"        xlink:href="#seashell-18" fill="#f1f0ea"/>
+			<use id="seashell-4"        xlink:href="#seashell-19" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-3" xlink:href="#seashell-20" fill="#366735"/>
+			<use id="seashell-theirs-4" xlink:href="#seashell-21" fill="#366735"/>
+			<use id="seashell-theirs-5" xlink:href="#seashell-22" fill="#366735"/>
+		</g>
+		<!-- Card #2 -->
+		<g systemLanguage="he"> <!-- Hebrew -->
+			<use id="seashell-1"        xlink:href="#seashell-1"  fill="#f1f0ea"/>
+			<use id="seashell-ours-1"   xlink:href="#seashell-2"  fill="#844c82"/>
+			<use id="seashell-ours-2"   xlink:href="#seashell-3"  fill="#844c82"/>
+
+			<use id="seashell-ours-3"   xlink:href="#seashell-4"  fill="#844c82"/>
+			<use id="seashell-2"        xlink:href="#seashell-5"  fill="#f1f0ea"/>
+
+			<use id="seashell-ours-4"   xlink:href="#seashell-9"  fill="#844c82"/>
+			<use id="seashell-ours-5"   xlink:href="#seashell-10" fill="#844c82"/>
+			<use id="seashell-1"        xlink:href="#seashell-11"/>
+			<use id="seashell-2"        xlink:href="#seashell-12"/>
+			<use id="seashell-theirs-1" xlink:href="#seashell-13" fill="#366735"/>
+			<use id="seashell-theirs-2" xlink:href="#seashell-14" fill="#366735"/>
+
+			<use id="seashell-theirs-3" xlink:href="#seashell-18" fill="#366735"/>
+			<use id="seashell-3"        xlink:href="#seashell-19" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-4" xlink:href="#seashell-20" fill="#366735"/>
+			<use id="seashell-theirs-5" xlink:href="#seashell-21" fill="#366735"/>
+			<use id="seashell-4"        xlink:href="#seashell-22" fill="#f1f0ea"/>
+		</g>
+		<!-- Card #3 -->
+		<g systemLanguage="hi"> <!-- Hindi -->
+			<use id="seashell-1"        xlink:href="#seashell-1"  fill="#f1f0ea"/>
+			<use id="seashell-ours-1"   xlink:href="#seashell-2"  fill="#844c82"/>
+			<use id="seashell-ours-2"   xlink:href="#seashell-3"  fill="#844c82"/>
+
+			<use id="seashell-ours-3"   xlink:href="#seashell-4"  fill="#844c82"/>
+			<use id="seashell-2"        xlink:href="#seashell-5"  fill="#f1f0ea"/>
+
+			<use id="seashell-ours-4"   xlink:href="#seashell-6"  fill="#844c82"/>
+			<use id="seashell-3"        xlink:href="#seashell-7"  fill="#f1f0ea"/>
+
+			<use id="seashell-ours-5"   xlink:href="#seashell-10" fill="#844c82"/>
+			<use id="seashell-theirs-1" xlink:href="#seashell-13" fill="#366735"/>
+
+			<use id="seashell-theirs-2" xlink:href="#seashell-15" fill="#366735"/>
+			<use id="seashell-4"        xlink:href="#seashell-16" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-3" xlink:href="#seashell-18" fill="#366735"/>
+			<use id="seashell-5"        xlink:href="#seashell-19" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-4" xlink:href="#seashell-20" fill="#366735"/>
+			<use id="seashell-theirs-5" xlink:href="#seashell-21" fill="#366735"/>
+			<use id="seashell-6"        xlink:href="#seashell-22" fill="#f1f0ea"/>
+		</g>
+		<!-- Card #4 -->
+		<g systemLanguage="ho"> <!-- Hiri Motu -->
+			<use id="seashell-1"        xlink:href="#seashell-1"  fill="#f1f0ea"/>
+			<use id="seashell-theirs-1" xlink:href="#seashell-2"  fill="#366735"/>
+			<use id="seashell-theirs-2" xlink:href="#seashell-3"  fill="#366735"/>
+
+			<use id="seashell-ours-1"   xlink:href="#seashell-4"  fill="#844c82"/>
+			<use id="seashell-ours-2"   xlink:href="#seashell-5"  fill="#844c82"/>
+
+			<use id="seashell-ours-3"   xlink:href="#seashell-6"  fill="#844c82"/>
+			<use id="seashell-2"        xlink:href="#seashell-7"  fill="#f1f0ea"/>
+
+			<use id="seashell-3"        xlink:href="#seashell-10" fill="#f1f0ea"/>
+			<use id="seashell-4"        xlink:href="#seashell-13" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-3" xlink:href="#seashell-15" fill="#366735"/>
+			<use id="seashell-5"        xlink:href="#seashell-16" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-4" xlink:href="#seashell-18" fill="#366735"/>
+			<use id="seashell-theirs-5" xlink:href="#seashell-19" fill="#366735"/>
+
+			<use id="seashell-ours-4"   xlink:href="#seashell-20" fill="#844c82"/>
+			<use id="seashell-ours-5"   xlink:href="#seashell-21" fill="#844c82"/>
+			<use id="seashell-6"        xlink:href="#seashell-22" fill="#f1f0ea"/>
+		</g>
+		<!-- Card #5 -->
+		<g systemLanguage="hr"> <!-- Croatian -->
+			<use id="seashell-1"        xlink:href="#seashell-1"  fill="#f1f0ea"/>
+			<use id="seashell-ours-1"   xlink:href="#seashell-2"  fill="#844c82"/>
+			<use id="seashell-2"        xlink:href="#seashell-3"  fill="#f1f0ea"/>
+
+			<use id="seashell-ours-2"   xlink:href="#seashell-4"  fill="#844c82"/>
+			<use id="seashell-ours-3"   xlink:href="#seashell-5"  fill="#844c82"/>
+
+			<use id="seashell-ours-4"   xlink:href="#seashell-6"  fill="#844c82"/>
+			<use id="seashell-theirs-1" xlink:href="#seashell-7"  fill="#366735"/>
+			<use id="seashell-3"        xlink:href="#seashell-8" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-2" xlink:href="#seashell-15" fill="#366735"/>
+			<use id="seashell-ours-5"   xlink:href="#seashell-16" fill="#844c82"/>
+			<use id="seashell-4"        xlink:href="#seashell-17" fill="#f1f0ea"/>
+
+			<use id="seashell-theirs-3" xlink:href="#seashell-18" fill="#366735"/>
+			<use id="seashell-theirs-4" xlink:href="#seashell-19" fill="#366735"/>
+
+			<use id="seashell-5"        xlink:href="#seashell-20" fill="#f1f0ea"/>
+			<use id="seashell-theirs-5" xlink:href="#seashell-21" fill="#366735"/>
+			<use id="seashell-6"        xlink:href="#seashell-22" fill="#f1f0ea"/>
+		</g>
+		<!-- Card #6 showing all possible positions -->
+		<g>
+			<use xlink:href="#seashell-1" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-2" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-3" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-4" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-5" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-6" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-7" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-8" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-9" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-10" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-11" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-12" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-13" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-14" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-15" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-16" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-17" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-18" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-19" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-20" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-21" fill="#f1f0ea"/>
+			<use xlink:href="#seashell-22" fill="#f1f0ea"/>
+		</g>
+	</switch>
+
+	</g>
+
+	<g id="reference-frame" transform="translate(0, 1000) scale(1,-1)">
+	</g>
+
+	<script type="text/javascript"><![CDATA[
+		const xlinkNS = "http://www.w3.org/1999/xlink";
+
+		var drawing = document.getElementById("drawing");
+
+		// Various helper methods
+
+		drawing.createElement = function(tag) {
+			return document.createElementNS(this.namespaceURI, tag);
+		};
+
+		Element.prototype.setAttributes = function(attrs) {
+			for(var k in attrs) {
+				if(k == "xlink:href") {
+					this.setAttributeNS(xlinkNS, k, attrs[k]);
+				} else {
+					this.setAttribute(k, attrs[k]);
+				}
+			}
+		}
+
+		// compute distance between two objects
+		function distance(a,b) {
+			return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+		}
+
+	]]></script>
+
+</svg>
