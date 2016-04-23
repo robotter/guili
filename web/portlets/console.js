@@ -49,7 +49,7 @@ Portlet.register({
           cb(data);
         }
       } else if(method == 'rome') {
-        gs.sendRomeMessage(data.name, data.params);
+        gs.sendRomeMessage(data.robot, data.name, data.params);
       } else if(method == 'log') {
         console.log(data.data);  // for debug
       }
@@ -66,7 +66,7 @@ Portlet.register({
     };
 
     $(document).on('rome-messages', function(ev, messages) {
-      self.worker.send('messages', { messages: messages }, null);
+      self.worker.send('messages', { robots: gs.robots, messages: messages }, null);
     });
     gs.callMethod('rome_messages', {});
 

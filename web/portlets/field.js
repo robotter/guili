@@ -7,6 +7,8 @@ Portlet.register({
     Portlet.prototype.init.call(this, options);
     this.node.css('width', '200px');
     this.node.resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+    this.svg_robots = {};
+    this.svg_carrots = {};
 
     // wait for the SVG document to be loaded before using it
     var self = this;
@@ -20,21 +22,12 @@ Portlet.register({
       self.node.height(self.node.width() * viewBox.height / viewBox.width);
       var frame = field.getElementById('reference-frame');
 
-      // create SVG robot
-      var svg_robot = field.createElement('use');
-      svg_robot.setAttributes({
-        'id': 'galipeur',
-        'xlink:href': '#def-galipeur',
-      });
-      frame.appendChild(svg_robot);
+      // set portlet properties
+      self.field = field;
+      self.frame = frame;
 
-      // create SVG carrot
-      var svg_carrot = field.createElement('use');
-      svg_carrot.setAttributes({
-        'id': 'carrot',
-        'xlink:href': '#def-carrot',
-      });
-      frame.appendChild(svg_carrot);
+      // create SVG robots and carrots
+      self.initSvgElements(gs.robots);
 
       // send event when clicking on field
       $(field).on('mousedown', function(ev) {
@@ -47,25 +40,47 @@ Portlet.register({
         $.event.trigger('field-point-xy', [pos.x, pos.y]);
       });
 
-      // set portlet properties
-      self.field = field;
-      self.frame = frame;
-      self.svg_robot = svg_robot;
-      self.svg_carrot = svg_carrot;
-
-      self.bindFrame('asserv_tm_xya', self.updatePosition);
-      self.bindFrame('asserv_tm_htraj_carrot_xy', function(params) {
-        self.svg_carrot.setAttributes({x: params.x, y: params.y});
+      self.bindFrame(null, 'asserv_tm_xya', self.updatePosition);
+      self.bindFrame(null, 'asserv_tm_htraj_carrot_xy', function(robot, params) {
+        self.svg_carrots[robot].setAttributes({x: params.x, y: params.y});
       });
 
       df.resolve();
     };
-
-    return df.promise();
   },
 
-  updatePosition: function(params) {
-    this.svg_robot.setAttributes({
+  initSvgElements: function(robots) {
+    // remove existing elements
+    for(var robot in this.svg_robots) {
+      this.frame.removeChild(this.svg_robots[robot]);
+    }
+    for(var robot in this.svg_carrots) {
+      this.frame.removeChild(this.svg_carrots[robot]);
+    }
+
+    var self = this;
+    robots.forEach(function(robot) {
+      // create SVG robot
+      var svg_robot = self.field.createElement('use');
+      svg_robot.setAttributes({
+        'xlink:href': '#def-galipeur',
+      });
+      self.frame.appendChild(svg_robot);
+
+      // create SVG carrot
+      var svg_carrot = self.field.createElement('use');
+      svg_carrot.setAttributes({
+        'xlink:href': '#def-carrot',
+      });
+      self.frame.appendChild(svg_carrot);
+
+      self.svg_robots[robot] = svg_robot;
+      self.svg_carrots[robot] = svg_carrot;
+    });
+  },
+
+  updatePosition: function(robot, params) {
+    this.svg_robots[robot].setAttributes({
       'transform': "translate("+params.x+","+params.y+") rotate("+(params.a*180/Math.PI)+")",
     });
   },

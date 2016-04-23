@@ -48,27 +48,8 @@ Portlet.register({
 
     Portlet.prototype.init.call(this, options);
     this.value_count = options.value_count ? options.value_count : this.default_value_count;
-    var self = this;
 
-    // create the view menu
-    {
-      var icon = $('<i class="fa fa-eye" />').prependTo(this.header);
-      var menu = $('<ul class="portlet-header-menu" />').appendTo(this.header);
-      for(var i=0; i<this.views.length; ++i) {
-        var view = this.views[i];
-        var item = $('<li><a href="#"></a></li>').appendTo(menu);
-        item.data('name', view.name);
-        item.children('a').text(view.pretty_name)
-      }
-
-      menu.clickMenu(icon, {
-        select: function(ev, ui) {
-          self.setView(ui.item.data('name'));
-          self.view_menu.hide();
-        },
-      });
-      this.view_menu = menu;
-    }
+    this.initViewMenu(gs.robots);
 
     // create and configure the plot
     var plotdiv = $(this.content.children('div')[0]);
@@ -81,16 +62,41 @@ Portlet.register({
     });
 
     // set initial view, also create the plot
-    this.setView(options.view ? options.view : this.views[0].name);
+    this.setView(options.robot ? options.robot : gs.robots[0], options.view ? options.view : this.views[0].name);
+  },
+
+  initViewMenu: function(robots) {
+    var self = this;
+
+    this.header.find('.view-menu').remove();
+    var icon = $('<i class="fa fa-eye view-menu" />').prependTo(this.header);
+    var menu = $('<ul class="portlet-header-menu view-menu" />').appendTo(this.header);
+    robots.forEach(function(robot) {
+      self.views.forEach(function(view) {
+        var item = $('<li><a href="#"></a></li>').appendTo(menu);
+        item.data('robot', robot);
+        item.data('name', view.name);
+        item.children('a').text(robot + " › " + view.pretty_name)
+      });
+    });
+
+    menu.clickMenu(icon, {
+      select: function(ev, ui) {
+        self.setView(ui.item.data('robot'), ui.item.data('name'));
+        self.view_menu.hide();
+      },
+    });
+    this.view_menu = menu;
   },
 
   getOptions: function() {
     var options = Portlet.prototype.getOptions.call(this);
     options.view = this.view.name;
+    options.robot = this.view_robot;
     return options;
   },
 
-  updateData: function(params) {
+  updateData: function(robot, params) {
     for(var i=0; i<this.data.length; ++i) {
       var d = this.data[i].data;
       d.push([this.t, this.view.series[i].getter(params)]);
@@ -113,7 +119,7 @@ Portlet.register({
     this.t++;
   },
 
-  setView: function(name) {
+  setView: function(robot, name) {
     var view;
     for(var i=0; i<this.views.length; ++i) {
       view = this.views[i];
@@ -125,9 +131,10 @@ Portlet.register({
       console.error("unknown graph view: "+name);
       return;
     }
-    if(this.view === view) {
+    if(this.view_robot == robot && this.view === view) {
       return;  // no change, nothing to do
     }
+    this.view_robot = robot;
     this.view = view;
 
     // initialize data
@@ -160,7 +167,7 @@ Portlet.register({
 
     // register new frame handlers
     this.unbindFrame();
-    this.bindFrame(view.frameName, this.updateData);
+    this.bindFrame(robot, view.frameName, this.updateData);
   },
 
 });

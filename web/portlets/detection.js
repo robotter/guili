@@ -18,18 +18,21 @@ Portlet.register({
       var viewBox = field.viewBox.baseVal;
       self.node.height(self.node.width() * viewBox.height / viewBox.width);
 
-      self.detections = [];
+      self.detections = {};
+      gs.robots.forEach(function(robot) {
+        self.detections[robot] = [];
+      });
       self.field = field;
 
-      self.bindFrame('r3d2_tm_detection', self.updateDetections);
-      self.bindFrame('r3d2_tm_arcs', self.updateArcs);
+      self.bindFrame(null, 'r3d2_tm_detection', self.updateDetections);
+      self.bindFrame(null, 'r3d2_tm_arcs', self.updateArcs);
       df.resolve();
     };
 
     return df.promise();
   },
 
-  addDetection: function() {
+  addDetection: function(robot) {
     var self = this;
     var d = {};
     var ref_frame = self.field.getElementById('reference-frame');
@@ -59,10 +62,12 @@ Portlet.register({
       d[name] = arc;
     });
 
+    var detections = this.detections[robot];
+
     // add texts for coordinates
     d.txt_r = this.field.createElement('text');
     d.txt_r.setAttributes({
-      'x': 0, 'y': 18 * this.detections.length,
+      'x': 0, 'y': 18 * detections.length,
       'text-align': 'right', 'text-anchor': 'end',
       'font-size': 15, 'fill': 'red',
     });
@@ -70,19 +75,19 @@ Portlet.register({
     txt_frame.appendChild(d.txt_r);
     d.txt_a = this.field.createElement('text');
     d.txt_a.setAttributes({
-      'x': 60, 'y': 18 * this.detections.length,
+      'x': 60, 'y': 18 * detections.length,
       'text-align': 'right', 'text-anchor': 'end',
       'font-size': 15, 'fill': 'red',
     });
     d.txt_a.textContent = '?'
     txt_frame.appendChild(d.txt_a);
 
-    this.detections.push(d);
+    detections.push(d);
     return d;
   },
 
-  updateDetections: function(params) {
-    var d = this.detections[params.i];
+  updateDetections: function(robot, params) {
+    var d = this.detections[robot][params.i];
     if(d === undefined) {
       d = this.addDetection();
     }
@@ -117,8 +122,8 @@ Portlet.register({
     });
   },
 
-  updateArcs: function(params) {
-    var d = this.detections[params.i];
+  updateArcs: function(robot, params) {
+    var d = this.detections[robot][params.i];
     if(d === undefined) {
       d = this.addDetection();
     }

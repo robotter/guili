@@ -125,6 +125,9 @@
         }
         // define new ones
         self.rome = {};
+        request.robots.forEach(function(robot) {
+          self[robot] = {};
+        });
         for(var k in request.messages) {
           (function() {
             var name = k;
@@ -134,9 +137,15 @@
               var p = ptypes[i];
               msg.name2type[p[0]] = p[1];
             }
-            self.rome[k] = function() {
-              postMessage({ method: 'rome', name: name, params: packRomeParams(msg, arguments) });
+            var f = function() {
+              var args = Array.from(arguments);
+              var robot = args.shift();
+              postMessage({ method: 'rome', robot: robot, name: name, params: packRomeParams(msg, args) });
             };
+            self.rome[k] = f.bind(null, null);
+            request.robots.forEach(function(robot) {
+              self[robot][k] = f.bind(null, robot);
+            });
             if(self[k] === undefined) {
               self[k] = self.rome[k];
             }

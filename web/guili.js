@@ -24,6 +24,8 @@ $.ajaxSetup({ cache: false });
 
 var gs = {
   ws: null,  // WebSocket object
+  robots: null,  // list of handled robots
+  voltages: {},  // voltages, indexed by robot
 
   // start or restart the socket
   // return a Deferred object resolved when connection is opened
@@ -78,21 +80,24 @@ var gs = {
   },
 
   // send a ROME message
-  sendRomeMessage: function(name, params) {
-    this.callMethod('rome', { name: name, params: params });
+  sendRomeMessage: function(robot, name, params) {
+    this.callMethod('rome', { robot: robot, name: name, params: params });
   },
 
   // event handlers
   event_handler: {
     frame: function(params) {
-      Portlet.handleFrame(params.name, params.params);
-      $.event.trigger('rome-frame', [params.name, params.params]);
+      Portlet.handleFrame(params.robot, params.name, params.params);
+      $.event.trigger('rome-frame', [params.robot, params.name, params.params]);
     },
     messages: function(params) {
       $.event.trigger('rome-messages', [params.messages]);
     },
     log: function(params) {
       $.event.trigger('ws-log', [params.severity, params.message]);
+    },
+    robots: function(params) {
+      $.event.trigger('robots', [params.robots]);
     },
     configurations: function(params) {
       $.event.trigger('portlets-configurations', [params.configurations]);
@@ -224,30 +229,48 @@ Portlet.prototype = {
   },
 
   // register a ROME frame handler
-  bindFrame: function(name, cb) {
-    if(!(name in Portlet.frame_handlers)) {
-      Portlet.frame_handlers[name] = [];
-    }
-    Portlet.frame_handlers[name].push([this, cb]);
+  bindFrame: function(robot, name, cb) {
+    Portlet.frame_handlers.push([this, robot, name, cb]);
   },
 
   // unregister ROME frame handlers
-  // if name is not provided, unregister all frame handlers
-  unbindFrame: function(name) {
-    if(name) {
-      var handlers = Portlet.frame_handlers[name];
-      for(var i=handlers.length-1; i>=0; i--) {
-        if(handlers[i][0] === this) {
-          handlers.splice(i, 1);
-        }
-      }
-    } else {
-      for(var name in Portlet.frame_handlers) {
-        this.unbindFrame(name);
-      }
-    }
+  // if robot and name filter are optional
+  unbindFrame: function(robot, name) {
+    var filter = function(elem) {
+      return !(elem[0] === this && (!robot || elem[1] == robot) && (!name || elem[2] == name));
+    };
+    Portlet.frame_handlers = Portlet.frame_handlers.filter(filter);
   },
 
+  // Add or update for robot selection
+  // The menu is stored as view_menu property.
+  // If null is found in robots, an "all" entry is added
+  setRobotViewMenu: function(robots, onselect) {
+    var self = this;
+
+    this.header.find('.view-menu').remove();
+    var icon = $('<i class="fa fa-eye" />').prependTo(this.header);
+    var menu = $('<ul class="portlet-header-menu" />').appendTo(this.header);
+    robots.forEach(function(robot) {
+      if(robot === null) {
+        var item = $('<li><a href="#"><span style="font-style: italic"></span></a></li>').appendTo(menu);
+        item.data('robot', null);
+        item.find('span').text('all');
+      } else {
+        var item = $('<li><a href="#"></a></li>').appendTo(menu);
+        item.data('robot', robot);
+        item.children('a').text(robot);
+      }
+    });
+
+    menu.clickMenu(icon, {
+      select: function(ev, ui) {
+        onselect(ui.item.data('robot'));
+        self.view_menu.hide();
+      },
+    });
+    this.view_menu = menu;
+  },
 };
 
 // Load all portlet, return a Deferred object
@@ -322,11 +345,12 @@ Portlet.create = function(root, name, options) {
 };
 
 // Trigger ROME frame handlers
-Portlet.handleFrame = function(name, params) {
-  var handlers = this.frame_handlers[name];
-  if(handlers) {
-    handlers.forEach(function(v) { v[1].call(v[0], params); });
-  }
+Portlet.handleFrame = function(robot, name, params) {
+  Portlet.frame_handlers.forEach(function(handler) {
+    if(handler[2] == name && (!handler[1] || handler[1] == robot)) {
+      handler[3].call(handler[0], robot, params);
+    }
+  });
 };
 
 // Get current portlets configuration
@@ -358,9 +382,10 @@ Portlet.setConfiguration = function(conf) {
 Portlet.classes = {};
 // List of portlet instances
 Portlet.instances = [];
-// Map or ROME frame handlers
-// indexes are frame name, values are lists of (portlet, handler) pairs
-Portlet.frame_handlers = {};
+// List or ROME frame handlers
+// Values are lists of (portlet, robot, msg_name, handler) pairs
+// where robot is optional
+Portlet.frame_handlers = [];
 
 
 /*****/
@@ -440,17 +465,31 @@ $('#ws-status').click(function() {
 });
 
 // battery check
-$(document).on('rome-frame', function(ev, name, params) {
+$(document).on('rome-frame', function(ev, robot, name, params) {
   if(name == 'strat_tm_battery') {
-    var voltage = params.voltage;
-    $('#battery-status').text((voltage/1000).toFixedHtml(1) +' V');
-    $('body').toggleClass('battery-low', voltage < 13500);
+    gs.voltages[robot] = params.voltage;
+    for(var r in gs.voltages) {
+      var voltage = gs.voltages[r];
+    }
+    var text = [];
+    gs.robots.forEach(function(r) {
+      var voltage = gs.voltages[r];
+      if(voltage !== undefined) {
+        text.push(r + ": " + (voltage/1000).toFixedHtml(1) + ' V');
+      }
+    });
+    $('#battery-status').text(text.join(' | '));
+    $('body').toggleClass('battery-low',
+      Object.values(gs.voltages).some(function(v) { return v < 13500 })
+    );
   }
 });
 
-$(document).on('portlets-configurations', function(ev, configs) {
-  var set_default = false;
+$(document).on('robots', function(ev, robots) {
+  gs.robots = robots;
+});
 
+$(document).on('portlets-configurations', function(ev, configs) {
   // create/update the menu to change configuration
   var icon = $('#set-configuration-icon');
   var menu = $('#set-configuration-menu');
@@ -519,6 +558,8 @@ $(document).ready(function() {
       });
     }
 
+    // get a list of robots
+    gs.callMethod('robots', {});
     // load configurations
     gs.callMethod('configurations', {});
   });

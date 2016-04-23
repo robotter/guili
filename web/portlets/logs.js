@@ -6,6 +6,7 @@ Portlet.register({
   init: function(options) {
     Portlet.prototype.init.call(this, options);
     var self = this;
+    self.robot = options.robot
 
     // init HTML
     this.node.css('width', '300px');
@@ -15,7 +16,10 @@ Portlet.register({
     this.backlog = $(this.content.find('div.portlet-code')[0]);
     this.backlog_size = options.backlog_size ? options.backlog_size : 5000;
 
-    this.bindFrame('log', function(params) {
+    this.bindFrame(null, 'log', function(robot, params) {
+      if(self.robot && self.robot != robot) {
+        return;
+      }
       var entry = $('<div class="portlet-logs-entry" />').appendTo(self.backlog);
       var date = new Date();
       var str_date = ("0"+date.getHours()).slice(-2) +
@@ -36,6 +40,14 @@ Portlet.register({
     $('<i class="fa fa-trash-o" />').prependTo(this.header).click(function() {
       self.backlog.empty();
     });
+
+    this.setRobotViewMenu(gs.robots.concat([null]), function(robot) { self.robot = robot; });
+  },
+
+  getOptions: function() {
+    var options = Portlet.prototype.getOptions.call(this);
+    options.robot = this.robot;
+    return options;
   },
 
 });

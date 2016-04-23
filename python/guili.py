@@ -13,6 +13,7 @@ from websocket import WebSocketServer, WebSocketRequestHandler
 from SocketServer import ThreadingMixIn
 import rome
 from contextlib import contextmanager
+import serial
 
 if not mimetypes.inited:
   mimetypes.init()
@@ -126,7 +127,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     else:
       return self.send_error(404)
 
-  def bootloader_program(self, fhex):
+  def bootloader_program(self, robot, fhex):
     if bootloader is None:
       return self.send_error(400, "Bootloader client not found")
     if 'reset' not in rome.frame.messages_by_name:
@@ -134,12 +135,13 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     reset_frame_data = rome.Frame('reset').data()
 
     # prepare the bootloader client
-    bl = bootloader.Client(self.server.client.fo)
+    client = self.server.clients[robot]
+    bl = bootloader.Client(client.fo)
     self.log_message("prepare to program using bootloader")
 
-    with self.server.exclusive_mode():
+    with client.exclusive_mode(robot):
       for i in range(self.bootloader_sync_tries):
-        self.server.client.fo.write(reset_frame_data)
+        client.fo.write(reset_frame_data)
         try:
           with bl.timeout(self.bootloader_sync_timeout):
             bl.synchronize()
@@ -182,11 +184,15 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     with self.server.lock:
       self.server.requests.add(self)
 
+  def wsdo_robots(self):
+    """Send list of handled robots"""
+    self.send_event('robots', {'robots': self.server.robots})
+
   def wsdo_pause(self, paused):
     """Pause or unpause a client"""
     self.paused = bool(paused)
 
-  def wsdo_rome(self, name, params):
+  def wsdo_rome(self, robot, name, params):
     """Send a ROME message"""
     raise NotImplementedError
 
@@ -207,17 +213,20 @@ class GuiliServer(ThreadingMixIn, WebSocketServer):
   Attributes:
     lock -- lock for concurrent accesses
     requests -- set of request handlers of initialized clients
+    robots -- list of handled robots
+    configurations -- list of portlets configurations
 
   """
 
   daemon_threads = True
   GuiliRequestHandlerClass = GuiliRequestHandler
 
-  def __init__(self, addr):
+  def __init__(self, addr, robots):
     self.data = None
     self.requests = set()
     self.lock = threading.RLock()
     WebSocketServer.__init__(self, addr, self.GuiliRequestHandlerClass)
+    self.robots = robots
     # load configurations
     try:
       with open(os.path.join(os.path.dirname(__file__), 'configurations.json')) as f:
@@ -225,8 +234,8 @@ class GuiliServer(ThreadingMixIn, WebSocketServer):
     except IOError:
       self.configurations = {}
 
-  def on_frame(self, frame):
-    data = {'name': frame.msg.name, 'params': dict(zip(frame.params._fields, frame.params))}
+  def on_frame(self, robot, frame):
+    data = {'robot': robot, 'name': frame.msg.name, 'params': dict(zip(frame.params._fields, frame.params))}
     with self.lock:
       for r in self.requests:
         if not r.paused:
@@ -242,42 +251,46 @@ class TestGuiliServer(GuiliServer):
   """
 
   class GuiliRequestHandlerClass(GuiliRequestHandler):
-    def wsdo_rome(self, name, params):
-      print "ROME: %s %r" % (name, params)
+    def wsdo_rome(self, robot, name, params):
+      print "ROME[%s]: %s %r" % ('' if robot is None else robot, name, params)
 
-  def __init__(self, addr):
+  def __init__(self, addr, devices):
     # define only our messages
     rome.frame.unregister_all_messages()
     rome.frame.register_messages(
         (0x20, [
           ('asserv_tm_xya',   [('x','dist'), ('y','dist'), ('a','angle')]),
+          ('order_dummy', [('arg1','dist'), ('arg2','uint8')]),
           ]),
         )
-    GuiliServer.__init__(self, addr)
-    self._gen_frames = self.gen_frames()
+    GuiliServer.__init__(self, addr, [d[0] for d in devices])
+    self._frame_threads = [
+        TickThread(0.1, self.on_robot_event, [d[0], self.gen_frames(i, d[0])])
+        for i,d in enumerate(devices) ]
 
   def start(self):
-    TickThread(0.1, self.on_robot_event).start()
+    for th in self._frame_threads:
+      th.start()
     GuiliServer.start(self)
 
-  def on_robot_event(self, ev):
-    """Called on new event from the robot"""
+  def on_robot_event(self, robot, gen_frame):
+    """Called on new event from a robot"""
     while True:
-      frame = self._gen_frames.next()
+      frame = gen_frame.next()
       if frame is None:
         break
-      self.on_frame(frame)
+      self.on_frame(robot, frame)
 
-  def gen_frames(self):
+  def gen_frames(self, idev, robot):
     import itertools
     import math
-    r = 600
-    N = 100
+    r = 600 / (idev + 1)
+    N = 100 / (idev + 1)
     for i in itertools.cycle(range(N)):
       if i == 0:
-        yield rome.Frame('log', 'notice', "new turn")
+        yield rome.Frame('log', 'notice', "%s: new turn" % robot)
       elif i == N/2:
-        yield rome.Frame('log', 'info', "half turn")
+        yield rome.Frame('log', 'info', "%s: half turn" % robot)
       yield rome.Frame('asserv_tm_xya',
           int(r * math.cos(2*i*math.pi/N)),
           int(r * math.sin(2*i*math.pi/N))+1000,
@@ -290,55 +303,65 @@ class TickThread(threading.Thread):
   Dummy thread to trigger periodic GulliServer.on_robot_event() calls
   """
 
-  def __init__(self, dt, callback):
+  def __init__(self, dt, callback, args):
     threading.Thread.__init__(self)
     self.callback = callback
+    self.args = args
     self.dt = dt
     self.daemon = True
 
   def run(self):
     while True:
-      self.callback(None)
+      self.callback(*self.args)
       time.sleep(self.dt)
 
 
 class RomeClientGuiliServer(GuiliServer):
 
   class GuiliRequestHandlerClass(GuiliRequestHandler):
-    def wsdo_rome(self, name, params):
+    def wsdo_rome(self, robot, name, params):
       #TODO use cb_result/cb_ack when needed
       frame = rome.Frame(name, **params)
-      self.server.client.send(frame)
+      if robot is None:
+        for cl in self.server.clients:
+          cl.send(frame)
+      else:
+        self.server.clients[robot].send(frame)
 
   class RomeClientClass(rome.ClientEcho):
+
+    def __init__(self, server, robot, fo):
+      super(RomeClientClass, self).__init__(fo)
+      self.guili_server = self
+      self.guili_robot = robot
+      self.__lock = threading.RLock()
+
     def on_frame(self, frame):
       rome.ClientEcho.on_frame(self, frame)
-      self.guili_server.on_frame(frame)
+      self.guili_server.on_frame(self.guili_robot, frame)
 
-  def __init__(self, addr, rome_fo):
-    GuiliServer.__init__(self, addr)
-    self.client = self.RomeClientClass(rome_fo)
-    self.client.guili_server = self
+    @contextmanager
+    def exclusive_mode(self, robot):
+      """Return a context with exclusive access to the UART connection
+
+      The ROME client is stopped and the UART connection can be used directly.
+      """
+      with self.__lock:
+        try:
+          self.stop()
+          yield
+        finally:
+          self.start()
+
+  def __init__(self, addr, devices):
+    GuiliServer.__init__(self, addr, [d[0] for d in devices])
+    self.clients = { robot: self.RomeClientClass(robot, fo) for robot, fo in devices }
     self.__exclusive_mode_lock = threading.Lock()
 
   def start(self):
-    self.client.start(self)
+    for cl in self.server.clients:
+      cl.start(self)
     GuiliServer.start(self)
-
-  @contextmanager
-  def exclusive_mode(self):
-    """Return a context with exlusive access to the UART connection
-
-    The ROME client is stopped and the UART connection can be used directly.
-    """
-    with self.__exclusive_mode_lock:
-      try:
-        self.client.stop()
-        with self.lock:
-          yield
-      finally:
-        self.client.start()
-
 
 
 def main():
@@ -349,20 +372,39 @@ def main():
       help="path to web files")
   parser.add_argument('port', type=int,
       help="guili WebSocket server port")
-  parser.add_argument('device',
-      help="ROME serial device, 'TEST' for a dummy packet generator")
+  parser.add_argument('devices', nargs='+',
+      help="ROME serial devices, 'TEST' for a dummy packet generator. Device can be named by a 'name:' prefix.")
 
   args = parser.parse_args()
   if args.web_dir != '':
     GuiliRequestHandler.files_base_path = os.path.abspath(args.web_dir)
   rome.Frame.set_ack_range(128, 256)
 
-  print "starting server on port %d" % args.port
-  if args.device == 'TEST':
-    server = TestGuiliServer(('', args.port))
+  devices = []  # (name, address)
+  is_test = None
+  for device in args.devices:
+    if ':' in device:
+      name, addr = device.split(':', 1)
+    elif len(args.devices) > 1:
+      parser.error("multiple devices must be named")
+    else:
+      name, addr = 'robot', device
+    if is_test is not None:
+      if (addr == 'TEST') is not is_test:
+        parser.error("cannot mix test and regular devices")
+    else:
+      is_test = addr == 'TEST'
+    if is_test:
+      devices.append((name, None))
+    else:
+      devices.append((name, serial.Serial(addr, 38400, timeout=0.5)))
+
+  if is_test:
+    server_class = TestGuiliServer
   else:
-    import serial
-    server = RomeClientGuiliServer(('', args.port), serial.Serial(args.device, 38400, timeout=0.5))
+    server_class = RomeClientGuiliServer
+  print "starting server on port %d" % args.port
+  server = server_class(('', args.port), devices)
   server.start()
 
 if __name__ == '__main__':
