@@ -323,7 +323,7 @@ class RomeClientGuiliServer(GuiliServer):
       #TODO use cb_result/cb_ack when needed
       frame = rome.Frame(name, **params)
       if robot is None:
-        for cl in self.server.clients:
+        for cl in self.clients.values():
           cl.send(frame)
       else:
         self.server.clients[robot].send(frame)
@@ -331,7 +331,7 @@ class RomeClientGuiliServer(GuiliServer):
   class RomeClientClass(rome.ClientEcho):
 
     def __init__(self, server, robot, fo):
-      super(RomeClientClass, self).__init__(fo)
+      rome.ClientEcho.__init__(self,fo)
       self.guili_server = self
       self.guili_robot = robot
       self.__lock = threading.RLock()
@@ -355,11 +355,11 @@ class RomeClientGuiliServer(GuiliServer):
 
   def __init__(self, addr, devices):
     GuiliServer.__init__(self, addr, [d[0] for d in devices])
-    self.clients = { robot: self.RomeClientClass(robot, fo) for robot, fo in devices }
+    self.clients = { robot: self.RomeClientClass(self, robot, fo) for robot, fo in devices }
     self.__exclusive_mode_lock = threading.Lock()
 
   def start(self):
-    for cl in self.server.clients:
+    for cl in self.clients.values():
       cl.start(self)
     GuiliServer.start(self)
 
