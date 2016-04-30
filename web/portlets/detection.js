@@ -89,7 +89,7 @@ Portlet.register({
   updateDetections: function(robot, params) {
     var d = this.detections[robot][params.i];
     if(d === undefined) {
-      d = this.addDetection();
+      d = this.addDetection(robot);
     }
     if(params.detected) {
       d.svg.setAttribute('opacity', 1);
@@ -125,7 +125,7 @@ Portlet.register({
   updateArcs: function(robot, params) {
     var d = this.detections[robot][params.i];
     if(d === undefined) {
-      d = this.addDetection();
+      d = this.addDetection(robot);
     }
 
     var x,y,r = 200;

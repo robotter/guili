@@ -121,11 +121,17 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     if self.command != 'POST':
       return self.send_error(405)
 
-    if path == 'program':
-      fhex = StringIO(self.rfile.read(int(self.headers.getheader('content-length'))))
-      return self.bootloader_program(fhex)
-    else:
+    robot = None
+    if path == 'program' and len(self.server.robots):
+      robot = self.server.robots[0]
+    elif path.startswith('program/'):
+      robot = path.split('/', 1)[1]
+
+    if robot is None or robot not in self.server.robots:
       return self.send_error(404)
+
+    fhex = StringIO(self.rfile.read(int(self.headers.getheader('content-length'))))
+    return self.bootloader_program(robot, fhex)
 
   def bootloader_program(self, robot, fhex):
     if bootloader is None:
@@ -359,8 +365,8 @@ class RomeClientGuiliServer(GuiliServer):
   class RomeClientClass(rome.ClientEcho):
 
     def __init__(self, server, robot, fo):
-      rome.ClientEcho.__init__(self, fo)
-      self.guili_server = self
+      rome.ClientEcho.__init__(self,fo)
+      self.guili_server = server
       self.guili_robot = robot
       self.__lock = threading.RLock()
 
