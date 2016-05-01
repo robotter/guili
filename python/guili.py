@@ -404,6 +404,8 @@ def main():
   parser.add_argument('--web-dir',
       default=os.path.join(os.path.dirname(__file__), '..', 'web'),
       help="path to web files")
+  parser.add_argument('--xbee-api',
+      help="use XBee in API mode, provided devices must be XBee addresses")
   parser.add_argument('port', type=int,
       help="guili WebSocket server port")
   parser.add_argument('devices', nargs='+',
@@ -413,6 +415,10 @@ def main():
   if args.web_dir != '':
     GuiliRequestHandler.files_base_path = os.path.abspath(args.web_dir)
   rome.Frame.set_ack_range(128, 256)
+
+  if args.xbee_api:
+    import xbeeapi
+    hub = xbeeapi.XBeeAPIHubFiles(serial.Serial(args.xbee_api, 38400, timeout=0.5))
 
   devices = []  # (name, address)
   is_test = None
@@ -430,6 +436,10 @@ def main():
       is_test = addr == 'TEST'
     if is_test:
       devices.append((name, None))
+    elif args.xbee_api:
+      addr = int(addr, 16)
+      hub.add_device(addr)
+      devices.append((name, hub.devices[addr]))
     else:
       devices.append((name, serial.Serial(addr, 38400, timeout=0.5)))
 
@@ -438,6 +448,8 @@ def main():
   else:
     server_class = RomeClientGuiliServer
   print "starting server on port %d" % args.port
+  if args.xbee_api:
+    hub.start()
   server = server_class(('', args.port), devices)
   server.start()
 
