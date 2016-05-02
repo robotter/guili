@@ -5,7 +5,6 @@ import struct
 import threading
 import Queue
 import itertools
-import re
 
 
 api_id_to_cls = {}
