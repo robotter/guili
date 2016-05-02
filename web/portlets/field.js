@@ -59,11 +59,22 @@ Portlet.register({
     }
 
     var self = this;
-    robots.forEach(function(robot) {
+    robots.forEach(function(robot, irobot) {
       // create SVG robot
       var svg_robot = self.field.createElement('use');
+      var svg_name = 'default-robot';
+      if(robot == 'galipeur' || robot == 'galipette') {
+        svg_name = robot;
+      } else if(robot == 'pmi') {
+        svg_name = 'galipette';
+      } else if(irobot == 0) {
+        svg_name = 'galipeur';
+      } else if(irobot == 1) {
+        svg_name = 'galipette';
+      }
       svg_robot.setAttributes({
-        'xlink:href': '#def-galipeur',
+        'xlink:href': '#def-' + svg_name,
+        'class': svg_name,
       });
       self.frame.appendChild(svg_robot);
 
@@ -71,6 +82,7 @@ Portlet.register({
       var svg_carrot = self.field.createElement('use');
       svg_carrot.setAttributes({
         'xlink:href': '#def-carrot',
+        'class': svg_name,
       });
       self.frame.appendChild(svg_carrot);
 

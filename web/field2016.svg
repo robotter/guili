@@ -50,19 +50,40 @@
 	<defs id="defs">
 		<style type="text/css"><![CDATA[
 
-			#def-galipeur polygon {
-				fill: #00ff00;
+			.default-robot { fill: #00ff00; }
+			#def-default-robot polygon {
 				stroke: black;
 				stroke-width: 10;
 			}
-			#def-galipeur circle {
-				fill: #ff0000;
+			#def-default-robot rect {
 				stroke: black;
 				stroke-width: 5;
 			}
 
-			#def-carrot circle {
+			.galipeur { fill: #00ffff; }
+			#def-galipeur polygon {
+				stroke: black;
+				stroke-width: 10;
+			}
+			#def-galipeur circle {
+				stroke: black;
+				stroke-width: 5;
+			}
+			#def-galipeur circle.left-side { fill: #dd00dd; }
+			#def-galipeur circle.right-side { fill: #00dd00; }
+
+			.galipette { fill: #ff4da6; }
+			#def-galipette polygon {
+				stroke: black;
+				stroke-width: 10;
+			}
+			#def-galipette rect {
 				fill: #00ff00;
+				stroke: black;
+				stroke-width: 10;
+			}
+
+			#def-carrot circle {
 				stroke: black;
 				stroke-width: 10;
 			}
@@ -328,12 +349,19 @@
 		<use x="815" y="1420"  z="44" id="seashell-21" xlink:href="#seashell"/>
 		<use x="935" y="1435"  z="66" id="seashell-22" xlink:href="#seashell"/>
 
+		<g id="def-default-robot">
+			<polygon points="0,170 147,-85 -147,-85"/>
+			<rect x="-80" y="-95" width="160" height="50" />
+		</g>
 		<g id="def-galipeur">
 			<polygon points="0,170 147,-85 -147,-85"/>
-			<circle r="40" cx="70" cy="-70" />
-			<circle r="40" cx="-70" cy="-70" />
+			<circle r="40" cx="-104" cy="-60" class="left-side" />
+			<circle r="40" cx="104" cy="-60" class="right-side" />
 		</g>
-
+		<g id="def-galipette">
+			<polygon points="55,95 110,0 55,-95 -55,-95 -110,0 -55,95"/>
+			<rect x="-55" y="-110" width="110" height="40" />
+		</g>
 		<g id="def-carrot">
 			<circle r="40" />
 		</g>
