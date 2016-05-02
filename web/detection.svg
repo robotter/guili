@@ -6,13 +6,15 @@
         fill: none;
         stroke-width: 1;
       }
-      .ping-red {
-        fill:red;
-      }
       .arc {
-        stroke:orange;
-        stroke-width:1;
+        stroke-width: 1;
       }
+
+      .ping-0 { fill: red; }
+      .ping-1 { fill: blue; }
+      .arc-0 { fill: #ff9900; }
+      .arc-1 { fill: #0099ff; }
+
       ]]></style>
 
   </defs>
@@ -34,7 +36,9 @@
   <g id="reference-frame" transform="rotate(180)">
   </g>
 
-  <g id="coords-frame" transform="translate(120,120)">
+  <g id="coords-frame-0" transform="translate(-160,120)">
+  </g>
+  <g id="coords-frame-1" transform="translate(120,120)">
   </g>
 
   <script type="text/javascript"><![CDATA[

@@ -35,9 +35,14 @@ Portlet.register({
   addDetection: function(robot) {
     var self = this;
     var d = {};
-    var ref_frame = self.field.getElementById('reference-frame');
-    var txt_frame = self.field.getElementById('coords-frame');
 
+    var irobot = gs.robots.indexOf(robot);
+    if(irobot < 0 || irobot > 1) {
+      irobot = 1;
+    }
+
+    var ref_frame = self.field.getElementById('reference-frame');
+    var txt_frame = self.field.getElementById('coords-frame-' + irobot);
 
     // add container SVG object
     d.svg = this.field.createElement('g');
@@ -46,7 +51,7 @@ Portlet.register({
     // add "ping" SVG object
     d.ping = this.field.createElement('circle');
     d.ping.setAttributes({
-      'class': 'ping-red',
+      'class': 'ping-' + irobot,
       'cx': '100', 'cy': '0', 'r': '4',
     });
     d.svg.appendChild(d.ping);
@@ -55,7 +60,7 @@ Portlet.register({
     ['arc1', 'arc2'].forEach(function(name) {
       var arc = self.field.createElement('line');
       arc.setAttributes({
-        'class': 'arc',
+        'class': 'arc arc-'+irobot,
         'x1': '0', 'y1': '0',
       });
       d.svg.appendChild(arc);
@@ -69,7 +74,8 @@ Portlet.register({
     d.txt_r.setAttributes({
       'x': 0, 'y': 18 * detections.length,
       'text-align': 'right', 'text-anchor': 'end',
-      'font-size': 15, 'fill': 'red',
+      'font-size': 15,
+      'class': 'ping-'+irobot,
     });
     d.txt_r.textContent = '?'
     txt_frame.appendChild(d.txt_r);
@@ -77,7 +83,8 @@ Portlet.register({
     d.txt_a.setAttributes({
       'x': 60, 'y': 18 * detections.length,
       'text-align': 'right', 'text-anchor': 'end',
-      'font-size': 15, 'fill': 'red',
+      'font-size': 15,
+      'class': 'ping-'+irobot,
     });
     d.txt_a.textContent = '?'
     txt_frame.appendChild(d.txt_a);
