@@ -69,8 +69,8 @@
 				stroke: black;
 				stroke-width: 5;
 			}
-			#def-galipeur circle.left-side { fill: #dd00dd; }
-			#def-galipeur circle.right-side { fill: #00dd00; }
+			#def-galipeur circle.right-side { fill: #dd00dd; }
+			#def-galipeur circle.left-side { fill: #00dd00; }
 
 			.galipette { fill: #ff4da6; }
 			#def-galipette polygon {
