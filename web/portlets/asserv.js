@@ -21,7 +21,7 @@ Portlet.register({
     this.unbindFrame();
     this.robot = robot;
     if(robot) {
-      this.content.find('div.portlet-title').text("Coordinates › "+robot);
+      this.content.find('div.portlet-title').text("Asserv › "+robot);
     }
 
     this.bindFrame(robot, 'asserv_tm_xya', function(robot, params) {
