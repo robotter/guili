@@ -410,7 +410,10 @@ class XBeeAPIHub(object):
     """Queue a frame to send"""
     if fid is None:
       fid = self.next_fid()
-    return self.send_packet(XBeeAPIPacketTX16(fid, addr, frame))
+    # chunk data into 50-byte frames
+    # limit is 100 bytes according to DS
+    for i in range(0, len(frame), 50):
+      self.send_packet(XBeeAPIPacketTX16(fid, addr, frame[i:i+50]))
 
 
   def on_packet(self, packet):
