@@ -142,26 +142,39 @@ class GuiliRequestHandler(WebSocketRequestHandler):
 
     # prepare the bootloader client
     client = self.server.clients[robot]
-    bl = bootloader.Client(client.fo)
-    self.log_message("prepare to program using bootloader")
 
+    myself = self
+    class BootloaderClient(bootloader.Client):
+      # For debug
+      #def output_recv_frame(self, data):
+      #  myself.log_message("BL << %r", data)
+      #def output_send_frame(self, data):
+      #  myself.log_message("BL >> %r", data)
+      def output_program_progress(self, ncur, nmax):
+        myself.log_message("programming '%s' page %d / %d", robot, ncur, nmax)
+
+    bl = BootloaderClient(client.fo)
+    self.log_message("prepare to bootload '%s'" % robot)
     with client.exclusive_mode(robot):
-      for i in range(self.bootloader_sync_tries):
-        client.fo.write(reset_frame_data)
-        try:
-          with bl.timeout(self.bootloader_sync_timeout):
-            bl.synchronize()
-          # we're synchronized and ready to program
-          self.log_message("synchronized with bootloader")
-          bl.program(fhex)
-          self.log_message("program uploaded")
-          bl.boot()
-          self.send_response(200)
-          return
-        except bootloader.TimeoutError:
-          continue
-      else:
-        return self.send_error(500, "Bootloader timeout")
+      bl.start()
+      try:
+        for i in range(self.bootloader_sync_tries):
+          client.fo.write(reset_frame_data)
+          #TODO synchronize / wait for reboot
+          #TODO only iterate over bootloader sync, fhex cannot be read twice
+          try:
+            bl.program(fhex)
+            self.log_message("program uploaded on '%s'" % robot)
+            bl.boot()
+            self.send_response(200)
+            return
+          except bootloader.ClientError as e:
+            self.log_message("failed to program '%s': %s" % (robot, e))
+            continue
+        else:
+          return self.send_error(500, "Bootloader timeout")
+      finally:
+        bl.stop()
 
 
   def ws_setup(self):
