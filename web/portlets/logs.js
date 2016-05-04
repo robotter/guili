@@ -7,6 +7,7 @@ Portlet.register({
     Portlet.prototype.init.call(this, options);
     var self = this;
     self.robot = options.robot
+    self.robot_tags = {'galipeur': 'G', 'galipette': 'g'}
 
     // init HTML
     this.node.css('width', '300px');
@@ -26,7 +27,11 @@ Portlet.register({
         ':' + ("0"+date.getMinutes()).slice(-2) +
         ':' + ("0"+date.getSeconds()).slice(-2) +
         '.' + ("00"+date.getMilliseconds()).slice(-3);
-      entry.append('<span class="log-date">'+str_date+'</span><span class="log-msg">'+params.msg+'</span>');
+      var tag = '';
+      if(self.robot_tags[robot]) {
+        tag = '<span class="log-tag">' + self.robot_tags[robot] + '</span>';
+      }
+      entry.append('<span class="log-date">'+str_date+'</span>'+tag+'<span class="log-msg">'+params.msg+'</span>');
       entry.addClass('log-'+params.sev);
 
       var nremove = self.backlog.children().length - self.backlog_size;

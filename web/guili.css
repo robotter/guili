@@ -237,6 +237,11 @@ div.portlet-logs-entry .log-date {
   padding-right: 1em;
 }
 
+div.portlet-logs-entry .log-tag {
+  font-size: 90%;
+  padding-right: 1em;
+}
+
 
 .portlet-asserv-done {
   color: green;
