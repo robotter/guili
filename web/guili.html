@@ -15,7 +15,7 @@
 <body>
   <div id="top-bar">
     <div id="toolbar">
-      <i id="edit-configuration-icon" class="fa fa-edit"></i><i id="set-configuration-icon" class="fa fa-folder-open"></i><i id="add-portlet-icon" class="fa fa-plus"></i><i id="play-pause-icon" class="fa fa-refresh"></i>
+      <i id="edit-configuration-icon" class="fa fa-edit"></i><i id="set-configuration-icon" class="fa fa-folder-open"></i><i id="add-portlet-icon" class="fa fa-plus"></i><i id="show-info-icon" class="fa fa-info"></i><i id="play-pause-icon" class="fa fa-refresh"></i>
       <ul id="set-configuration-menu"></ul><ul id="add-portlet-menu"></ul>
     </div>
     <div id="battery-status">?</div>
@@ -34,6 +34,10 @@
 
   <!-- dialog -->
   <div id="edit-configuration-dialog" style="display: none"><textarea></textarea></div>
+  <div id="show-info-dialog" style="display: none">
+    <p><b>Bootload commands</b></p>
+    <ul id="show-info-bootload-commands"></ul>
+  </div>
 
   <script src="tools.js"></script>
   <script src="guili.js"></script>

@@ -593,3 +593,20 @@ $('#edit-configuration-icon').click(function() {
   });
 });
 
+
+$('#show-info-icon').click(function() {
+  var dlg = $('#show-info-dialog');
+  var bl_url = 'http://' + window.location.host + '/bl/program/';
+  var bootload_commands = $('#show-info-bootload-commands');
+  bootload_commands.empty();
+  gs.robots.forEach(function(robot) {
+    var cmd = 'curl --data-binary @main.hex "' + bl_url + robot + '"';
+    var item = $('<li>' + robot + ': <span style="font-family: monospace">' + cmd + '</span></li>');
+    item.appendTo(bootload_commands);
+  });
+  dlg.dialog({
+    title: "Informations",
+    width: $(window).width() * 0.6,
+  });
+});
+
