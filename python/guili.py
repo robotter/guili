@@ -155,7 +155,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
 
     bl = BootloaderClient(client.fo)
     self.log_message("prepare to bootload '%s'" % robot)
-    with client.exclusive_mode(robot):
+    with client.exclusive_mode():
       bl.start()
       try:
         for i in range(self.bootloader_sync_tries):
@@ -388,7 +388,7 @@ class RomeClientGuiliServer(GuiliServer):
       self.guili_server.on_frame(self.guili_robot, frame)
 
     @contextmanager
-    def exclusive_mode(self, robot):
+    def exclusive_mode(self):
       """Return a context with exclusive access to the UART connection
 
       The ROME client is stopped and the UART connection can be used directly.
