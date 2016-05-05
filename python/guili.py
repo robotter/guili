@@ -42,6 +42,10 @@ class GuiliRequestHandler(WebSocketRequestHandler):
 
   """
 
+  redirects = {
+      '/': '/guili/',
+      '/guili': '/guili/',
+      }
   ws_prefix = 'ws'
   files_prefix = 'guili'
   files_base_path = None  # disabled
@@ -55,6 +59,8 @@ class GuiliRequestHandler(WebSocketRequestHandler):
   def do_GET(self):
     # remove query and normalize the path
     path = self.path.split('?', 1)[0]
+    if path in self.redirects:
+      return self.handle_redirect(self.redirects[path])
     path = posixpath.normpath(urllib.unquote(path))
     path = path.strip('/')
 
@@ -72,6 +78,13 @@ class GuiliRequestHandler(WebSocketRequestHandler):
       return self.send_error(404)
 
   do_POST = do_GET
+
+
+  def handle_redirect(self, target):
+    host = self.headers.getheader('host')
+    self.send_response(301)
+    self.send_header('Location', 'http://' + host + target)
+    self.end_headers()
 
 
   def handle_files(self, path):
