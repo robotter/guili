@@ -33,7 +33,7 @@ install() {
 get_fontawesome() {
   echo "get font-awesome $1"
   local name="font-awesome-$1"
-  download "http://fortawesome.github.io/Font-Awesome/assets/font-awesome-$1.zip" "$name.zip"
+  download "https://fontawesome.com/v$1/assets/font-awesome-$1.zip" "$name.zip"
   rm -fr "$dl_dir/$name"
   ( cd _dl && unzip -x "$name.zip" )
   install "$dl_dir/$name/css/font-awesome.min.css" css/
@@ -77,7 +77,7 @@ get_flot() {
 
 rm -fr "$inst_dir"/*
 
-get_fontawesome 4.6.2
+get_fontawesome 4.7.0
 get_jquery 1.11.0
 get_jquery_ui 1.10.4
 get_flot 0.8.2
