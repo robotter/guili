@@ -1,0 +1,130 @@
+<svg version="1.1"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns="http://www.w3.org/2000/svg"
+	width="2500" height="3300"
+	viewBox="-1250 -1650 2500 3300">
+
+	<!--
+		Copyright (c) 2016-2017, Roboterclub Aachen e.V.
+		All rights reserved.
+
+		Redistribution and use in source and binary forms, with or without
+		modification, are permitted provided that the following conditions are met:
+
+		 * Redistributions of source code must retain the above copyright
+		   notice, this list of conditions and the following disclaimer.
+		 * Redistributions in binary form must reproduce the above copyright
+		   notice, this list of conditions and the following disclaimer in the
+		   documentation and/or other materials provided with the distribution.
+		 * Neither the name of the Roboterclub Aachen e.V. nor the
+		   names of its contributors may be used to endorse or promote products
+		   derived from this software without specific prior written permission.
+
+		THIS SOFTWARE IS PROVIDED BY ROBOTERCLUB AACHEN E.V. ''AS IS'' AND ANY
+		EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+		WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+		DISCLAIMED. IN NO EVENT SHALL ROBOTERCLUB AACHEN E.V. BE LIABLE FOR ANY
+		DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+		(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+		ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+		(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+		SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	-->
+
+	<title>Eurobot 2018 Game Arena</title>
+
+	<!-- The official eurobot colors are:
+		- signal orange:	RAL2010		#d05d28
+		- yellow green:		RAL6018		#61993b
+		- pebble gray:		RAL7032		#b5b0a1
+		- traffic yellow:	RAL1023		#f7b500
+		- jet black:		RAL9005		#0e0e10
+		- traffic blue:		RAL5017		#005b8c
+		- white:			RAL????		#ffffff
+
+		The colors are hardcoded since this significantly speeds up drawing.
+	-->
+	<defs>
+		<!-- beacons are always the same -->
+		<g id="beacon-small" stroke="black" stroke-width="1">
+			<!-- drawn so that the origin is in the middle of the beacon -->
+			<path d="
+				M-72,-72
+				L50,-72
+				L50,50
+				L5,50
+				L5,0
+				A5,5 0 0 0 -5 0
+				L-5,50
+				L-72,50
+				Z
+				"/>
+			<path fill-opacity="0" d="
+				M-50,50
+				L-50,-50
+				L50,-50
+				"/>
+		</g>
+		<g id="beacon-big" stroke="black" stroke-width="1">
+			<path d="
+				M-100,-100
+				L100,-100
+				L100,100
+				L5,100
+				L5,0
+				A5,5 0 0 0 -5 0
+				L-5,100
+				L-100,100
+				Z
+				"/>
+		</g>
+
+		<!-- the start areas -->
+		<g id="start-area">
+			<rect x="-1022" y="-1522" width="382" height="1092"/>
+			<rect x="-640" y="-1500" width="22" height="710" zheight="22" stroke="black" stroke-width="1"/>
+		</g>
+
+		<!-- static game elements -->
+
+		<!-- mobile game elements: have a 2px border! -->
+
+	</defs>
+
+	<!-- Our internal coordinate system is:
+
+		- the origin is in the center of the game area
+		- x axis: goes from the rockets to the moon base from negative to positive (left to right)
+		- y axis: goes from the green to orange start area from negative to positive (down to up)
+	-->
+
+	<!-- gray game area excluding border -->
+	<rect x="-1022" y="-1522" width="2044" height="3044" fill="#C0C0C0"/>
+
+	<use id="starting-area-ours"   xlink:href="#start-area" fill="#f7b500" transform="scale(1,-1)"/>
+	<use id="starting-area-theirs" xlink:href="#start-area" fill="#007cb0"/>
+
+	<!-- draw the beacons -->
+	<g id="beacons">
+		<!-- ordered -y=>+y then -x=>+x -->
+		<use x="-1122" y="100" id="beacon-theirs-1" xlink:href="#beacon-big" transform="scale(1,-1)" fill="#61993b"/>
+		<use x="-1122" y="100" id="beacon-ours-1"   xlink:href="#beacon-big" fill="#d05d28"/>
+
+		<use x="-950" y="1594" id="beacon-theirs-1" xlink:href="#beacon-small" transform="scale(1,-1)" fill="#61993b"/>
+		<use x="0"    y="1594" id="beacon-ours-2"   xlink:href="#beacon-small" transform="scale(1,-1)" fill="#d05d28"/>
+		<use x="950"  y="1594" id="beacon-theirs-3" xlink:href="#beacon-small" transform="scale(1,-1)" fill="#61993b"/>
+
+		<use x="-950" y="1594"  id="beacon-ours-1"   xlink:href="#beacon-small" fill="#d05d28"/>
+		<use x="0"    y="1594"  id="beacon-theirs-2" xlink:href="#beacon-small" fill="#61993b"/>
+		<use x="950"  y="1594"  id="beacon-ours-3"   xlink:href="#beacon-small" fill="#d05d28"/>
+	</g>
+
+	<!-- draw the borders of the game area -->
+	<g fill-opacity="0" stroke="black" stroke-width="2">
+		<rect x="-1022" y="-1522" width="2044" height="3044"/>
+		<rect x="-1000" y="-1500" width="2000" height="3000"/>
+	</g>
+
+	<!-- mobile game elements -->
+</svg>
