@@ -1,8 +1,9 @@
 <svg version="1.1"
 	xmlns:xlink="http://www.w3.org/1999/xlink"
 	xmlns="http://www.w3.org/2000/svg"
-	width="2500" height="3300"
-	viewBox="-1250 -1650 2500 3300">
+	width="3300" height="2500"
+	viewBox="-1650 -1250 3300 2500"
+	id="drawing">
 
 	<!--
 		Copyright (c) 2016-2017, Roboterclub Aachen e.V.
@@ -46,6 +47,48 @@
 		The colors are hardcoded since this significantly speeds up drawing.
 	-->
 	<defs>
+		<style type="text/css"><![CDATA[
+
+			.default-robot { fill: #00ff00; }
+			#def-default-robot polygon {
+				stroke: black;
+				stroke-width: 10;
+			}
+			#def-default-robot rect {
+				stroke: black;
+				stroke-width: 5;
+			}
+
+			.galipeur { fill: #00ffff; }
+			#def-galipeur polygon {
+				stroke: black;
+				stroke-width: 10;
+			}
+			#def-galipeur circle {
+				stroke: black;
+				stroke-width: 5;
+			}
+			#def-galipeur circle.right-side { fill: #dd00dd; }
+			#def-galipeur circle.left-side { fill: #00dd00; }
+
+			.galipette { fill: #ff4da6; }
+			#def-galipette polygon {
+				stroke: black;
+				stroke-width: 10;
+			}
+			#def-galipette rect {
+				fill: #00ff00;
+				stroke: black;
+				stroke-width: 10;
+			}
+
+			#def-carrot circle {
+				stroke: black;
+				stroke-width: 10;
+			}
+
+		]]></style>
+
 		<!-- beacons are always the same -->
 		<g id="beacon-small" stroke="black" stroke-width="1">
 			<!-- drawn so that the origin is in the middle of the beacon -->
@@ -90,14 +133,26 @@
 
 		<!-- mobile game elements: have a 2px border! -->
 
+		<g id="def-default-robot">
+			<polygon points="0,170 147,-85 -147,-85"/>
+			<rect x="-80" y="-95" width="160" height="50" />
+		</g>
+		<g id="def-galipeur">
+			<polygon points="0,170 147,-85 -147,-85"/>
+			<circle r="40" cx="-104" cy="-60" class="left-side" />
+			<circle r="40" cx="104" cy="-60" class="right-side" />
+		</g>
+		<g id="def-galipette">
+			<polygon points="55,95 110,0 55,-95 -55,-95 -110,0 -55,95"/>
+			<rect x="-55" y="-110" width="110" height="40" />
+		</g>
+		<g id="def-carrot">
+			<circle r="40" />
+		</g>
+
 	</defs>
 
-	<!-- Our internal coordinate system is:
-
-		- the origin is in the center of the game area
-		- x axis: goes from the rockets to the moon base from negative to positive (left to right)
-		- y axis: goes from the green to orange start area from negative to positive (down to up)
-	-->
+	<g transform="rotate(90) scale(1,-1)">
 
 	<!-- gray game area excluding border -->
 	<rect x="-1022" y="-1522" width="2044" height="3044" fill="#C0C0C0"/>
@@ -127,4 +182,38 @@
 	</g>
 
 	<!-- mobile game elements -->
+
+	</g>
+
+	<g id="reference-frame" transform="translate(0, 1000) scale(1,-1)">
+	</g>
+
+	<script type="text/javascript"><![CDATA[
+		const xlinkNS = "http://www.w3.org/1999/xlink";
+
+		var drawing = document.getElementById("drawing");
+
+		// Various helper methods
+
+		drawing.createElement = function(tag) {
+			return document.createElementNS(this.namespaceURI, tag);
+		};
+
+		Element.prototype.setAttributes = function(attrs) {
+			for(var k in attrs) {
+				if(k == "xlink:href") {
+					this.setAttributeNS(xlinkNS, k, attrs[k]);
+				} else {
+					this.setAttribute(k, attrs[k]);
+				}
+			}
+		}
+
+		// compute distance between two objects
+		function distance(a,b) {
+			return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+		}
+
+	]]></script>
+
 </svg>
