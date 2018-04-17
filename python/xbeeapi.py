@@ -345,7 +345,7 @@ class XBeeAPIPacketTX16(XBeeAPIPacketTX):
   pack_fmt = '>BHB'
 
 
-class XBeeAPIHub(object):
+class XBeeAPIHub:
   """
   Expose XBee API remote points
 
@@ -462,7 +462,7 @@ class XBeeAPIHubFiles(XBeeAPIHub):
 
   max_device_rbuf = 1024
 
-  class DeviceFile(object):
+  class DeviceFile:
     """Emulate a file object remote device accesses"""
 
     def __init__(self, hub, addr):
