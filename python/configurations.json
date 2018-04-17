@@ -1,51 +1,51 @@
 {
-	"default": [
-		["console"],
-		["logs"],
-		["graph"],
-		["field"],
-		["asserv"],
-		["meca"]
-			],
-		"monitoring": [
-			["console", {
-				"position": { "x": 575, "y": 5 }
-			}],
-		["logs", {
-			"position": { "x": 575, "y": 210 }
-		}],
-		["graph", {
-			"position": { "x": 260, "y": 5 },
-			"view": "position"
-		}],
-		["asserv", {
-			"position": { "x": 5, "y": 5 }
-		}],
-		["meca", {
-			"position": { "x": 5, "y": 90 }
-		}]
-	],
-	"og": 
-	[
-		["asserv",{
-			"position": {"x": 494,"y": 0,"w": 252,"h": 102}
-		}],
-		["console",{
-		"position": {"x": 3,"y": 535,"w": 781,"h": 172}
-		}],
-		["detection",{
-		"position": {"x": 494,"y": 26,"w": 287,"h": 287}
-		}],
-		["logs",{
-		"position": {"x": 3,"y": 342,"w": 780,"h": 191}
-		}],
-		["field",{
-		"position": {"x": 3,"y": 0,"w": 489,"h": 340}
-		}],
-		["meca",{
-		"position": {"x": 494,"y": 264,"w": 117,"h": 76}
-		}]
-	],
+  "default": [
+    ["console"],
+    ["logs"],
+    ["graph"],
+    ["field"],
+    ["asserv"],
+    ["meca"]
+  ],
+  "monitoring": [
+    ["console", {
+      "position": { "x": 575, "y": 5 }
+    }],
+    ["logs", {
+      "position": { "x": 575, "y": 210 }
+    }],
+    ["graph", {
+      "position": { "x": 260, "y": 5 },
+      "view": "position"
+    }],
+    ["asserv", {
+      "position": { "x": 5, "y": 5 }
+    }],
+    ["meca", {
+      "position": { "x": 5, "y": 90 }
+    }]
+  ],
+  "og": 
+  [
+    ["asserv",{
+      "position": {"x": 494,"y": 0,"w": 252,"h": 102}
+    }],
+    ["console",{
+      "position": {"x": 3,"y": 535,"w": 781,"h": 172}
+    }],
+    ["detection",{
+      "position": {"x": 494,"y": 26,"w": 287,"h": 287}
+    }],
+    ["logs",{
+      "position": {"x": 3,"y": 342,"w": 780,"h": 191}
+    }],
+    ["field",{
+      "position": {"x": 3,"y": 0,"w": 489,"h": 340}
+    }],
+    ["meca",{
+      "position": {"x": 494,"y": 264,"w": 117,"h": 76}
+    }]
+  ],
   "yukari": [
     [ "asserv", { "position": { "x": 494, "y": 0, "w": 252, "h": 102 } } ],
     [ "console", { "position": { "x": 756, "y": 336, "w": 585, "h": 258 } } ],
@@ -54,12 +54,12 @@
     [ "field", { "position": { "x": 3, "y": 0, "w": 489, "h": 340 } } ],
     [ "detection", { "position": { "x": 424, "y": 280, "w": 330, "h": 313 } } ]
   ],
-	"tophe": [
-	  [	"console", 	{"position": 	{ "x": 6,    "y": 623, "w": 787, "h": 91	} } ],		
-	  [ "logs",    	{"position": 	{ "x": 815,	 "y": 120, "w": 540, "h": 255 } } ],
-    [ "field", 		{ "position": { "x": 3, 	 "y": 7 ,  "w": 790, "h": 600 } } ],
-    [ "asserv", 	{ "position": { "x": 873,  "y": 2, 	 "w": 255, "h": 105 }, "robot": "galipette" } ],
-	  [ "meca", 		{ "position": { "x": 1178, "y": 3, 	 "w": 165, "h": 81 	}, "robot": "galipette" } ],
-    [ "detection", { "position": { "x": 984, "y": 396, "w": 330, "h": 313 } } ]
-	]
+  "tophe": [
+    [ "console",   {"position":  { "x": 6,    "y": 623, "w": 787, "h": 91  } } ],  
+    [ "logs",      {"position":  { "x": 815,  "y": 120, "w": 540, "h": 255 } } ],
+    [ "field",     { "position": { "x": 3,    "y": 7 ,  "w": 790, "h": 600 } } ],
+    [ "asserv",    { "position": { "x": 873,  "y": 2,   "w": 255, "h": 105 }, "robot": "galipette" } ],
+    [ "meca",      { "position": { "x": 1178, "y": 3,   "w": 165, "h": 81  }, "robot": "galipette" } ],
+    [ "detection", { "position": { "x": 984,  "y": 396, "w": 330, "h": 313 } } ]
+  ]
 }
