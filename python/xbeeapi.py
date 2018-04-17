@@ -1,30 +1,28 @@
-#!/usr/bin/env python
-import sys
-import os
 import struct
 import threading
-import Queue
+import queue
 import itertools
 
 
 api_id_to_cls = {}
 
-class XBeeAPIPacket(object):
+class XBeeAPIPacketMeta(type):
+  def __new__(mcls, name, bases, fields):
+    tcls = type.__new__(mcls, name, bases, fields)
+    aid = fields.get('api_id')
+    if aid is not None:
+      if aid in api_id_to_cls:
+        raise ValueError("packet with API ID %r already defined" % aid)
+      assert len(aid) == 1
+      api_id_to_cls[aid[0]] = tcls
+    return tcls
 
-  START_BYTE = '\x7e'
+class XBeeAPIPacket(metaclass=XBeeAPIPacketMeta):
+
+  START_BYTE = b'\x7e'
 
   packet_maximum_size = 500
   api_id = None  # to be defined in subclasses
-
-  class __metaclass__(type):
-    def __new__(mcls, name, bases, fields):
-      tcls = type.__new__(mcls, name, bases, fields)
-      aid = fields.get('api_id')
-      if aid is not None:
-        if aid in api_id_to_cls:
-          raise ValueError("packet with API ID %r already defined" % aid)
-        api_id_to_cls[aid] = tcls
-      return tcls
 
   def pack(self):
     """Return the formatted packet data"""
@@ -52,7 +50,7 @@ class XBeeAPIPacket(object):
     data. When there is not enough data, None is yielded.
     """
 
-    data = ''
+    data = b''
     while True:
       pos = data.find(cls.START_BYTE)
       if pos == -1:
@@ -122,11 +120,11 @@ class XBeeAPIPacket(object):
   @staticmethod
   def checksum(payload):
     """Compute XBee API checksum on payload"""
-    return sum( ord(c) for c in payload ) % 256
+    return sum( c for c in payload ) % 256
 
 
 class XBeeAPIPacketStatus(XBeeAPIPacket):
-  api_id = '\x8a'
+  api_id = b'\x8a'
 
   status_values = {
       0: 'HRESET',
@@ -167,7 +165,7 @@ class XBeeAPIPacketATCommand(XBeeAPIPacket):
 
   """
 
-  api_id = '\x08'
+  api_id = b'\x08'
 
   def __init__(self, fid, at, value=None):
     self.fid = fid
@@ -198,7 +196,7 @@ class XBeeAPIPacketATResponse(XBeeAPIPacket):
 
   """
 
-  api_id = '\x88'
+  api_id = b'\x88'
   status_values = {0: 'OK'}
 
   def __init__(self, fid, at, status, value):
@@ -218,7 +216,7 @@ class XBeeAPIPacketATResponse(XBeeAPIPacket):
 
   def __repr__(self):
     return "<%s fid=%d AT=%s status=%s %s>" % (
-        self.__class__, self.fid, self.at, self.status, [hex(ord(c)) for c in self.value])
+        self.__class__, self.fid, self.at, self.status, [hex(c) for c in self.value])
 
 
 class XBeeAPITXStatus(XBeeAPIPacket):
@@ -231,7 +229,7 @@ class XBeeAPITXStatus(XBeeAPIPacket):
 
   """
 
-  api_id = '\x89'
+  api_id = b'\x89'
   status_values = {
       0: 'SUCCESS',
       1: 'NOACK',
@@ -291,11 +289,11 @@ class XBeeAPIPacketRX(XBeeAPIPacket):
 
 
 class XBeeAPIPacketRX64(XBeeAPIPacketRX):
-  api_id = '\x80'
+  api_id = b'\x80'
   pack_fmt = '>QBB'
 
 class XBeeAPIPacketRX16(XBeeAPIPacketRX):
-  api_id = '\x81'
+  api_id = b'\x81'
   pack_fmt = '>HBB'
 
 
@@ -339,11 +337,11 @@ class XBeeAPIPacketTX(XBeeAPIPacket):
 
 
 class XBeeAPIPacketTX64(XBeeAPIPacketTX):
-  api_id = '\x00'
+  api_id = b'\x00'
   pack_fmt = '>BQB'
 
 class XBeeAPIPacketTX16(XBeeAPIPacketTX):
-  api_id = '\x01'
+  api_id = b'\x01'
   pack_fmt = '>BHB'
 
 
@@ -365,9 +363,9 @@ class XBeeAPIHub(object):
   def __init__(self, conn):
     self.conn = conn
     self.rthread = self.wthread = None
-    self.wqueue = Queue.Queue()
+    self.wqueue = queue.Queue()
     self._stop_threads = False
-    self.next_fid = itertools.cycle(range(0, 0x100)).next
+    self.next_fid = itertools.cycle(range(0, 0x100)).__next__
 
   def start(self, background=True):
     """Start threads
@@ -444,7 +442,7 @@ class XBeeAPIHub(object):
     while not self._stop_threads:
       try:
         packet = self.wqueue.get(True, self._stop_threads_period)
-      except Queue.Empty:
+      except queue.Empty:
         continue
       self.conn.write(packet.toframe())
       self.on_sent_packet(packet)
@@ -470,7 +468,7 @@ class XBeeAPIHubFiles(XBeeAPIHub):
     def __init__(self, hub, addr):
       self.hub = hub
       self.addr = addr
-      self.rbuf = ''
+      self.rbuf = b''
       self._cond = threading.Condition()
 
     def write(self, data):
@@ -481,7 +479,7 @@ class XBeeAPIHubFiles(XBeeAPIHub):
         while not len(self.rbuf):
           self._cond.wait()
         if n is None:
-          data, self.rbuf = self.rbuf, ''
+          data, self.rbuf = self.rbuf, b''
         else:
           data, self.rbuf = self.rbuf[:n], self.rbuf[n:]
         return data

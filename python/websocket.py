@@ -1,12 +1,12 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 import sys
-import BaseHTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import hashlib
 import base64
 import struct
 
 
-class WebSocketServer(BaseHTTPServer.HTTPServer):
+class WebSocketServer(HTTPServer):
   pass
 
 
@@ -19,7 +19,7 @@ class WebSocketCloseFrame(Exception):
     return "(%d) %s" % (self.status, self.reason)
 
 
-class WebSocketRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class WebSocketRequestHandler(BaseHTTPRequestHandler):
   """
   Add WebSocket support to an HTTP request handler
   """
@@ -28,7 +28,7 @@ class WebSocketRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   # maximum message payload length (prevent DoS with very long messages)
   WS_MAX_PAYLOAD_LEN = 1024**2
 
-  class WebSocketMessageFileObject(object):
+  class WebSocketMessageFileObject:
     """File object class for reading messages"""
 
     def __init__(self, handler):
@@ -127,11 +127,11 @@ class WebSocketRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     # reply, end handshake
     key_hash = hashlib.sha1()
-    key_hash.update(websocket_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')
+    key_hash.update((websocket_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode('ascii'))
     self.send_response(101, 'Switching Protocols')
     self.send_header('Upgrade', 'websocket')
     self.send_header('Connection', 'Upgrade')
-    self.send_header('Sec-WebSocket-Accept', base64.b64encode(key_hash.digest()))
+    self.send_header('Sec-WebSocket-Accept', base64.b64encode(key_hash.digest()).decode('ascii'))
     self.end_headers()
     self.log_message("WebSocket handshake successful")
 
@@ -164,7 +164,7 @@ class WebSocketRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   def ws_read_masked(self, key, n, offset=0):
     """Read data and unmask it"""
     data = self.rfile.read(n)
-    return ''.join(chr(ord(c) ^ key[i%4]) for i,c in enumerate(data, offset))
+    return ''.join(chr(c ^ key[i%4]) for i,c in enumerate(data, offset))
 
 
   def ws_parse_frame(self):
@@ -270,10 +270,10 @@ def main():
       return self.handle_websocket()
     def on_message(self, fo):
       s = "received message: %r" % fo.read()
-      self.send_frame(1, s)
+      self.ws_send_frame(1, s)
 
   port = int(sys.argv[1])
-  print "starting server on port %d" % port
+  print("starting server on port %d" % port)
   server = WebSocketServer(('', port), RequestHandler)
   server.serve_forever()
 

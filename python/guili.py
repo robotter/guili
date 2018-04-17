@@ -1,5 +1,4 @@
-#!/usr/bin/env python2.7
-import sys
+#!/usr/bin/env python3
 import os
 import json
 import threading
@@ -8,12 +7,11 @@ import posixpath
 import urllib
 import mimetypes
 import shutil
-from cStringIO import StringIO
-from websocket import WebSocketServer, WebSocketRequestHandler
-from SocketServer import ThreadingMixIn
-import rome
+from socketserver import ThreadingMixIn
 from contextlib import contextmanager
 import serial
+import rome
+from websocket import WebSocketServer, WebSocketRequestHandler
 
 if not mimetypes.inited:
   mimetypes.init()
@@ -61,7 +59,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     path = self.path.split('?', 1)[0]
     if path in self.redirects:
       return self.handle_redirect(self.redirects[path])
-    path = posixpath.normpath(urllib.unquote(path))
+    path = posixpath.normpath(urllib.parse.unquote(path))
     path = path.strip('/')
 
     # dispatch to the correct handler
@@ -81,7 +79,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
 
 
   def handle_redirect(self, target):
-    host = self.headers.getheader('host')
+    host = self.headers.get('host')
     self.send_response(301)
     self.send_header('Location', 'http://' + host + target)
     self.end_headers()
@@ -284,7 +282,7 @@ class TestGuiliServer(GuiliServer):
 
   class GuiliRequestHandlerClass(GuiliRequestHandler):
     def wsdo_rome(self, robot, name, params):
-      print "ROME[%s]: %s %r" % ('' if robot is None else robot, name, params)
+      print("ROME[%s]: %s %r" % ('' if robot is None else robot, name, params))
 
   def __init__(self, addr, devices):
     # define only our messages
@@ -311,7 +309,7 @@ class TestGuiliServer(GuiliServer):
   def on_robot_event(self, robot, gen_frame):
     """Called on new event from a robot"""
     while True:
-      frame = gen_frame.next()
+      frame = next(gen_frame)
       if frame is None:
         break
       self.on_frame(robot, frame)
@@ -320,7 +318,7 @@ class TestGuiliServer(GuiliServer):
     import itertools
     import math
     r = 600 / (idev + 1)
-    N = 100 / (idev + 1)
+    N = int(100 // (idev + 1))
 
     # detection frames
     detection = [
@@ -336,10 +334,10 @@ class TestGuiliServer(GuiliServer):
     for i in itertools.cycle(range(N)):
       if i == 0:
         yield rome.Frame('log', 'notice', "%s: new turn" % robot)
-      elif i == N/2:
+      elif i == N//2:
         yield rome.Frame('log', 'info', "%s: half turn" % robot)
       # asserv carrot
-      if i % (N/6) == 0:
+      if i % (N//6) == 0:
         yield rome.Frame('asserv_tm_htraj_carrot_xy',
             int(r * math.cos(2*((i+N/6) % N)*math.pi/N)),
             int(r * math.sin(2*((i+N/6) % N)*math.pi/N))+1000)
@@ -473,7 +471,7 @@ def main():
     server_class = TestGuiliServer
   else:
     server_class = RomeClientGuiliServer
-  print "starting server on port %d" % args.port
+  print("starting server on port %d" % args.port)
   if args.xbee_api:
     hub.start()
   server = server_class(('', args.port), devices)
