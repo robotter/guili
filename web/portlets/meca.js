@@ -4,43 +4,26 @@ Portlet.register({
 
   init: function(options) {
     Portlet.prototype.init.call(this, options);
+    this.node.css('width', '200px');
+    this.node.resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+    var barillet = document.getElementById("barillet");
 
-    this.setRobotViewMenu(gs.robots, this.setRobot.bind(this));
-    this.setRobot(options.robot ? options.robot : gs.robots[0]);
-  },
+    // wait for the SVG document to be loaded before using it
+    var self = this;
+    var df = $.Deferred();
+    var object = this.content.children('object')[0];
+    object.onload = function() {
+      self.barillet = object.getSVGDocument().getElementById('barillet');
 
-  setRobot: function(robot) {
-    this.unbindFrame();
-    this.robot = robot;
-    if(robot) {
-      this.content.find('div.portlet-title').text("Meca › "+robot);
-    }
-
-    var state_to_color = {
-      busy: 'red',
-      ready: 'green',
-      ground_clear: 'orange',
+      self.bindFrame(null, 'meca_tm_state', function(robot, params) {
+        //TODO
+      });
+      self.bindFrame(null, 'meca_tm_cylinder_state', function(robot, params) {
+        //TODO
+      });
     };
 
-    var self = this;
-    function tm_elevator_cb(side, params) {
-      var tds = self.content.find('tr.meca-elevator-'+side+' td');
-      $(tds[0]).find('i').css('color', state_to_color[params.state]);
-      $(tds[1]).text(params.nb_spots);
-    }
-    this.bindFrame(null, 'meca_tm_left_elevator', function(robot, params) {
-      tm_elevator_cb('left', params)
-    });
-    this.bindFrame(null, 'meca_tm_right_elevator', function(robot, params) {
-      tm_elevator_cb('right', params)
-    });
+    return df.promise();
   },
-
-  getOptions: function() {
-    var options = Portlet.prototype.getOptions.call(this);
-    options.robot = this.robot;
-    return options;
-  },
-
 });
 

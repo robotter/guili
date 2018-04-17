@@ -1,0 +1,88 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  id="drawing"
+  viewBox="-200 -200 400 400">
+
+  <defs id="defs">
+    <style type="text/css"><![CDATA[
+      .slot {
+        stroke: black;
+        stroke-width: 4;
+      }
+      .guide {
+        stroke: black;
+        stroke-width: 2;
+      }
+      #guide-0 {
+        stroke: red;
+        stroke-width: 4;
+      }
+
+      .empty { fill: none; }
+
+    ]]></style>
+  </defs>
+
+  <g>
+    <g id="barillet">
+
+      <!--
+
+        from math import pi, cos, sin
+        r = 100.
+        for i, k in enumerate(range(8)):
+            a =  k * 2*pi/8
+            print('<circle id="slot-%d" class="slot empty" r="35" cx="%f" cy="%f" />' % (
+                i, r*cos(a), r*sin(a)
+            ))
+            print('<line id="guide-%d" class="guide" x1="0" y1="0" x2="%f" y2="%f" />' % (
+                i, r/2*cos(a), r/2*sin(a)
+            ))
+
+      -->
+
+      <circle id="slot-0" class="slot empty" r="35" cx="100.000000" cy="0.000000" />
+      <line id="guide-0" class="guide" x1="0" y1="0" x2="50.000000" y2="0.000000" />
+      <circle id="slot-1" class="slot empty" r="35" cx="70.710678" cy="70.710678" />
+      <line id="guide-1" class="guide" x1="0" y1="0" x2="35.355339" y2="35.355339" />
+      <circle id="slot-2" class="slot empty" r="35" cx="0.000000" cy="100.000000" />
+      <line id="guide-2" class="guide" x1="0" y1="0" x2="0.000000" y2="50.000000" />
+      <circle id="slot-3" class="slot empty" r="35" cx="-70.710678" cy="70.710678" />
+      <line id="guide-3" class="guide" x1="0" y1="0" x2="-35.355339" y2="35.355339" />
+      <circle id="slot-4" class="slot empty" r="35" cx="-100.000000" cy="0.000000" />
+      <line id="guide-4" class="guide" x1="0" y1="0" x2="-50.000000" y2="0.000000" />
+      <circle id="slot-5" class="slot empty" r="35" cx="-70.710678" cy="-70.710678" />
+      <line id="guide-5" class="guide" x1="0" y1="0" x2="-35.355339" y2="-35.355339" />
+      <circle id="slot-6" class="slot empty" r="35" cx="-0.000000" cy="-100.000000" />
+      <line id="guide-6" class="guide" x1="0" y1="0" x2="-0.000000" y2="-50.000000" />
+      <circle id="slot-7" class="slot empty" r="35" cx="70.710678" cy="-70.710678" />
+      <line id="guide-7" class="guide" x1="0" y1="0" x2="35.355339" y2="-35.355339" />
+
+    </g>
+  </g>
+
+  <script type="text/javascript"><![CDATA[
+    const xlinkNS = "http://www.w3.org/1999/xlink";
+
+    var drawing = document.getElementById("drawing");
+
+    // Various helper methods
+
+    drawing.createElement = function(tag) {
+      return document.createElementNS(this.namespaceURI, tag);
+    };
+
+    Element.prototype.setAttributes = function(attrs) {
+      for(var k in attrs) {
+        if(k == "xlink:href") {
+          this.setAttributeNS(xlinkNS, k, attrs[k]);
+        } else {
+          this.setAttribute(k, attrs[k]);
+        }
+      }
+    }
+
+  ]]></script>
+
+</svg>
