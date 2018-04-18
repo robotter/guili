@@ -2,7 +2,7 @@
   xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   id="drawing"
-  viewBox="-150 -150 300 300">
+  viewBox="-150 -163.63 300 300">
 
   <defs id="defs">
     <style type="text/css"><![CDATA[
@@ -30,102 +30,110 @@
     ]]></style>
   </defs>
 
+
   <!--
+      from math import *
+      import textwrap
 
-  from math import *
+      #cylinder_outer_r = 100.
+      cylinder_r = 70.
+      cylinder_a0 = radians(150)
+      cylinder_arc = radians(290)
+      slot_r = 45./2
+      slots_n = 8
+      guide_r = cylinder_r / 2
+      balleater_size = (70, 35)
+      turbine_r = 40
 
-  #cylinder_outer_r = 100.
-  cylinder_r = 70.
-  cylinder_a0 = radians(150)
-  cylinder_arc = radians(290)
-  slot_r = 45./2
-  slots_n = 8
-  guide_r = cylinder_r / 2
-  balleater_size = (70, 35)
-  turbine_r = 40
+      robot_small_side = 85
+      robot_large_side = 250
+      robot_side = robot_large_side + robot_small_side  # triangle size
+      robot_h = robot_side * sin(pi/3)
+      robot_inner_r = cylinder_r + slot_r + 5
 
-  robot_inner_r = cylinder_r + slot_r + 5
-  robot_side = 2 * sqrt(3) * robot_inner_r
-  robot_cut = 70
+      slots_circles = []
+      slots_guides = []
+      for k in range(slots_n):
+          a = cylinder_a0 + k * cylinder_arc / (slots_n - 1)
+          slots_circles.append('<circle id="slot-%d" class="slot empty" r="%d" cx="%f" cy="%f" />' % (
+              k, slot_r, cylinder_r*cos(a), cylinder_r*sin(a)
+          ))
+          slots_guides.append('<line id="guide-%d" class="guide" x1="0" y1="0" x2="%f" y2="%f" />' % (
+              k, guide_r*cos(a), guide_r*sin(a)
+          ))
 
-  slots_circles = []
-  slots_guides = []
-  for k in range(slots_n):
-      a = cylinder_a0 + k * cylinder_arc / (slots_n - 1)
-      slots_circles.append('<circle id="slot-%d" class="slot empty" r="%d" cx="%f" cy="%f" />' % (
-          k, slot_r, cylinder_r*cos(a), cylinder_r*sin(a)
+      perimeter_points = [
+          #  /\
+          (-robot_small_side/2 * sin(pi/6), robot_h*2/3 - robot_small_side/2 * cos(pi/6)),
+          ( robot_small_side/2 * sin(pi/6), robot_h*2/3 - robot_small_side/2 * cos(pi/6)),
+          # _\
+          (robot_side/2 - robot_small_side/2 * sin(pi/6), -robot_h/3 + robot_small_side/2 * cos(pi/6)),
+          (robot_side/2 - robot_small_side/2, -robot_h/3),
+          # /_
+          (-robot_side/2 + robot_small_side/2, -robot_h/3),
+          (-robot_side/2 + robot_small_side/2 * sin(pi/6), -robot_h/3 + robot_small_side/2 * cos(pi/6)),
+      ]
+
+      balleater_transform = 'translate(%f,%f) rotate(60)' % (
+          robot_h/3 * cos(pi*5/6),
+          robot_h/3 * sin(pi*5/6),
+      )
+      balleater_shape = '<path d="M%f,%f %f,%f, %f,%f %f,%f" />' % (
+          -balleater_size[0]/2, 0,
+          -balleater_size[0]/2, balleater_size[1],
+          balleater_size[0]/2, balleater_size[1],
+          balleater_size[0]/2, 0,
+      )
+
+      turbine_transform = 'translate(%f,%f) rotate(-60)' % (
+          robot_h/3 * cos(pi/6),
+          robot_h/3 * sin(pi/6),
+      )
+      turbine_shape = '<path d="M%f,0 a1,1 0 0,0 %f,0" />' % (
+          -turbine_r, 2*turbine_r
+      )
+
+
+      template = """\
+        \x3c\x21\x2d\x2d
+      %(source)s
+        \x2d\x2d\x3e
+
+        <g transform="scale(1,-1)">
+
+          <g id="cylinder">
+            %(slots_circles)s
+            %(slots_guides)s
+          </g>
+
+          <g id="perimeter">
+            <polygon points="%(perimeter_points)s" />
+          </g>
+
+          <g id="balleater" transform="%(balleater_transform)s">
+            %(balleater_shape)s
+          </g>
+
+          <g id="turbine" transform="%(turbine_transform)s">
+            %(turbine_shape)s
+          </g>
+
+        </g>
+      """
+
+      print(template % dict(
+          source = textwrap.indent(open(__file__).read(), '      '),
+          slots_circles = '\n      '.join(slots_circles),
+          slots_guides = '\n      '.join(slots_guides),
+          perimeter_points = ' '.join("%f,%f" % p for p in perimeter_points),
+          balleater_transform = balleater_transform,
+          balleater_shape = balleater_shape,
+          turbine_transform = turbine_transform,
+          turbine_shape = turbine_shape,
       ))
-      slots_guides.append('<line id="guide-%d" class="guide" x1="0" y1="0" x2="%f" y2="%f" />' % (
-          k, guide_r*cos(a), guide_r*sin(a)
-      ))
 
-  perimeter_points = [
-      #  /\
-      (-robot_cut * sin(pi/6), robot_inner_r * 2 - robot_cut * cos(pi/6)),
-      ( robot_cut * sin(pi/6), robot_inner_r * 2 - robot_cut * cos(pi/6)),
-      # _\
-      (robot_side/2 - robot_cut * sin(pi/6), -robot_inner_r + robot_cut * cos(pi/6)),
-      (robot_side/2 - robot_cut, -robot_inner_r),
-      # /_
-      (-robot_side/2 + robot_cut, -robot_inner_r),
-      (-robot_side/2 + robot_cut * sin(pi/6), -robot_inner_r + robot_cut * cos(pi/6)),
-  ]
-
-  balleater_transform = 'translate(%f,%f) rotate(60)' % (
-      robot_inner_r * cos(pi*5/6),
-      robot_inner_r * sin(pi*5/6),
-  )
-  balleater_shape = '<path d="M%f,%f %f,%f, %f,%f %f,%f" />' % (
-      -balleater_size[0]/2, 0,
-      -balleater_size[0]/2, balleater_size[1],
-      balleater_size[0]/2, balleater_size[1],
-      balleater_size[0]/2, 0,
-  )
-
-  turbine_transform = 'translate(%f,%f) rotate(-60)' % (
-      robot_inner_r * cos(pi/6),
-      robot_inner_r * sin(pi/6),
-  )
-  turbine_shape = '<path d="M%f,0 a1,1 0 0,0 %f,0" />' % (
-      -turbine_r, 2*turbine_r
-  )
-
-
-  template = """\
-    <g transform="scale(1,-1)">
-
-      <g id="cylinder">
-        %(slots_circles)s
-        %(slots_guides)s
-      </g>
-
-      <g id="perimeter">
-        <polygon points="%(perimeter_points)s" />
-      </g>
-
-      <g id="balleater" transform="%(balleater_transform)s">
-        %(balleater_shape)s
-      </g>
-
-      <g id="turbine" transform="%(turbine_transform)s">
-        %(turbine_shape)s
-      </g>
-
-    </g>
-  """
 
   -->
-
-  print(template % dict(
-      slots_circles = '\n      '.join(slots_circles),
-      slots_guides = '\n      '.join(slots_guides),
-      perimeter_points = ' '.join("%f,%f" % p for p in perimeter_points),
-      balleater_transform = balleater_transform,
-      balleater_shape = balleater_shape,
-      turbine_transform = turbine_transform,
-      turbine_shape = turbine_shape,
-  ))
-
 
   <g transform="scale(1,-1)">
 
@@ -149,14 +157,14 @@
     </g>
 
     <g id="perimeter">
-      <polygon points="-35.000000,134.378222 35.000000,134.378222 133.874954,-36.878222 98.874954,-97.500000 -98.874954,-97.500000 -133.874954,-36.878222" />
+      <polygon points="-21.250000,156.606261 21.250000,156.606261 146.250000,-59.900090 125.000000,-96.706170 -125.000000,-96.706170 -146.250000,-59.900090" />
     </g>
 
-    <g id="balleater" transform="translate(-84.437477,48.750000) rotate(60)">
+    <g id="balleater" transform="translate(-83.750000,48.353085) rotate(60)">
       <path d="M-35.000000,0.000000 -35.000000,35.000000, 35.000000,35.000000 35.000000,0.000000" />
     </g>
 
-    <g id="turbine" transform="translate(84.437477,48.750000) rotate(-60)">
+    <g id="turbine" transform="translate(83.750000,48.353085) rotate(-60)">
       <path d="M-40.000000,0 a1,1 0 0,0 80.000000,0" />
     </g>
 

@@ -60,16 +60,16 @@
 			}
 
 			.galipeur { fill: #00ffff; }
-			#def-galipeur polygon {
+			#def-galipeur .perimeter {
 				stroke: black;
 				stroke-width: 10;
 			}
-			#def-galipeur circle {
+			#def-galipeur .balleater, #def-galipeur .turbine {
 				stroke: black;
 				stroke-width: 5;
 			}
-			#def-galipeur circle.right-side { fill: #dd00dd; }
-			#def-galipeur circle.left-side { fill: #00dd00; }
+			#def-galipeur .balleater { fill: #dd00dd; }
+			#def-galipeur .turbine { fill: #00dd00; }
 
 			.galipette { fill: #ff4da6; }
 			#def-galipette polygon {
@@ -137,10 +137,16 @@
 			<polygon points="0,170 147,-85 -147,-85"/>
 			<rect x="-80" y="-95" width="160" height="50" />
 		</g>
-		<g id="def-galipeur">
-			<polygon points="0,170 147,-85 -147,-85"/>
-			<circle r="40" cx="-104" cy="-60" class="left-side" />
-			<circle r="40" cx="104" cy="-60" class="right-side" />
+		<g id="def-galipeur" transform="scale(0.9)">
+			<g class="perimeter">
+				<polygon points="-21.250000,156.606261 21.250000,156.606261 146.250000,-59.900090 125.000000,-96.706170 -125.000000,-96.706170 -146.250000,-59.900090" />
+			</g>
+			<g class="balleater" transform="translate(-83.750000,48.353085) rotate(60)">
+				<path d="M-35.000000,0.000000 -35.000000,35.000000, 35.000000,35.000000 35.000000,0.000000" />
+			</g>
+			<g class="turbine" transform="translate(83.750000,48.353085) rotate(-60)">
+				<path d="M-40.000000,0 a1,1 0 0,0 80.000000,0" />
+			</g>
 		</g>
 		<g id="def-galipette">
 			<polygon points="55,95 110,0 55,-95 -55,-95 -110,0 -55,95"/>
