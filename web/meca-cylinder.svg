@@ -25,127 +25,142 @@
         fill: none;
       }
 
-      .empty { fill: none; }
+      .color-none { fill: none; }
+      .color-orange { fill: #d05d28; }
+      .color-green { fill: #61993b; }
+
+      #state, #emptying_move {
+        stroke: black;
+        stroke-width: 2;
+      }
+
+      #state.busy { fill: red; }
+      #state.ready { fill: green; }
+      #state.ground_clear { fill: orange; }
+
+      #emptying_move.none { fill: white; }
+      #emptying_move.watertower { fill: blue; }
+      #emptying_move.treatment { fill: marroon; }
 
     ]]></style>
   </defs>
 
 
   <!--
-      from math import *
-      import textwrap
 
-      #cylinder_outer_r = 100.
-      cylinder_r = 70.
-      cylinder_a0 = radians(150)
-      cylinder_arc = radians(290)
-      slot_r = 45./2
-      slots_n = 8
-      guide_r = cylinder_r / 2
-      balleater_size = (70, 35)
-      turbine_r = 40
+    from math import *
+    import textwrap
 
-      robot_small_side = 85
-      robot_large_side = 250
-      robot_side = robot_large_side + robot_small_side  # triangle size
-      robot_h = robot_side * sin(pi/3)
-      robot_inner_r = cylinder_r + slot_r + 5
+    #cylinder_outer_r = 100.
+    cylinder_r = 70.
+    cylinder_a0 = radians(150)
+    cylinder_arc = radians(290)
+    slot_r = 45./2
+    slots_n = 8
+    guide_r = cylinder_r / 2
+    balleater_size = (70, 35)
+    turbine_r = 40
 
-      slots_circles = []
-      slots_guides = []
-      for k in range(slots_n):
-          a = cylinder_a0 + k * cylinder_arc / (slots_n - 1)
-          slots_circles.append('<circle id="slot-%d" class="slot empty" r="%d" cx="%f" cy="%f" />' % (
-              k, slot_r, cylinder_r*cos(a), cylinder_r*sin(a)
-          ))
-          slots_guides.append('<line id="guide-%d" class="guide" x1="0" y1="0" x2="%f" y2="%f" />' % (
-              k, guide_r*cos(a), guide_r*sin(a)
-          ))
+    robot_small_side = 85
+    robot_large_side = 250
+    robot_side = robot_large_side + robot_small_side  # triangle size
+    robot_h = robot_side * sin(pi/3)
+    robot_inner_r = cylinder_r + slot_r + 5
 
-      perimeter_points = [
-          #  /\
-          (-robot_small_side/2 * sin(pi/6), robot_h*2/3 - robot_small_side/2 * cos(pi/6)),
-          ( robot_small_side/2 * sin(pi/6), robot_h*2/3 - robot_small_side/2 * cos(pi/6)),
-          # _\
-          (robot_side/2 - robot_small_side/2 * sin(pi/6), -robot_h/3 + robot_small_side/2 * cos(pi/6)),
-          (robot_side/2 - robot_small_side/2, -robot_h/3),
-          # /_
-          (-robot_side/2 + robot_small_side/2, -robot_h/3),
-          (-robot_side/2 + robot_small_side/2 * sin(pi/6), -robot_h/3 + robot_small_side/2 * cos(pi/6)),
-      ]
+    slots_circles = []
+    slots_guides = []
+    for k in range(slots_n):
+        a = cylinder_a0 + k * cylinder_arc / (slots_n - 1)
+        slots_circles.append('<circle id="slot-%d" class="slot color-none" r="%d" cx="%f" cy="%f" />' % (
+            k, slot_r, cylinder_r*cos(a), cylinder_r*sin(a)
+        ))
+        slots_guides.append('<line id="guide-%d" class="guide" x1="0" y1="0" x2="%f" y2="%f" />' % (
+            k, guide_r*cos(a), guide_r*sin(a)
+        ))
 
-      balleater_transform = 'translate(%f,%f) rotate(60)' % (
-          robot_h/3 * cos(pi*5/6),
-          robot_h/3 * sin(pi*5/6),
-      )
-      balleater_shape = '<path d="M%f,%f %f,%f, %f,%f %f,%f" />' % (
-          -balleater_size[0]/2, 0,
-          -balleater_size[0]/2, balleater_size[1],
-          balleater_size[0]/2, balleater_size[1],
-          balleater_size[0]/2, 0,
-      )
+    perimeter_points = [
+        #  /\
+        (-robot_small_side/2 * sin(pi/6), robot_h*2/3 - robot_small_side/2 * cos(pi/6)),
+        ( robot_small_side/2 * sin(pi/6), robot_h*2/3 - robot_small_side/2 * cos(pi/6)),
+        # _\
+        (robot_side/2 - robot_small_side/2 * sin(pi/6), -robot_h/3 + robot_small_side/2 * cos(pi/6)),
+        (robot_side/2 - robot_small_side/2, -robot_h/3),
+        # /_
+        (-robot_side/2 + robot_small_side/2, -robot_h/3),
+        (-robot_side/2 + robot_small_side/2 * sin(pi/6), -robot_h/3 + robot_small_side/2 * cos(pi/6)),
+    ]
 
-      turbine_transform = 'translate(%f,%f) rotate(-60)' % (
-          robot_h/3 * cos(pi/6),
-          robot_h/3 * sin(pi/6),
-      )
-      turbine_shape = '<path d="M%f,0 a1,1 0 0,0 %f,0" />' % (
-          -turbine_r, 2*turbine_r
-      )
+    balleater_transform = 'translate(%f,%f) rotate(60)' % (
+        robot_h/3 * cos(pi*5/6),
+        robot_h/3 * sin(pi*5/6),
+    )
+    balleater_shape = '<path d="M%f,%f %f,%f, %f,%f %f,%f" />' % (
+        -balleater_size[0]/2, 0,
+        -balleater_size[0]/2, balleater_size[1],
+        balleater_size[0]/2, balleater_size[1],
+        balleater_size[0]/2, 0,
+    )
+
+    turbine_transform = 'translate(%f,%f) rotate(-60)' % (
+        robot_h/3 * cos(pi/6),
+        robot_h/3 * sin(pi/6),
+    )
+    turbine_shape = '<path d="M%f,0 a1,1 0 0,0 %f,0" />' % (
+        -turbine_r, 2*turbine_r
+    )
 
 
-      template = """\
-        \x3c\x21\x2d\x2d
-      %(source)s
-        \x2d\x2d\x3e
+    template = """\
+      \x3c\x21\x2d\x2d
+    %(source)s
+      \x2d\x2d\x3e
 
-        <g transform="scale(1,-1)">
+      <g transform="scale(1,-1)">
 
-          <g id="cylinder">
-            %(slots_circles)s
-            %(slots_guides)s
-          </g>
-
-          <g id="perimeter">
-            <polygon points="%(perimeter_points)s" />
-          </g>
-
-          <g id="balleater" transform="%(balleater_transform)s">
-            %(balleater_shape)s
-          </g>
-
-          <g id="turbine" transform="%(turbine_transform)s">
-            %(turbine_shape)s
-          </g>
-
+        <g id="cylinder">
+          %(slots_circles)s
+          %(slots_guides)s
         </g>
-      """
 
-      print(template % dict(
-          source = textwrap.indent(open(__file__).read(), '      '),
-          slots_circles = '\n      '.join(slots_circles),
-          slots_guides = '\n      '.join(slots_guides),
-          perimeter_points = ' '.join("%f,%f" % p for p in perimeter_points),
-          balleater_transform = balleater_transform,
-          balleater_shape = balleater_shape,
-          turbine_transform = turbine_transform,
-          turbine_shape = turbine_shape,
-      ))
+        <g id="perimeter">
+          <polygon points="%(perimeter_points)s" />
+        </g>
 
+        <g id="balleater" transform="%(balleater_transform)s">
+          %(balleater_shape)s
+        </g>
+
+        <g id="turbine" transform="%(turbine_transform)s">
+          %(turbine_shape)s
+        </g>
+
+      </g>
+    """
+
+    print(template % dict(
+        source = textwrap.indent(open(__file__).read(), '      '),
+        slots_circles = '\n      '.join(slots_circles),
+        slots_guides = '\n      '.join(slots_guides),
+        perimeter_points = ' '.join("%f,%f" % p for p in perimeter_points),
+        balleater_transform = balleater_transform,
+        balleater_shape = balleater_shape,
+        turbine_transform = turbine_transform,
+        turbine_shape = turbine_shape,
+    ))
 
   -->
 
   <g transform="scale(1,-1)">
 
     <g id="cylinder">
-      <circle id="slot-0" class="slot empty" r="22" cx="-60.621778" cy="35.000000" />
-      <circle id="slot-1" class="slot empty" r="22" cx="-68.612074" cy="-13.870230" />
-      <circle id="slot-2" class="slot empty" r="22" cx="-42.266309" cy="-55.799276" />
-      <circle id="slot-3" class="slot empty" r="22" cx="5.231107" cy="-69.804266" />
-      <circle id="slot-4" class="slot empty" r="22" cx="50.110679" cy="-48.876577" />
-      <circle id="slot-5" class="slot empty" r="22" cx="69.912984" cy="-3.489212" />
-      <circle id="slot-6" class="slot empty" r="22" cx="54.728204" cy="43.644286" />
-      <circle id="slot-7" class="slot empty" r="22" cx="12.155372" cy="68.936543" />
+      <circle id="slot-0" class="slot color-none" r="22" cx="-60.621778" cy="35.000000" />
+      <circle id="slot-1" class="slot color-none" r="22" cx="-68.612074" cy="-13.870230" />
+      <circle id="slot-2" class="slot color-none" r="22" cx="-42.266309" cy="-55.799276" />
+      <circle id="slot-3" class="slot color-none" r="22" cx="5.231107" cy="-69.804266" />
+      <circle id="slot-4" class="slot color-none" r="22" cx="50.110679" cy="-48.876577" />
+      <circle id="slot-5" class="slot color-none" r="22" cx="69.912984" cy="-3.489212" />
+      <circle id="slot-6" class="slot color-none" r="22" cx="54.728204" cy="43.644286" />
+      <circle id="slot-7" class="slot color-none" r="22" cx="12.155372" cy="68.936543" />
       <line id="guide-0" class="guide" x1="0" y1="0" x2="-30.310889" y2="17.500000" />
       <line id="guide-1" class="guide" x1="0" y1="0" x2="-34.306037" y2="-6.935115" />
       <line id="guide-2" class="guide" x1="0" y1="0" x2="-21.133154" y2="-27.899638" />
@@ -169,6 +184,9 @@
     </g>
 
   </g>
+
+  <circle id="state" class="none" cx="-120" cy="-130" r="20" />
+  <circle id="emptying_move" class="none" cx="120" cy="-130" r="20" />
 
   <script type="text/javascript"><![CDATA[
     const xlinkNS = "http://www.w3.org/1999/xlink";
