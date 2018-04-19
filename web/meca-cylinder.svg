@@ -39,15 +39,15 @@
       #state.ground_clear { fill: orange; }
 
       #emptying_move.none { fill: white; }
-      #emptying_move.watertower { fill: blue; }
-      #emptying_move.treatment { fill: marroon; }
+      #emptying_move.watertower { fill: aquamarine; }
+      #emptying_move.treatment { fill: peru; }
 
     ]]></style>
   </defs>
 
 
-  <!--
 
+  <!--
     from math import *
     import textwrap
 
@@ -70,7 +70,7 @@
     slots_circles = []
     slots_guides = []
     for k in range(slots_n):
-        a = cylinder_a0 + k * cylinder_arc / (slots_n - 1)
+        a = cylinder_a0 - k * cylinder_arc / (slots_n - 1)
         slots_circles.append('<circle id="slot-%d" class="slot color-none" r="%d" cx="%f" cy="%f" />' % (
             k, slot_r, cylinder_r*cos(a), cylinder_r*sin(a)
         ))
@@ -111,6 +111,7 @@
 
 
     template = """\
+
       \x3c\x21\x2d\x2d
     %(source)s
       \x2d\x2d\x3e
@@ -138,7 +139,7 @@
     """
 
     print(template % dict(
-        source = textwrap.indent(open(__file__).read(), '      '),
+        source = textwrap.indent(open(__file__).read(), '    '),
         slots_circles = '\n      '.join(slots_circles),
         slots_guides = '\n      '.join(slots_guides),
         perimeter_points = ' '.join("%f,%f" % p for p in perimeter_points),
@@ -148,27 +149,29 @@
         turbine_shape = turbine_shape,
     ))
 
+
   -->
 
   <g transform="scale(1,-1)">
 
     <g id="cylinder">
       <circle id="slot-0" class="slot color-none" r="22" cx="-60.621778" cy="35.000000" />
-      <circle id="slot-1" class="slot color-none" r="22" cx="-68.612074" cy="-13.870230" />
-      <circle id="slot-2" class="slot color-none" r="22" cx="-42.266309" cy="-55.799276" />
-      <circle id="slot-3" class="slot color-none" r="22" cx="5.231107" cy="-69.804266" />
-      <circle id="slot-4" class="slot color-none" r="22" cx="50.110679" cy="-48.876577" />
-      <circle id="slot-5" class="slot color-none" r="22" cx="69.912984" cy="-3.489212" />
-      <circle id="slot-6" class="slot color-none" r="22" cx="54.728204" cy="43.644286" />
-      <circle id="slot-7" class="slot color-none" r="22" cx="12.155372" cy="68.936543" />
+      <circle id="slot-1" class="slot color-none" r="22" cx="-22.294066" cy="66.354914" />
+      <circle id="slot-2" class="slot color-none" r="22" cx="27.190436" cy="64.503335" />
+      <circle id="slot-3" class="slot color-none" r="22" cx="63.067821" cy="30.371862" />
+      <circle id="slot-4" class="slot color-none" r="22" cx="67.383697" cy="-18.958833" />
+      <circle id="slot-5" class="slot color-none" r="22" cx="37.978238" cy="-58.801815" />
+      <circle id="slot-6" class="slot color-none" r="22" cx="-10.432959" cy="-69.218158" />
+      <circle id="slot-7" class="slot color-none" r="22" cx="-53.623111" cy="-44.995133" />
       <line id="guide-0" class="guide" x1="0" y1="0" x2="-30.310889" y2="17.500000" />
-      <line id="guide-1" class="guide" x1="0" y1="0" x2="-34.306037" y2="-6.935115" />
-      <line id="guide-2" class="guide" x1="0" y1="0" x2="-21.133154" y2="-27.899638" />
-      <line id="guide-3" class="guide" x1="0" y1="0" x2="2.615553" y2="-34.902133" />
-      <line id="guide-4" class="guide" x1="0" y1="0" x2="25.055340" y2="-24.438289" />
-      <line id="guide-5" class="guide" x1="0" y1="0" x2="34.956492" y2="-1.744606" />
-      <line id="guide-6" class="guide" x1="0" y1="0" x2="27.364102" y2="21.822143" />
-      <line id="guide-7" class="guide" x1="0" y1="0" x2="6.077686" y2="34.468271" />
+      <line id="guide-1" class="guide" x1="0" y1="0" x2="-11.147033" y2="33.177457" />
+      <line id="guide-2" class="guide" x1="0" y1="0" x2="13.595218" y2="32.251667" />
+      <line id="guide-3" class="guide" x1="0" y1="0" x2="31.533910" y2="15.185931" />
+      <line id="guide-4" class="guide" x1="0" y1="0" x2="33.691849" y2="-9.479416" />
+      <line id="guide-5" class="guide" x1="0" y1="0" x2="18.989119" y2="-29.400907" />
+      <line id="guide-6" class="guide" x1="0" y1="0" x2="-5.216479" y2="-34.609079" />
+      <line id="guide-7" class="guide" x1="0" y1="0" x2="-26.811556" y2="-22.497566" />
+
     </g>
 
     <g id="perimeter">
@@ -184,6 +187,15 @@
     </g>
 
   </g>
+
+  <animateTransform
+    xlink:href="#cylinder"
+    attributeName="transform"
+    attributeType="XML"
+    id="rotate-cylinder"
+    type="rotate"
+    begin="beginEvent"
+    fill="freeze" />
 
   <circle id="state" class="none" cx="-120" cy="-130" r="20" />
   <circle id="emptying_move" class="none" cx="120" cy="-130" r="20" />
