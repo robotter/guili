@@ -1,225 +1,216 @@
 <svg version="1.1"
-	xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns="http://www.w3.org/2000/svg"
-	width="3300" height="2500"
-	viewBox="-1650 -1250 3300 2500"
-	id="drawing">
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns="http://www.w3.org/2000/svg"
+  width="3160" height="2380"
+  viewBox="-1580 -2100 3160 2380"
+  id="drawing">
 
-	<!--
-		Copyright (c) 2016-2017, Roboterclub Aachen e.V.
-		All rights reserved.
+  <title>Eurobot 2018 - Robot Cities</title>
 
-		Redistribution and use in source and binary forms, with or without
-		modification, are permitted provided that the following conditions are met:
+  <!-- Colors
+    signal orange   RAL2010   #d05d28
+    yellow green    RAL6018   #61993b
+    pebble gray     RAL7032   #b5b0a1
+    traffic yellow  RAL1023   #f7b500
+    jet black       RAL9005   #0e0e10
+    traffic blue    RAL5017   #005b8c
+    white           RAL9010   #ffffff
+  -->
 
-		 * Redistributions of source code must retain the above copyright
-		   notice, this list of conditions and the following disclaimer.
-		 * Redistributions in binary form must reproduce the above copyright
-		   notice, this list of conditions and the following disclaimer in the
-		   documentation and/or other materials provided with the distribution.
-		 * Neither the name of the Roboterclub Aachen e.V. nor the
-		   names of its contributors may be used to endorse or promote products
-		   derived from this software without specific prior written permission.
+  <defs>
+    <style type="text/css"><![CDATA[
 
-		THIS SOFTWARE IS PROVIDED BY ROBOTERCLUB AACHEN E.V. ''AS IS'' AND ANY
-		EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-		WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-		DISCLAIMED. IN NO EVENT SHALL ROBOTERCLUB AACHEN E.V. BE LIABLE FOR ANY
-		DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-		(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-		LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-		ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-		(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-		SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-	-->
+      .default-robot { fill: #00ff00; }
+      #def-default-robot polygon {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-default-robot rect {
+        stroke: black;
+        stroke-width: 5;
+      }
 
-	<title>Eurobot 2018 Game Arena</title>
+      .galipeur { fill: #00ffff; }
+      #def-galipeur .perimeter {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-galipeur .balleater, #def-galipeur .turbine {
+        stroke: black;
+        stroke-width: 5;
+      }
+      #def-galipeur .balleater { fill: #dd00dd; }
+      #def-galipeur .turbine { fill: #00dd00; }
 
-	<!-- The official eurobot colors are:
-		- signal orange:	RAL2010		#d05d28
-		- yellow green:		RAL6018		#61993b
-		- pebble gray:		RAL7032		#b5b0a1
-		- traffic yellow:	RAL1023		#f7b500
-		- jet black:		RAL9005		#0e0e10
-		- traffic blue:		RAL5017		#005b8c
-		- white:			RAL????		#ffffff
+      .galipette { fill: #ff4da6; }
+      #def-galipette polygon {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-galipette rect {
+        fill: #00ff00;
+        stroke: black;
+        stroke-width: 10;
+      }
 
-		The colors are hardcoded since this significantly speeds up drawing.
-	-->
-	<defs>
-		<style type="text/css"><![CDATA[
+      #def-carrot circle {
+        stroke: black;
+        stroke-width: 10;
+      }
 
-			.default-robot { fill: #00ff00; }
-			#def-default-robot polygon {
-				stroke: black;
-				stroke-width: 10;
-			}
-			#def-default-robot rect {
-				stroke: black;
-				stroke-width: 5;
-			}
+    ]]></style>
 
-			.galipeur { fill: #00ffff; }
-			#def-galipeur .perimeter {
-				stroke: black;
-				stroke-width: 10;
-			}
-			#def-galipeur .balleater, #def-galipeur .turbine {
-				stroke: black;
-				stroke-width: 5;
-			}
-			#def-galipeur .balleater { fill: #dd00dd; }
-			#def-galipeur .turbine { fill: #00dd00; }
+    <!-- robots -->
 
-			.galipette { fill: #ff4da6; }
-			#def-galipette polygon {
-				stroke: black;
-				stroke-width: 10;
-			}
-			#def-galipette rect {
-				fill: #00ff00;
-				stroke: black;
-				stroke-width: 10;
-			}
+    <g id="def-default-robot">
+      <polygon points="0,170 147,-85 -147,-85"/>
+      <rect x="-80" y="-95" width="160" height="50" />
+    </g>
+    <g id="def-galipeur" transform="scale(0.9)">
+      <g class="perimeter">
+        <polygon points="-21.250000,156.606261 21.250000,156.606261 146.250000,-59.900090 125.000000,-96.706170 -125.000000,-96.706170 -146.250000,-59.900090" />
+      </g>
+      <g class="balleater" transform="translate(-83.750000,48.353085) rotate(60)">
+        <path d="M-35.000000,0.000000 -35.000000,35.000000, 35.000000,35.000000 35.000000,0.000000" />
+      </g>
+      <g class="turbine" transform="translate(83.750000,48.353085) rotate(-60)">
+        <path d="M-40.000000,0 a1,1 0 0,0 80.000000,0" />
+      </g>
+    </g>
+    <g id="def-galipette">
+      <polygon points="55,95 110,0 55,-95 -55,-95 -110,0 -55,95"/>
+      <rect x="-55" y="-110" width="110" height="40" />
+    </g>
+    <g id="def-carrot">
+      <circle r="40" />
+    </g>
 
-			#def-carrot circle {
-				stroke: black;
-				stroke-width: 10;
-			}
+    <!-- table parts (orange side by default) -->
 
-		]]></style>
+    <g id="start-area">
+      <rect x="1100" y="1350" width="400" height="650" />
+      <!-- exact dimensions are not provided -->
+      <path d="M 1100,1840 h -540 v 160 h -20
+               v -180 h 560 v 20 Z" />
+    </g>
+    <!-- 550 170 -->
 
-		<!-- beacons are always the same -->
-		<g id="beacon-small" stroke="black" stroke-width="1">
-			<!-- drawn so that the origin is in the middle of the beacon -->
-			<path d="
-				M-72,-72
-				L50,-72
-				L50,50
-				L5,50
-				L5,0
-				A5,5 0 0 0 -5 0
-				L-5,50
-				L-72,50
-				Z
-				"/>
-			<path fill-opacity="0" d="
-				M-50,50
-				L-50,-50
-				L50,-50
-				"/>
-		</g>
-		<g id="beacon-big" stroke="black" stroke-width="1">
-			<path d="
-				M-100,-100
-				L100,-100
-				L100,100
-				L5,100
-				L5,0
-				A5,5 0 0 0 -5 0
-				L-5,100
-				L-100,100
-				Z
-				"/>
-		</g>
+    <g id="black-lines" stroke="black" stroke-width="20">
+      <path fill="none" d="
+        M 1500,1670 H 390 V 2000
+        M 350,2000 V 1670 H 20 v 50 H 0
+        m 0,-140 H 20 v 50 H 870 V 1180 H 640 v -40 H 870 V 300 h 40
+        V 430 A 370,370 0 0,0 1270,60 V 0
+        m 40,0 V 60 A 410,410 0 0,1 910,470
+        V 1140 H 1210 v 40 H 910 V 1630 H 1500
+              "/>
+    </g>
 
-		<!-- the start areas -->
-		<g id="start-area">
-			<rect x="-1022" y="-1522" width="382" height="1092"/>
-			<rect x="-640" y="-1500" width="22" height="710" zheight="22" stroke="black" stroke-width="1"/>
-		</g>
+    <g id="water-tower">
+      <g stroke="black" stroke-width="2">
+        <rect x="1140" y="2044" width="370" height="370" />
+        <rect x="1150" y="2054" width="350" height="350" fill="none" />
+        <line x1="1478" y1="2404" x2="1478" y2="2054" />
+        <line x1="1500" y1="2382" x2="1150" y2="2382" />
+      </g>
+      <rect x="1140" y="2022" width="370" height="22" stroke="black" stroke-width="2" fill="#b5b0a1" />
+    </g>
 
-		<!-- static game elements -->
+    <g id="path-of-the-bee" stroke="black" stroke-width="2">
+      <!-- 300 962 30 230 -->
+      <rect x="1522" y="-150" width="22" height="150" fill="#b5b0a1" />
+      <rect x="230" y="-150" width="1292" height="22" fill="#b5b0a1" />
+      <line x1="1200" y1="-150" x2="1200" y2="-128" />
+      <line x1="260" y1="-150" x2="260" y2="-128" />
+      <path d="M 0,-22 v -230 h 230 v 230
+               h -22 v -208 h -186 v 208 Z" />
+    </g>
 
-		<!-- mobile game elements: have a 2px border! -->
+    <!-- centered on table attach point, oriented toward right -->
+    <g id="wastewater-recuperator" stroke="black" stroke-width="2">
+      <path d="M 0,30 h 30 a 30,30 0 0,0 0,-60 h -30 a 30,30 0 0,0 0,60 a 30,30 0 0,0 0,-60" />
+    </g>
 
-		<g id="def-default-robot">
-			<polygon points="0,170 147,-85 -147,-85"/>
-			<rect x="-80" y="-95" width="160" height="50" />
-		</g>
-		<g id="def-galipeur" transform="scale(0.9)">
-			<g class="perimeter">
-				<polygon points="-21.250000,156.606261 21.250000,156.606261 146.250000,-59.900090 125.000000,-96.706170 -125.000000,-96.706170 -146.250000,-59.900090" />
-			</g>
-			<g class="balleater" transform="translate(-83.750000,48.353085) rotate(60)">
-				<path d="M-35.000000,0.000000 -35.000000,35.000000, 35.000000,35.000000 35.000000,0.000000" />
-			</g>
-			<g class="turbine" transform="translate(83.750000,48.353085) rotate(-60)">
-				<path d="M-40.000000,0 a1,1 0 0,0 80.000000,0" />
-			</g>
-		</g>
-		<g id="def-galipette">
-			<polygon points="55,95 110,0 55,-95 -55,-95 -110,0 -55,95"/>
-			<rect x="-55" y="-110" width="110" height="40" />
-		</g>
-		<g id="def-carrot">
-			<circle r="40" />
-		</g>
+    <g id="construction-cubes" stroke="black" stroke-width="2">
+      <rect x="-29" y="-87" width="58" height="58" fill="#005b8c" />
+      <rect x="-29" y="-29" width="58" height="58" fill="#f7b500" />
+      <rect x="-29" y="29" width="58" height="58" fill="#0e0e10" />
+      <rect x="-87" y="-29" width="58" height="58" fill="#d05d28" />
+      <rect x="29" y="-29" width="58" height="58" fill="#61993b" />
+    </g>
 
-	</defs>
+  </defs>
 
-	<g transform="rotate(90) scale(1,-1)">
+  <g transform="scale(1,-1)">
 
-	<!-- gray game area excluding border -->
-	<rect x="-1022" y="-1522" width="2044" height="3044" fill="#C0C0C0"/>
+    <!-- table floor -->
+    <rect x="-1522" y="-22" width="3044" height="2044" fill="#b5b0a1"/>
+    <g stroke="black" stroke-width="2" fill="none">
+      <rect x="-1522" y="-22" width="3044" height="2044"/>
+      <rect x="-1500" y="0" width="3000" height="2000"/>
+    </g>
+    <use xlink:href="#start-area" fill="#d05d28"/>
+    <use xlink:href="#start-area" fill="#61993b" transform="scale(-1,1)"/>
+    <use xlink:href="#black-lines" />
+    <use xlink:href="#black-lines" transform="scale(-1,1)" />
 
-	<use id="starting-area-ours"   xlink:href="#start-area" fill="#f7b500" transform="scale(1,-1)"/>
-	<use id="starting-area-theirs" xlink:href="#start-area" fill="#007cb0"/>
+    <!-- elements -->
 
-	<!-- draw the beacons -->
-	<g id="beacons">
-		<!-- ordered -y=>+y then -x=>+x -->
-		<use x="-1122" y="100" id="beacon-theirs-1" xlink:href="#beacon-big" transform="scale(1,-1)" fill="#61993b"/>
-		<use x="-1122" y="100" id="beacon-ours-1"   xlink:href="#beacon-big" fill="#d05d28"/>
+    <use xlink:href="#water-tower" fill="#d05d28"/>
+    <use xlink:href="#water-tower" fill="#61993b" transform="scale(-1,1)"/>
 
-		<use x="-950" y="1594" id="beacon-theirs-1" xlink:href="#beacon-small" transform="scale(1,-1)" fill="#61993b"/>
-		<use x="0"    y="1594" id="beacon-ours-2"   xlink:href="#beacon-small" transform="scale(1,-1)" fill="#d05d28"/>
-		<use x="950"  y="1594" id="beacon-theirs-3" xlink:href="#beacon-small" transform="scale(1,-1)" fill="#61993b"/>
+    <g id="wastewater-collector" stroke="black" stroke-width="2">
+      <rect x="-612" y="0" width="612" height="250" fill="#d05d28"/>
+      <rect x="0" y="0" width="612" height="250" fill="#61993b"/>
+      <rect x="-600" y="22" width="1200" height="206" fill="#b5b0a1"/>
+      <rect x="-11" y="22" width="22" height="206" fill="#b5b0a1"/>
+    </g>
 
-		<use x="-950" y="1594"  id="beacon-ours-1"   xlink:href="#beacon-small" fill="#d05d28"/>
-		<use x="0"    y="1594"  id="beacon-theirs-2" xlink:href="#beacon-small" fill="#61993b"/>
-		<use x="950"  y="1594"  id="beacon-ours-3"   xlink:href="#beacon-small" fill="#d05d28"/>
-	</g>
+    <use xlink:href="#path-of-the-bee" fill="#d05d28"/>
+    <use xlink:href="#path-of-the-bee" fill="#61993b" transform="scale(-1,1)"/>
 
-	<!-- draw the borders of the game area -->
-	<g fill-opacity="0" stroke="black" stroke-width="2">
-		<rect x="-1022" y="-1522" width="2044" height="3044"/>
-		<rect x="-1000" y="-1500" width="2000" height="3000"/>
-	</g>
+    <use xlink:href="#wastewater-recuperator" fill="#d05d28" transform="translate(1500,1160) rotate(180)" />
+    <use xlink:href="#wastewater-recuperator" fill="#61993b" transform="translate(-1500,1160) rotate(0)" />
+    <use xlink:href="#wastewater-recuperator" fill="#d05d28" transform="translate(-890,0) rotate(90)" />
+    <use xlink:href="#wastewater-recuperator" fill="#61993b" transform="translate(890,0) rotate(90)" />
 
-	<!-- mobile game elements -->
+    <use xlink:href="#construction-cubes" transform="translate(400,500)"/>
+    <use xlink:href="#construction-cubes" transform="translate(650,1460)"/>
+    <use xlink:href="#construction-cubes" transform="translate(1200,810)"/>
+    <use xlink:href="#construction-cubes" transform="translate(-400,500) scale(-1,1)"/>
+    <use xlink:href="#construction-cubes" transform="translate(-650,1460) scale(-1,1)"/>
+    <use xlink:href="#construction-cubes" transform="translate(-1200,810) scale(-1,1)"/>
 
-	</g>
+    <g id="reference-frame" />
 
-	<g id="reference-frame" transform="translate(0, 1000) scale(1,-1)">
-	</g>
+  </g>
 
-	<script type="text/javascript"><![CDATA[
-		const xlinkNS = "http://www.w3.org/1999/xlink";
+  <script type="text/javascript"><![CDATA[
+    const xlinkNS = "http://www.w3.org/1999/xlink";
 
-		var drawing = document.getElementById("drawing");
+    var drawing = document.getElementById("drawing");
 
-		// Various helper methods
+    // Various helper methods
 
-		drawing.createElement = function(tag) {
-			return document.createElementNS(this.namespaceURI, tag);
-		};
+    drawing.createElement = function(tag) {
+      return document.createElementNS(this.namespaceURI, tag);
+    };
 
-		Element.prototype.setAttributes = function(attrs) {
-			for(var k in attrs) {
-				if(k == "xlink:href") {
-					this.setAttributeNS(xlinkNS, k, attrs[k]);
-				} else {
-					this.setAttribute(k, attrs[k]);
-				}
-			}
-		}
+    Element.prototype.setAttributes = function(attrs) {
+      for(var k in attrs) {
+        if(k == "xlink:href") {
+          this.setAttributeNS(xlinkNS, k, attrs[k]);
+        } else {
+          this.setAttribute(k, attrs[k]);
+        }
+      }
+    }
 
-		// compute distance between two objects
-		function distance(a,b) {
-			return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
-		}
+    // compute distance between two objects
+    function distance(a,b) {
+      return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+    }
 
-	]]></script>
+  ]]></script>
 
 </svg>
