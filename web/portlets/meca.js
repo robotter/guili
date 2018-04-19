@@ -31,6 +31,7 @@ Portlet.register({
       self.bindFrame(null, 'meca_tm_optimal_emptying_move', function(robot, params) {
         self.emptying_move.setAttribute('class', params.emptying_move);
       });
+      df.resolve();
     };
 
     return df.promise();
