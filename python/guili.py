@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import io
 import json
 import threading
 import time
@@ -141,7 +142,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     if robot is None or robot not in self.server.robots:
       return self.send_error(404)
 
-    fhex = StringIO(self.rfile.read(int(self.headers.getheader('content-length'))))
+    fhex = io.StringIO(self.rfile.read(int(self.headers.get('content-length'))).decode('ascii'))
     return self.bootloader_program(robot, fhex)
 
   def bootloader_program(self, robot, fhex):
@@ -202,7 +203,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
       self.ws_send_frame(1, json.dumps({'event': name, 'params': params}))
 
   def on_message(self, fo):
-    data = json.load(fo)
+    data = json.loads(fo.read().decode('utf-8'))
     try:
       getattr(self, 'wsdo_'+data['method'].replace('-', '_'))(**data['params'])
     except Exception as e:
