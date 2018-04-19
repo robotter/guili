@@ -381,6 +381,8 @@ class RomeClientGuiliServer(GuiliServer):
     def wsdo_rome(self, robot, name, params):
       #TODO use cb_result/cb_ack when needed
       frame = rome.Frame(name, **params)
+      # format the data to check that parameters are valid
+      frame.params_data()
       if robot is None:
         for cl in self.server.clients.values():
           cl.send(frame)
