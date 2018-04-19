@@ -61,5 +61,10 @@
     [ "asserv",    { "position": { "x": 873,  "y": 2,   "w": 255, "h": 105 }, "robot": "galipette" } ],
     [ "meca",      { "position": { "x": 1178, "y": 3,   "w": 165, "h": 81  }, "robot": "galipette" } ],
     [ "detection", { "position": { "x": 984,  "y": 396, "w": 330, "h": 313 } } ]
+  ],
+  "cylinder-test": [
+    [ "console", { "position": { "x": 3, "y": 3, "w": 402, "h": 597 } } ],
+    [ "logs", { "position": { "x": 407, "y": 3, "w": 405, "h": 596 } } ],
+    [ "meca", { "position": { "x": 826, "y": 40, "w": 384, "h": 403 } } ]
   ]
 }
