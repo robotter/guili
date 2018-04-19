@@ -50,9 +50,9 @@ class WebSocketRequestHandler(BaseHTTPRequestHandler):
 
     def read(self, n=None):
       if n == 0 or self._fin and self._len == 0:
-        return ''
+        return b''
 
-      ret = ''
+      ret = b''
       while n is None or n > 0:
         # if current frame is exhausted, read the next one
         while self._len == 0:
@@ -164,7 +164,7 @@ class WebSocketRequestHandler(BaseHTTPRequestHandler):
   def ws_read_masked(self, key, n, offset=0):
     """Read data and unmask it"""
     data = self.rfile.read(n)
-    return ''.join(chr(c ^ key[i%4]) for i,c in enumerate(data, offset))
+    return bytes(c ^ key[i%4] for i,c in enumerate(data, offset))
 
 
   def ws_parse_frame(self):
