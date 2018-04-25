@@ -25,27 +25,15 @@
       "position": { "x": 5, "y": 90 }
     }]
   ],
-  "og": 
-  [
-    ["asserv",{
-      "position": {"x": 494,"y": 0,"w": 252,"h": 102}
-    }],
-    ["console",{
-      "position": {"x": 3,"y": 535,"w": 781,"h": 172}
-    }],
-    ["detection",{
-      "position": {"x": 494,"y": 26,"w": 287,"h": 287}
-    }],
-    ["logs",{
-      "position": {"x": 3,"y": 342,"w": 780,"h": 191}
-    }],
-    ["field",{
-      "position": {"x": 3,"y": 0,"w": 489,"h": 340}
-    }],
-    ["meca",{
-      "position": {"x": 494,"y": 264,"w": 117,"h": 76}
-    }]
-  ],
+	"og":	[
+		["console",		{"position": {"x": 3,			"y": 3,		"w": 345,	"h": 911}	}],
+		["logs",			{"position": {"x": 350,		"y": 3,		"w": 589,	"h": 911}	}],
+		["field",			{"position": {"x": 941,		"y": 255,	"w": 876,	"h": 659}	}],
+		["asserv",		{"position": {"x": 941,		"y": 151,	"w": 252,	"h": 102},	"robot": "galipeur"	}],
+		["meca",			{"position": {"x": 1352,	"y": 16,	"w": 226,	"h": 237}	}],
+		["detection",	{"position": {"x": 1580,	"y": 16,	"w": 237,	"h": 237}	}],
+		["match",			{"position": {"x": 941,		"y": 3,		"w": 132,	"h": 72}	}]
+	],
   "yukari": [
     [ "asserv", { "position": { "x": 494, "y": 0, "w": 252, "h": 102 } } ],
     [ "console", { "position": { "x": 756, "y": 336, "w": 585, "h": 258 } } ],
