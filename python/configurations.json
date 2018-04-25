@@ -2,7 +2,7 @@
   "default": [
     ["console"],
     ["logs"],
-    ["graph"],
+    ["match"],
     ["field"],
     ["asserv"],
     ["meca"]

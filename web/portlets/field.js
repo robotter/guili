@@ -9,6 +9,7 @@ Portlet.register({
     this.node.resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
     this.svg_robots = {};
     this.svg_carrots = {};
+    this.pathfindings = {};
 
     // wait for the SVG document to be loaded before using it
     var self = this;
@@ -45,6 +46,50 @@ Portlet.register({
         self.svg_carrots[robot].setAttributes({x: params.x, y: params.y});
       });
 
+      self.bindFrame(null, 'pathfinding_node', function(robot, params) {
+        var pf = self.pathfindings[robot];
+        // remove node and vertices, if any
+        $(pf.svg_nodes).find('.graph-node-'+params.i).remove();
+        $(pf.svg_vertices).find('.graph-vertex-'+params.i).remove();
+        // create new node
+        var node = self.field.createElement('circle');
+        node.setAttributes({
+          'r': 25, 'cx': params.x, 'cy': params.y,
+          'class': 'graph-node graph-node-'+params.i,
+        });
+        pf.svg_nodes.appendChild(node);
+        // create vertices
+        params.neighbors.forEach(function(n) {
+          var node2 = $(pf.svg_nodes).find('.graph-node-'+n);
+          if(node2.size()) {
+            var vertex = self.field.createElement('line');
+            vertex.setAttributes({
+              'class': 'graph-vertex graph-vertex-'+params.i+' graph-vertex-'+n,
+              'x1': params.x, 'y1': params.y,
+              'x2': node2.attr('cx'), 'y2': node2.attr('cy'),
+            });
+            pf.svg_vertices.appendChild(vertex);
+          }
+        });
+      });
+
+      self.bindFrame(null, 'pathfinding_path', function(robot, params) {
+        var pf = self.pathfindings[robot];
+        pf.svg.querySelectorAll('.active').forEach(function(o) { o.classList.remove('active') });
+        pf.svg_nodes.querySelectorAll('.start').forEach(function(o) { o.classList.remove('start') });
+        pf.svg_nodes.querySelectorAll('.goal').forEach(function(o) { o.classList.remove('goal') });
+        for(var i=0; i<params.nodes.length; ++i) {
+          var node1 = params.nodes[i];
+          pf.svg_nodes.querySelector('.graph-node-'+node1).classList.add('active');
+          if(i > 0) {
+            var node2 = params.nodes[i-1];
+            pf.svg_vertices.querySelector('.graph-vertex-'+node1+'.graph-vertex-'+node2).classList.add('active');
+          }
+        }
+        pf.svg_nodes.querySelector('.graph-node-'+params.nodes[0]).classList.add('start');
+        pf.svg_nodes.querySelector('.graph-node-'+params.nodes[params.nodes.length-1]).classList.add('goal');
+      });
+
       df.resolve();
     };
   },
@@ -56,6 +101,9 @@ Portlet.register({
     }
     for(var robot in this.svg_carrots) {
       this.frame.removeChild(this.svg_carrots[robot]);
+    }
+    for(var robot in this.pathfindings) {
+      this.frame.removeChild(this.pathfindings[robot].svg);
     }
 
     var self = this;
@@ -86,8 +134,19 @@ Portlet.register({
       });
       self.frame.appendChild(svg_carrot);
 
+      // create SVG pathfindings (prepare groups)
+      var pathfinding = {
+        svg: self.field.createElement('g'),
+        svg_vertices: self.field.createElement('g'),
+        svg_nodes: self.field.createElement('g'),
+      };
+      self.frame.appendChild(pathfinding.svg);
+      pathfinding.svg.appendChild(pathfinding.svg_vertices);
+      pathfinding.svg.appendChild(pathfinding.svg_nodes);
+
       self.svg_robots[robot] = svg_robot;
       self.svg_carrots[robot] = svg_carrot;
+      self.pathfindings[robot] = pathfinding;
     });
   },
 

@@ -58,6 +58,22 @@
         stroke-width: 10;
       }
 
+      .graph-vertex {
+        stroke-width: 6;
+        stroke: #808080;
+      }
+
+      .graph-node {
+        stroke: none;
+        stroke-width: 6;
+        fill: #808080;
+      }
+
+      .graph-node.active { fill: red; }
+      .graph-node.active.start { fill: yellow; stroke: red; }
+      .graph-node.active.goal { fill: #00ff00; stroke: red; }
+      .graph-vertex.active { stroke: red; }
+
     ]]></style>
 
     <!-- robots -->
