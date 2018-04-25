@@ -89,7 +89,6 @@
 
     <g id="start-area">
       <rect x="1100" y="1350" width="400" height="650" />
-      <!-- exact dimensions are not provided -->
       <path d="M 1100,1840 h -540 v 160 h -20
                v -180 h 560 v 20 Z" />
     </g>
