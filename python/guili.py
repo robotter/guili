@@ -467,6 +467,13 @@ def main():
       addr = int(addr, 16)
       hub.add_device(addr)
       devices.append((name, hub.devices[addr]))
+    elif addr == '/dev/ptmx':
+      import pty
+      master, slave = pty.openpty()
+      print(os.ttyname(master), os.ttyname(slave))
+      addr = os.ttyname(master)
+      print("created pty, slave is: %s" % os.ttyname(slave))
+      devices.append((name, os.fdopen(master, 'rb')))
     else:
       devices.append((name, serial.Serial(addr, 38400, timeout=0.5)))
 
