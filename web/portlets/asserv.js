@@ -45,7 +45,7 @@ Portlet.register({
       var tds = this.content.find('td');
       $(tds[5]).text(params.i + " / " + params.size);
     });
-    this.bindFrame(robot, 'asserv_tm_match_timer', function(robot, params) {
+    this.bindFrame(robot, 'tm_match_timer', function(robot, params) {
       var tds = this.content.find('td');
       $(tds[8]).text(params.seconds + 's');
     });
