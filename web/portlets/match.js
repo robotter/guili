@@ -18,13 +18,10 @@ Portlet.register({
     });
     this.scores = scores;
 
-    this.bindFrame(null, 'asserv_tm_match_timer', function(robot, params) {
+    this.bindFrame(null, 'tm_match_timer', function(robot, params) {
       this.updateTimer(params.seconds);
     });
-    this.bindFrame(null, 'meca_tm_match_timer', function(robot, params) {
-      this.updateTimer(params.seconds);
-    });
-    this.bindFrame(null, 'strat_tm_score', function(robot, params) {
+    this.bindFrame(null, 'tm_score', function(robot, params) {
       this.scores[robot].text(params.points + ' pts');
     });
   },

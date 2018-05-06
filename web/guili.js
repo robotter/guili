@@ -466,7 +466,7 @@ $('#ws-status').click(function() {
 
 // battery check
 $(document).on('rome-frame', function(ev, robot, name, params) {
-  if(name == 'strat_tm_battery') {
+  if(name == 'tm_battery') {
     gs.voltages[robot] = params.voltage;
     for(var r in gs.voltages) {
       var voltage = gs.voltages[r];
