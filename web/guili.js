@@ -481,7 +481,9 @@ $(document).on('rome-frame', function(ev, robot, name, params) {
     $('#battery-status').text(text.join(' | '));
     $('body').toggleClass('battery-low',
       // here we could use Object.values(), if supported
-      $.map(gs.voltages, function(v,k) { return v; }).some(function(v) { return v < 13500 })
+      $.map(gs.voltages, function(v,k) {
+        return v < ((k == "boom" || k == "boomotter") ? 10000 : 13500);
+      }).some(function(b) { return b; })
     );
   }
 });
