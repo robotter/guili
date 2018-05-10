@@ -41,7 +41,8 @@
     [ "field", { "position": { "x": 782, "y": 194, "w": 541, "h": 407 } } ],
     [ "detection", { "position": { "x": 782, "y": 5, "w": 187, "h": 187 } } ],
     [ "meca", { "position": { "x": 971, "y": 5, "w": 179, "h": 188 } } ],
-    [ "match", { "position": { "x": 1152, "y": 5, "w": 146, "h": 98 } } ]
+    [ "match", { "position": { "x": 1152, "y": 5, "w": 146, "h": 72 } } ],
+    [ "boomotter", { "position": { "x": 1152, "y": 80, "w": 200, "h": 72 } } ]
   ],
   "tophe": [
     [ "console",   {"position":  { "x": 6,    "y": 623, "w": 787, "h": 91  } } ],  

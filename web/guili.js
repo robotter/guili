@@ -490,12 +490,14 @@ $(document).on('rome-frame', function(ev, robot, name, params) {
       var voltage = gs.voltages[r];
     }
     var text = [];
-    gs.robots.forEach(function(r) {
-      var voltage = gs.voltages[r];
-      if(voltage !== undefined) {
-        text.push(r + ": " + (voltage/1000).toFixedHtml(1) + ' V');
-      }
-    });
+    if(gs.robots !== null) {
+      gs.robots.forEach(function(r) {
+        var voltage = gs.voltages[r];
+        if(voltage !== undefined) {
+          text.push(r + ": " + (voltage/1000).toFixedHtml(1) + ' V');
+        }
+      });
+    }
     $('#battery-status').text(text.join(' | '));
     $('body').toggleClass('battery-low',
       // here we could use Object.values(), if supported
@@ -554,8 +556,10 @@ $(document).ready(function() {
 
   $.when(
     gs.start("ws://"+hostname+":"+port+"/ws"),
-    Portlet.loadAll(['asserv', 'field',
-      'graph', 'console', 'meca', 'logs', 'detection', 'match'])
+    Portlet.loadAll([
+      'asserv', 'field', 'graph', 'console', 'meca', 'logs', 'detection',
+      'match', 'boomotter',
+    ])
   ).done(function() {
     // create menu to add portlets
     {
