@@ -390,6 +390,24 @@ Portlet.frame_handlers = [];
 
 /*****/
 
+// Normalize robot name
+function normalizeRobotName(name, index) {
+  if(name == 'galipeur' || name == 'galipette' || name == 'boomotter') {
+    return name;
+  } else if(name == 'pmi') {
+    return 'galipette';
+  } else if(name == 'boom') {
+    return 'boomotter';
+  } else if(index == 0) {
+    return 'galipeur';
+  } else if(index == 1) {
+    return 'galipette';
+  } else {
+    return null;
+  }
+}
+
+
 // set handler for WS status display
 $(document).on('ws-status', function(ev, wsev, type, state) {
   var classes;
@@ -482,7 +500,7 @@ $(document).on('rome-frame', function(ev, robot, name, params) {
     $('body').toggleClass('battery-low',
       // here we could use Object.values(), if supported
       $.map(gs.voltages, function(v,k) {
-        return v < ((k == "boom" || k == "boomotter") ? 10000 : 13500);
+        return v < (normalizeRobotName(k) == 'boomotter' ? 12000 : 13500);
       }).some(function(b) { return b; })
     );
   }

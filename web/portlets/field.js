@@ -110,18 +110,7 @@ Portlet.register({
     robots.forEach(function(robot, irobot) {
       // create SVG robot
       var svg_robot = self.field.createElement('use');
-      var svg_name = 'default-robot';
-      if(robot == 'galipeur' || robot == 'galipette' || robot == 'boomotter') {
-        svg_name = robot;
-      } else if(robot == 'pmi') {
-        svg_name = 'galipette';
-      } else if(robot == 'boom') {
-        svg_name = 'boomotter';
-      } else if(irobot == 0) {
-        svg_name = 'galipeur';
-      } else if(irobot == 1) {
-        svg_name = 'galipette';
-      }
+      var svg_name = normalizeRobotName(robot, irobot);
       if(svg_name != 'galipeur' && svg_name != 'galipette') {
         return;
       }

@@ -11,6 +11,9 @@ Portlet.register({
 
     var scores = {};
     gs.robots.forEach(function(r) {
+      if(normalizeRobotName(r) == 'boomotter') {
+        return;
+      }
       var tr = $('<tr></tr>');
       $('<td></td>').text(r).appendTo(tr);
       scores[r] = $('<td class="data-number">? pts</td>').appendTo(tr);
