@@ -8,6 +8,7 @@ import posixpath
 import urllib
 import mimetypes
 import shutil
+import traceback
 from socketserver import ThreadingMixIn
 from contextlib import contextmanager
 import serial
@@ -207,6 +208,7 @@ class GuiliRequestHandler(WebSocketRequestHandler):
     try:
       getattr(self, 'wsdo_'+data['method'].replace('-', '_'))(**data['params'])
     except Exception as e:
+      traceback.print_exc()
       self.send_event('log', {'severity': 'error', 'message': "%s: %s" % (e.__class__.__name__, str(e))})
 
   def wsdo_init(self):
