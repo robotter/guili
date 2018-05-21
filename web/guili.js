@@ -246,29 +246,24 @@ Portlet.prototype = {
   // The menu is stored as view_menu property.
   // If null is found in robots, an "all" entry is added
   setRobotViewMenu: function(robots, onselect) {
-    var self = this;
+    const header = this.header[0]; //TODO:js
 
-    this.header.find('.view-menu').remove();
-    var icon = $('<i class="fa fa-eye" />').prependTo(this.header);
-    var menu = $('<ul class="portlet-header-menu" />').appendTo(this.header);
-    robots.forEach(function(robot) {
-      if(robot === null) {
-        var item = $('<li><a href="#"><span style="font-style: italic"></span></a></li>').appendTo(menu);
-        item.data('robot', null);
-        item.find('span').text('all');
-      } else {
-        var item = $('<li><a href="#"></a></li>').appendTo(menu);
-        item.data('robot', robot);
-        item.children('a').text(robot);
-      }
-    });
+    for(const el of header.querySelectorAll('.view-menu')) {
+      el.remmove();
+    }
 
-    menu.clickMenu(icon, {
-      select: function(ev, ui) {
-        onselect(ui.item.data('robot'));
-        self.view_menu.hide();
-      },
+    const icon = createElementFromHtml('<i class="fa fa-eye" />');
+    const menu = createClickMenu({
+      button: icon,
+      items: robots.map(robot => ({
+        node: robot === null ? createElementFromHtml('<span style="font-style: italic">all</span>') : robot,
+        onselect: () => onselect(robot),
+      })),
     });
+    menu.classList.add('portlet-header-menu');
+
+    header.insertBefore(icon, header.firstChild);
+    header.appendChild(menu);
     this.view_menu = menu;
   },
 };
@@ -514,26 +509,19 @@ $(document).on('robots', function(ev, robots) {
 
 $(document).on('portlets-configurations', function(ev, configs) {
   // create/update the menu to change configuration
-  var icon = $('#set-configuration-icon');
-  var menu = $('#set-configuration-menu');
-  menu.children('li:gt(0)').remove();
-  // sort configurations by name, to preserve order
-  Object.keys(configs).sort().map(function(k) {
-    var conf = configs[k];
-    var item = $('<li><a href="#"></a></li>').appendTo(menu);
-    item.data('name', k);
-    item.children('a').text(k)
-  });
 
-  menu.clickMenu(icon, {
-    select: function(ev, ui) {
-      Portlet.setConfiguration(configs[ui.item.data('name')]);
-    },
+  const menu = createClickMenu({
+    menu: document.querySelector('#set-configuration-menu'),
+    button: document.querySelector('#set-configuration-icon'),
+    items: Object.keys(configs).sort().map(k => ({
+      node: k,
+      onselect: () => Portlet.setConfiguration(configs[k]),
+    })),
   });
 
   // if there are no portlets, assume startup and load the default conf
   if(Portlet.instances.length == 0) {
-    var conf = window.location.hash.substr(1);
+    let conf = window.location.hash.substr(1);
     if(conf == "" || configs[conf] === undefined) {
       conf = "default";
     }
@@ -562,26 +550,24 @@ $(document).ready(function() {
     ])
   ).done(function() {
     // create menu to add portlets
-    {
-      var icon = $('#add-portlet-icon');
-      var menu = $('#add-portlet-menu');
-      // sort portlets on name, to preserve order
-      Object.keys(Portlet.classes).sort().map(function(k) {
-        var cls = Portlet.classes[k].prototype;
-        var item = $('<li><a href="#"></a></li>').appendTo(menu);
-        item.data('name', cls.name);
-        item.children('a').text(cls.pretty_name)
-      });
-
-      menu.clickMenu(icon, {
-        select: function(ev, ui) {
-          Portlet.create($('#portlets'), ui.item.data('name'))
-            .done(function() {
-              this.positionAuto();
-            });
-        },
-      });
-    }
+    createClickMenu({
+      menu: document.querySelector('#add-portlet-menu'),
+      button: document.querySelector('#add-portlet-icon'),
+      items: Object.keys(Portlet.classes).sort().map(k => {
+        const cls = Portlet.classes[k].prototype;
+        return {
+          node: cls.pretty_name,
+          onselect: () => {
+            //TODO:js pass a class object instead of a name?
+            Portlet.create($('#portlets'), cls.name)
+              //TODO:js
+              .done(function() {
+                this.positionAuto();
+              });
+          },
+        }
+      }),
+    });
 
     // get a list of robots
     gs.callMethod('robots', {});
