@@ -14,10 +14,6 @@
     ["logs", {
       "position": { "x": 575, "y": 210 }
     }],
-    ["graph", {
-      "position": { "x": 260, "y": 5 },
-      "view": "position"
-    }],
     ["asserv", {
       "position": { "x": 5, "y": 5 }
     }],

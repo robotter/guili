@@ -63,22 +63,10 @@ get_jquery_ui() {
   rm -fr "$dl_dir/$name"
 }
 
-get_flot() {
-  echo "get flot $1"
-  download "http://www.flotcharts.org/downloads/flot-$1.zip"
-  rm -fr "$dl_dir/float"
-  ( cd _dl && unzip -x "flot-$1.zip" )
-  install "$dl_dir/flot/jquery.flot.min.js" js/
-  install "$dl_dir/flot/jquery.flot.resize.min.js" js/
-  install "$dl_dir/flot/jquery.flot.navigate.min.js" js/
-  rm -fr "$dl_dir/flot"
-}
-
 
 rm -fr "$inst_dir"/*
 
 get_fontawesome 4.7.0
 get_jquery 1.11.0
 get_jquery_ui 1.10.4
-get_flot 0.8.2
 

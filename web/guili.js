@@ -557,7 +557,7 @@ $(document).ready(function() {
   $.when(
     gs.start("ws://"+hostname+":"+port+"/ws"),
     Portlet.loadAll([
-      'asserv', 'field', 'graph', 'console', 'meca', 'logs', 'detection',
+      'asserv', 'field', 'console', 'meca', 'logs', 'detection',
       'match', 'boomotter',
     ])
   ).done(function() {
