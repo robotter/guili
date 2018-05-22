@@ -25,27 +25,23 @@
  *     - params: ROME message parameters as an Object
  */
 
+Portlet.register('console', 'Console', class extends Portlet {
 
-Portlet.register({
-  name: 'console',
-  pretty_name: 'Console',
-
-  init: function(options) {
-    Portlet.prototype.init.call(this, options);
-    var self = this;
+  async init(options) {
+    await super.init(options);
 
     // init worker
     this.request_id = 0;
     this.callbacks = {};
     this.worker = new Worker("portlets/console-worker.js?_="+(new Date().getTime()));
 
-    this.worker.onmessage = function(ev) {
-      var data = ev.data;
-      var method = data.method;
+    this.worker.onmessage = (ev) => {
+      const data = ev.data;
+      const method = data.method;
       if(method == 'response') {
-        var cb = self.callbacks[data.id];
+        const cb = this.callbacks[data.id];
         if(cb) {
-          delete self.callbacks[data.id];
+          delete this.callbacks[data.id];
           cb(data);
         }
       } else if(method == 'rome') {
@@ -55,70 +51,68 @@ Portlet.register({
       }
     };
 
-    this.worker.send = function(method, params, cb) {
-      var id = self.request_id++;
-      self.callbacks[id] = cb;
-      var data = { id: id, method: method };
-      for(var k in params) {
-        data[k] = params[k];
-      }
-      this.postMessage(data);
+    this.worker.send = (method, params, cb) => {
+      const id = this.request_id++;
+      this.callbacks[id] = cb;
+      const data = { id: id, method: method };
+      Object.assign(data, params);
+      this.worker.postMessage(data);
     };
 
-    $(document).on('rome-messages', function(ev, messages) {
-      self.worker.send('messages', { robots: gs.robots, messages: messages }, null);
+    $(document).on('rome-messages', (ev, messages) => {
+      this.worker.send('messages', { robots: gs.robots, messages: messages }, null);
     });
     gs.callMethod('rome_messages', {});
 
     // init HTML
-    this.node.css('width', '300px');
-    this.node.css('height', '200px');
-    this.node.resizable({ containment: 'parent', minWidth: 100, minHeight: 40 });
+    this.node.style.width = '300px';
+    this.node.style.height = '200px';
+    $(this.node).resizable({ containment: 'parent', minWidth: 100, minHeight: 40 });
 
-    this.input = $(this.content.children('input')[0]);
-    this.backlog = $(this.content.find('div.portlet-code')[0]);
-    this.backlog_size = options.backlog_size ? options.backlog_size : 5000;
+    this.input = this.content.querySelector('input');
+    this.backlog = this.content.querySelector('div.portlet-code');
+    this.backlog_size = options.backlog_size || 5000;
     this.history = [];
     this.history_index = 0;
     this.history_last = null;
     this.history_size = 200;
 
-    this.input.keydown(function(ev) {
+    this.input.addEventListener('keydown', (ev) => {
       if(ev.keyCode == 13) {
         // enter: validate input
-        var text = self.input.val();
+        const text = this.input.value;
         if(text != "") {
-          self.validateInput(text);
-          if(text != self.history[self.history.length-1]) {
-            self.history.push(text);
-            if(self.history.length > self.history_size) {
-              self.history.pop();
+          this.validateInput(text);
+          if(text != this.history[this.history.length-1]) {
+            this.history.push(text);
+            if(this.history.length > this.history_size) {
+              this.history.pop();
             }
           }
-          self.history_index = self.history.length;
-          self.input.val("");
+          this.history_index = this.history.length;
+          this.input.value = "";
         }
       } else if(ev.keyCode == 9) {
         // tab: autocomplete
         ev.preventDefault();
-        self.completeCurrent();
+        this.completeCurrent();
       } else if(ev.keyCode == 38) {
         // up: previous history entry
-        if(self.history_index == self.history.length) {
-          self.history_last = self.input.val();
+        if(this.history_index == this.history.length) {
+          this.history_last = this.input.value;
         }
-        if(self.history_index > 0) {
-          self.input.val(self.history[--self.history_index]);
+        if(this.history_index > 0) {
+          this.input.value = this.history[--this.history_index];
         }
       } else if(ev.keyCode == 40) {
         // down: next history entry
-        if(self.history_index == self.history.length) {
+        if(this.history_index == this.history.length) {
           // nothing to do
         } else {
-          if(++self.history_index == self.history.length) {
-            self.input.val(self.history_last);
+          if(++this.history_index == this.history.length) {
+            this.input.value = this.history_last;
           } else {
-            self.input.val(self.history[self.history_index]);
+            this.input.value = this.history[this.history_index];
           }
         }
       } else {
@@ -127,53 +121,55 @@ Portlet.register({
       ev.stopPropagation();
     });
 
-    $(document).on('ws-log', function(ev, sev, msg) {
-      var entry = $('<div class="portlet-console-entry" />').appendTo(self.backlog);
-      entry.addClass('log-'+sev).append(msg);
-    });
-
     // create the clean icon
-    $('<i class="fa fa-trash-o" />').prependTo(this.header).click(function() {
-      self.backlog.empty();
-    });
-  },
+    const clean_icon = createElementFromHtml('<i class="fa fa-trash-o" />');
+    this.header.insertBefore(clean_icon, this.header.childNodes[0]);
+    clean_icon.addEventListener('click', () => { this.backlog.innerHTML = ''; });
+  }
 
-  validateInput: function(text) {
-    var backlog = this.backlog;
-    var entry = $('<div class="portlet-console-entry" />').appendTo(backlog);
-    $('<div class="portlet-console-input" />').append(text).appendTo(entry);
+  validateInput(text) {
+    const entry = document.createElement('div');
+    entry.classList.add('portlet-console-entry');
+    this.backlog.appendChild(entry);
 
-    var nremove = backlog.children().length - this.backlog_size;
-    if(nremove > 0) {
-      backlog.children(':lt('+nremove+')').remove();
+    const input_entry = document.createElement('div');
+    entry.classList.add('portlet-console-input');
+    entry.textContent = text;
+    entry.appendChild(input_entry);
+
+    while(this.backlog.childNodes.length > this.backlog_size) {
+      this.backlog.childNodes[0].remove();
     }
-    backlog.scrollTop(backlog[0].scrollHeight);
-    this.worker.send('eval', {code: text}, function(ev) {
-      var out = $('<div class="portlet-console-output" />').appendTo(entry);
-      if(ev.error) {
-        out.addClass('log-error').append(ev.error);
-      } else {
-        out.append("=> "+ev.data);
-      }
-      backlog.scrollTop(backlog[0].scrollHeight);
-    });
-  },
+    this.backlog.scrollTop = this.backlog.scrollHeight;
 
-  completeCurrent: function() {
+    this.worker.send('eval', {code: text}, (ev) => {
+      const out = document.createElement('div');
+      out.classList.add('portlet-console-output');
+      if(ev.error) {
+        out.classList.add('log-error');
+        out.textContent = ev.error;
+      } else {
+        out.textContent = "=> " + ev.data;
+      }
+      entry.appendChild(out);
+      this.backlog.scrollTop = this.backlog.scrollHeight;
+    });
+  }
+
+  completeCurrent() {
     // complete suggestions for current input
-    var input = this.input;
-    var text = input.val();
-    var start = input[0].selectionStart;
-    if(start != input[0].selectionEnd) {
+    const text = this.input.value;
+    let start = this.input.selectionStart;
+    if(start != this.input.selectionEnd) {
       return;
     }
-    var text_end = text.substring(start);
-    var m = text.substring(0, start).match(/((?:[a-zA-Z_]\w*\.)*)([a-zA-Z_]\w*)?$/);
+    const text_end = text.substring(start);
+    const m = text.substring(0, start).match(/((?:[a-zA-Z_]\w*\.)*)([a-zA-Z_]\w*)?$/);
     if(m === null) {
       return;
     }
-    this.worker.send('complete', { variable: m[0] }, function(ev) {
-      var words = ev.data;
+    this.worker.send('complete', { variable: m[0] }, (ev) => {
+      const words = ev.data;
       start -= (m[2] || '').length;
       if(words.length == 0) {
         return; // nothing to do
@@ -181,16 +177,16 @@ Portlet.register({
         m[2] = words[0];
       } else {
         // find longest common prefix
-        var wfirst = words[0];
-        var wlast = words[words.length-1];
-        var i;
+        const wfirst = words[0];
+        const wlast = words[words.length-1];
+        let i;
         for(i=0; wfirst.charAt(i) == wlast.charAt(i); i++) ;
         m[2] = wfirst.substring(0, i);
       }
-      input.val(m.input.substring(0, m.index) + m[1] + m[2] + text_end);
-      input[0].selectionStart = input[0].selectionEnd = start + m[2].length
+      this.input.value = m.input.substring(0, m.index) + m[1] + m[2] + text_end;
+      this.input.selectionStart = this.input.selectionEnd = start + m[2].length
     });
-  },
+  }
 
 });
 

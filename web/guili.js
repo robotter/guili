@@ -22,87 +22,83 @@ $.ajaxSetup({ cache: false });
  *   WebSocket readyState value
  */
 
-var gs = {
-  ws: null,  // WebSocket object
-  robots: null,  // list of handled robots
-  voltages: {},  // voltages, indexed by robot
+const gs = new class {
+  constructor() {
+    this.ws = null;  // WebSocket object
+    this.robots = null;  // list of handled robots
+    this.voltages = {};  // voltages, indexed by robot
+
+    // event handlers
+    this.event_handler = {
+      frame: function(params) {
+        Portlet.handleFrame(params.robot, params.name, params.params);
+        $.event.trigger('rome-frame', [params.robot, params.name, params.params]);
+      },
+      messages: function(params) {
+        $.event.trigger('rome-messages', [params.messages]);
+      },
+      log: function(params) {
+        $.event.trigger('ws-log', [params.severity, params.message]);
+      },
+      robots: function(params) {
+        $.event.trigger('robots', [params.robots]);
+      },
+      configurations: function(params) {
+        $.event.trigger('portlets-configurations', [params.configurations]);
+      },
+    };
+  }
 
   // start or restart the socket
-  // return a Deferred object resolved when connection is opened
-  start: function(uri) {
+  async start(uri) {
     if(this.ws !== null && !uri) {
       uri = this.ws.url;
     }
-    var self = this;
-    this.start_deferred = $.Deferred();
-    this.ws = new WebSocket(uri);
-    this.triggerStatusEvent(null, 'connect');
-    this.ws.onopen = this.handle.bind(this);
-    this.ws.onmessage = this.onMessage.bind(this);
-    this.ws.onerror = function(ev) { self.triggerStatusEvent(ev, 'error'); }
-    this.ws.onclose = function(ev) { self.triggerStatusEvent(ev, 'close'); }
-    return this.start_deferred;
-  },
-
-  // handle the connection once opened
-  handle: function(ev) {
-    this.triggerStatusEvent(ev, 'open');
-    this.callMethod('init', {});
-    if(this.start_deferred !== null) {
-      this.start_deferred.resolve();
-      this.start_deferred = null;
-    }
-  },
+    await new Promise((resolve, reject) => {
+      this.ws = new WebSocket(uri);
+      this.triggerStatusEvent(null, 'connect');
+      this.ws.onopen = (ev, type) => {
+        this.triggerStatusEvent(ev, 'open');
+        this.callMethod('init', {});
+        resolve();
+      };
+      this.ws.onmessage = this.onMessage.bind(this);
+      this.ws.onerror = ev => this.triggerStatusEvent(ev, 'error');
+      this.ws.onclose = ev => this.triggerStatusEvent(ev, 'close');
+    });
+  }
 
   // trigger a ws-status event
-  triggerStatusEvent: function(ev, type) {
+  triggerStatusEvent(ev, type) {
     $.event.trigger('ws-status', [ev, type, this.ws.readyState]);
-  },
+  }
 
   // WebSocket onmessage handler
-  onMessage: function(ev) {
+  onMessage(ev) {
+    let data;
     try {
-      var data = JSON.parse(ev.data);
+      data = JSON.parse(ev.data);
     } catch(e) {
       console.error("invalid WebSocket message data");
+      return;
     }
     if(data.event) {
-      var f = this.event_handler[data.event];
+      const f = this.event_handler[data.event];
       if(f) {
         f.call(this, data.params);
       }
     }
-  },
+  }
 
   // send a method call
-  callMethod: function(name, params) {
+  callMethod(name, params) {
     this.ws.send(JSON.stringify({method: name, params: params}));
-  },
+  }
 
   // send a ROME message
-  sendRomeMessage: function(robot, name, params) {
+  sendRomeMessage(robot, name, params) {
     this.callMethod('rome', { robot: robot, name: name, params: params });
-  },
-
-  // event handlers
-  event_handler: {
-    frame: function(params) {
-      Portlet.handleFrame(params.robot, params.name, params.params);
-      $.event.trigger('rome-frame', [params.robot, params.name, params.params]);
-    },
-    messages: function(params) {
-      $.event.trigger('rome-messages', [params.messages]);
-    },
-    log: function(params) {
-      $.event.trigger('ws-log', [params.severity, params.message]);
-    },
-    robots: function(params) {
-      $.event.trigger('robots', [params.robots]);
-    },
-    configurations: function(params) {
-      $.event.trigger('portlets-configurations', [params.configurations]);
-    },
-  },
+  }
 
 };
 
@@ -112,98 +108,101 @@ var gs = {
  * Portlets
  */
 
-var Portlet = function() {};
+class Portlet {
+  // Register a Portlet subclass
+  static register(name, pretty_name, subclass) {
+    if(!subclass.prototype instanceof Portlet) {
+      throw "Portlet.register() must decorate a Portlet subclass"
+    }
+    subclass.portlet_name = name;
+    subclass.pretty_name = pretty_name;
+    Portlet.classes[name] = subclass;
+  }
 
-Portlet.prototype = {
-  // must be set by subclass
-  name: null,
-  pretty_name: null,
-  // set to the portlet's jQuery object
-  node: null,
-  content: null,
-  header: null,
+  constructor(node, content) {
+    this.node = node;
+    this.content = content;
+    this.header = node.querySelector('div:first-child');
+  }
 
-  // initialize the portlet
-  // return a Promise if init is asynchronous
+  // Initialize the portlet
+  //
   // The base method should be called after portlet size is known.
   // In fact, it should be called after subclass initialization.
-  init: function(options) {
-    var self = this;
-    var handle = this.node.find('.portlet-header .fa-arrows');
-    this.node.draggable({ containment: 'parent', handle: handle, snap: true, snapTolerance: 5 });
-    this.node.find('.portlet-header .fa-times').click(function() {
-      self.destroy();
-    });
-  },
+  async init(options) {
+    const handle = this.node.querySelector('.portlet-header .fa-arrows');
+    $(this.node).draggable({ containment: 'parent', handle: handle, snap: true, snapTolerance: 5 });
+    this.node.querySelector('.portlet-header .fa-times').addEventListener('click', (ev) => this.destroy());
+  }
 
   // destroy the portlet
-  destroy: function() {
+  destroy() {
     // unregister the portlet instance
     Portlet.instances.splice($.inArray(this, Portlet.instances), 1);
     // unregister the portlet handlers
     this.unbindFrame();
     this.node.remove();
-  },
+  }
 
   // return portlet's configuration options
-  getOptions: function() {
-    var poffset = this.node.parent().offset();
-    var offset = this.node.offset()
+  getOptions() {
+    const poffset = $(this.node.parentNode).offset();
+    const offset = $(this.node).offset()
     return {
       position: {
         x: offset.left-poffset.left, y: offset.top-poffset.top,
-        w: this.node.width(), h: this.node.height(),
+        w: this.node.clientWidth, h: this.node.clientHeight,
       },
     };
-  },
+  }
 
   // set portlet's position
-  position: function(left, top) {
-    var offset = this.node.parent().offset();
-    this.node.offset({ left: left+offset.left, top: top+offset.top });
-  },
+  position(left, top) {
+    const offset = $(this.node.parentNode).offset();
+    $(this.node).offset({ left: left+offset.left, top: top+offset.top });
+  }
 
   // set position to an empty space, if available
   // note: this cannot be called before portlet size is known
-  positionAuto: function(margin) {
-    var self = this;
+  positionAuto(margin) {
     margin = margin === undefined ? 3 : margin; // default margin
 
     // get dimensions of an object
-    var getBox = function(o, margin) {
-      var offset = o.offset();
+    const getBox = (o, margin) => {
+      const rect = o.getBoundingClientRect();
       return {
-        x0: offset.left - margin,
-        y0: offset.top - margin,
-        x1: offset.left + o.width() + margin,
-        y1: offset.top + o.height() + margin,
+        x0: rect.left - margin,
+        y0: rect.top - margin,
+        x1: rect.right + margin,
+        y1: rect.bottom + margin,
       };
-    }
+    };
 
     // portlet dimensions
-    var w = this.node.width();
-    var h = this.node.height();
+    const w = this.node.clientWidth;
+    const h = this.node.clientHeight;
     // container bonding box
-    var limits = getBox(this.node.parent(), -margin);
+    const limits = getBox(this.node.parentNode, -margin);
     // portlets bonding boxes
-    var boxes = [];
-    Portlet.instances.forEach(function(p) {
-      if(p !== self) {
+    const boxes = [];
+    Portlet.instances.forEach(p => {
+      if(p !== this) {
         boxes.push(getBox(p.node, margin+2)); // +2 for borders
       }
     });
     // sort bonding boxes by y0
-    boxes.sort(function(a,b) { return a.y0 - b.y0; });
+    boxes.sort((a,b) => { a.y0 - b.y0 });
 
     // find an empty place from top to bottom, from left to right
-    var next_x, next_y;
-    for(var y=limits.y0; y+h<limits.y1; y=next_y ) {
+    let next_y;
+    for(let y=limits.y0; y+h<limits.y1; y=next_y) {
       next_y = limits.y1;
-      for(var x=limits.x0; x+w<limits.x1; x=next_x) {
+      let next_x;
+      for(let x=limits.x0; x+w<limits.x1; x=next_x) {
         next_x = limits.x1;
-        var ok = true;
-        for(var i=0; i<boxes.length; ++i) {
-          var box = boxes[i];
+        let ok = true;
+        for(let i=0; i<boxes.length; ++i) {
+          const box = boxes[i];
           if(box.y1 <= y) {
             // this box will not be needed anymore
             boxes.splice(i--, 1);
@@ -220,35 +219,32 @@ Portlet.prototype = {
           }
         }
         if(ok) {
-          this.node.offset({ left: x, top: y });
+          $(this.node).offset({ left: x, top: y });
           return;
         }
       }
     }
 
-  },
+  }
 
   // register a ROME frame handler
-  bindFrame: function(robot, name, cb) {
+  bindFrame(robot, name, cb) {
     Portlet.frame_handlers.push([this, robot, name, cb]);
-  },
+  }
 
   // unregister ROME frame handlers
-  // if robot and name filter are optional
-  unbindFrame: function(robot, name) {
-    var filter = function(elem) {
+  // robot and name filter are optional
+  unbindFrame(robot, name) {
+    Portlet.frame_handlers = Portlet.frame_handlers.filter((elem) => {
       return !(elem[0] === this && (!robot || elem[1] == robot) && (!name || elem[2] == name));
-    };
-    Portlet.frame_handlers = Portlet.frame_handlers.filter(filter);
-  },
+    });
+  }
 
   // Add or update for robot selection
   // The menu is stored as view_menu property.
   // If null is found in robots, an "all" entry is added
-  setRobotViewMenu: function(robots, onselect) {
-    const header = this.header[0]; //TODO:js
-
-    for(const el of header.querySelectorAll('.view-menu')) {
+  setRobotViewMenu(robots, onselect) {
+    for(const el of this.header.querySelectorAll('.view-menu')) {
       el.remmove();
     }
 
@@ -262,116 +258,83 @@ Portlet.prototype = {
     });
     menu.classList.add('portlet-header-menu');
 
-    header.insertBefore(icon, header.firstChild);
-    header.appendChild(menu);
+    this.header.insertBefore(icon, this.header.firstChild);
+    this.header.appendChild(menu);
     this.view_menu = menu;
-  },
-};
-
-// Load all portlet, return a Deferred object
-Portlet.loadAll = function(names) {
-  var deferreds = names.map(function(name) {
-    return $.getScript("portlets/"+name+".js");
-  });
-  return $.when.apply($.when, deferreds);
-};
-
-// Register a new portlet (use by portlet scripts)
-Portlet.register = function(attrs) {
-  var subclass = function() {};
-  subclass.prototype = new Portlet();
-  for(var k in attrs) {
-    subclass.prototype[k] = attrs[k];
   }
-  this.classes[attrs.name] = subclass;
-};
 
-// Create a new portlet, add it to the DOM tree
-// Return a Promise resolved when portlet initialization is done, with this
-// being the portlet instance
-Portlet.create = function(root, name, options) {
-  if(options === undefined) {
-    options = {};
+  // Load all portlet
+  static async loadAll(names) {
+    await Promise.all(names.map(v => loadScript(`portlets/${v}.js`)));
   }
-  var self = this;
-  // create the HTML node
-  var div = $('#portlet-template').clone(false).removeAttr('id');
-  root.append(div);
 
-  var deferred = $.Deferred();
+  // Create a new portlet, add it to the DOM tree, return it
+  static async create(root, name, options) {
+    if(!this.classes[name]) {
+      throw `undefined portlet: ${name}`;
+    }
+    if(options === undefined) {
+      options = {};
+    }
+    // create the HTML node
+    const div = $('#portlet-template').clone(false).removeAttr('id')[0];
+    root.appendChild(div);
 
-  // get portlet's content div and initialize it
-  var content = div.children('div:last');
-  content.load("portlets/"+name+".html", function() {
-    // create the Portlet instance
-    var portlet = new self.classes[name]();
-    portlet.node = div;
-    portlet.content = content;
-    portlet.header = div.children('div:first');
+    // load portlet's content div
+    const content = div.querySelector('div:last-child');
+    content.innerHTML = await loadFile(`portlets/${name}.html`)
+    // create the Portlet instance and initialize it
+    const portlet = new this.classes[name](div, content);
+    await portlet.init(options);
 
-    var init_df = portlet.init(options);
-    var on_init_done = function() {
-      self.instances.push(portlet);
-      deferred.resolveWith(portlet);
-      // set position when element is initialized, because the size needs to be known
-      var pos = options.position;
-      if(options.position === undefined) {
-        pos = {};
-      }
-      if(pos.h) {
-        portlet.node.height(pos.h);
-      }
-      if(pos.w) {
-        portlet.node.width(pos.w);
-      }
-      if(pos.x === undefined && pos.y === undefined) {
-        portlet.positionAuto();
-      } else {
-        portlet.position(pos.x, pos.y);
-      }
-    };
-    if(init_df) {
-      init_df.done(on_init_done);
+    this.instances.push(portlet);
+    // set position when element is initialized, because the size needs to be known
+    let pos = options.position;
+    if(options.position === undefined) {
+      pos = {};
+    }
+    if(pos.h) {
+      portlet.node.style.height = pos.h + 'px';
+    }
+    if(pos.w) {
+      portlet.node.style.width = pos.w + 'px';
+    }
+    if(pos.x === undefined && pos.y === undefined) {
+      portlet.positionAuto();
     } else {
-      on_init_done();
+      portlet.position(pos.x, pos.y);
     }
-  });
-  return deferred.promise();
-};
 
-// Trigger ROME frame handlers
-Portlet.handleFrame = function(robot, name, params) {
-  Portlet.frame_handlers.forEach(function(handler) {
-    if(handler[2] == name && (!handler[1] || handler[1] == robot)) {
-      handler[3].call(handler[0], robot, params);
-    }
-  });
-};
-
-// Get current portlets configuration
-Portlet.getConfiguration = function() {
-  return Portlet.instances.map(function(p) {
-    return [p.name, p.getOptions()];
-  });
-};
-
-// Set a new portlets configuration
-Portlet.setConfiguration = function(conf) {
-  if(!conf) {
-    return;
+    return portlet;
   }
 
-  // remove current portlets
-  Portlet.instances.slice(0).forEach(function(p) {
-    p.destroy();
-  });
+  // Trigger ROME frame handlers
+  static handleFrame(robot, name, params) {
+    Portlet.frame_handlers.forEach(handler => {
+      if(handler[2] == name && (!handler[1] || handler[1] == robot)) {
+        handler[3].call(handler[0], robot, params);
+      }
+    });
+  }
 
-  // create new ones
-  var container = $('#portlets');
-  conf.forEach(function(o) {
-    Portlet.create(container, o[0], o[1]);
-  });
-};
+  // Get current portlets configuration
+  static getConfiguration() {
+    return Portlet.instances.map(p => [p.constructor.portlet_name, p.getOptions()]);
+  }
+
+  // Set a new portlets configuration
+  static setConfiguration(conf) {
+    if(!conf) {
+      return;
+    }
+
+    // remove current portlets
+    Portlet.instances.slice(0).forEach(p => p.destroy());
+
+    // create new ones
+    conf.forEach(o => Portlet.create(document.getElementById('portlets'), o[0], o[1]));
+  }
+}
 
 // Map of registered portlet classes
 Portlet.classes = {};
@@ -405,8 +368,8 @@ function normalizeRobotName(name, index) {
 
 // set handler for WS status display
 $(document).on('ws-status', function(ev, wsev, type, state) {
-  var classes;
-  var text;
+  let classes;
+  let text;
   switch(state) {
     case WebSocket.CONNECTING:
       classes = 'status-neutral fa fa-spinner fa-spin';
@@ -425,8 +388,8 @@ $(document).on('ws-status', function(ev, wsev, type, state) {
       text = 'disconnected'
       break;
   }
-  $('#ws-status-text').text(text);
-  $('#ws-status-icon').removeClass().addClass(classes);
+  document.querySelector('#ws-status-text').textContent = text;
+  document.querySelector('#ws-status-icon').className = classes;
 
   if(type == 'error') {
     if(wsev.data) {
@@ -446,32 +409,31 @@ $(document).on('ws-status', function(ev, wsev, type, state) {
 // change play/pause item on WS status change
 $(document).on('ws-status', function(ev, wsev, type, state) {
   if(type == 'connect') {
-    $('#play-pause-icon').removeClass().addClass('fa fa-refresh fa-spin');
+    document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-spin';
   } else if(type == 'open') {
-    $('#play-pause-icon').removeClass().addClass('fa fa-pause');
+    document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-pause';
   } else if(state == WebSocket.CLOSED) {
-    $('#play-pause-icon').removeClass().addClass('fa fa-refresh');
+    document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-refresh';
   }
 });
 
 // play/pause actions
-$('#play-pause-icon').click(function() {
-  var self = $(this);
-  if(self.hasClass('fa-refresh')) {
+document.querySelector('#play-pause-icon').addEventListener('click', function() {
+  if(this.classList.contains('fa-refresh')) {
     if(gs.ws.readyState == WebSocket.CLOSED) {
       gs.start();
     }
-  } else if(self.hasClass('fa-pause')) {
+  } else if(this.classList.contains('fa-pause')) {
     gs.callMethod('pause', { paused: true });
-    self.removeClass().addClass('fa fa-play');
-  } else if(self.hasClass('fa-play')) {
+    this.className = 'fa fa-play';
+  } else if(this.classList.contains('fa-play')) {
     gs.callMethod('pause', { paused: false });
-    self.removeClass().addClass('fa fa-pause');
+    this.className = 'fa fa-pause';
   }
 });
 
 // reopen socket when clicking on WS status
-$('#ws-status').click(function() {
+document.querySelector('#ws-status').addEventListener('click', function() {
   if(gs.ws.readyState == WebSocket.CLOSED) {
     gs.start();
   }
@@ -481,13 +443,10 @@ $('#ws-status').click(function() {
 $(document).on('rome-frame', function(ev, robot, name, params) {
   if(name == 'tm_battery') {
     gs.voltages[robot] = params.voltage;
-    for(var r in gs.voltages) {
-      var voltage = gs.voltages[r];
-    }
-    var text = [];
+    const text = [];
     if(gs.robots !== null) {
-      gs.robots.forEach(function(r) {
-        var voltage = gs.voltages[r];
+      gs.robots.forEach(r => {
+        const voltage = gs.voltages[r];
         if(voltage !== undefined) {
           text.push(r + ": " + (voltage/1000).toFixedHtml(1) + ' V');
         }
@@ -496,9 +455,9 @@ $(document).on('rome-frame', function(ev, robot, name, params) {
     $('#battery-status').text(text.join(' | '));
     $('body').toggleClass('battery-low',
       // here we could use Object.values(), if supported
-      $.map(gs.voltages, function(v,k) {
-        return v < (normalizeRobotName(k) == 'boomotter' ? 12000 : 13500);
-      }).some(function(b) { return b; })
+      $.map(gs.voltages, (v,k) => {
+        v < (normalizeRobotName(k) == 'boomotter' ? 12000 : 13500)
+      }).some(b => b)
     );
   }
 });
@@ -531,49 +490,41 @@ $(document).on('portlets-configurations', function(ev, configs) {
 
 
 
-$(document).ready(function() {
+document.addEventListener('DOMContentLoaded', async () => {
   // open WS socket, create portlets
-  var hostname = $('<a>').prop('href', document.location).prop('hostname');
-  var port = $('<a>').prop('href', document.location).prop('port');
-  if(!hostname) {
-    hostname = 'localhost';
-  }
-  if(!port) {
-    port = '80';
-  }
+  const url = document.createElement('a');
+  url.href = document.location;
+  const hostname = url.hostname || 'localhost';
+  const port = url.port || '80';
 
-  $.when(
-    gs.start("ws://"+hostname+":"+port+"/ws"),
-    Portlet.loadAll([
-      'asserv', 'field', 'console', 'meca', 'logs', 'detection',
-      'match', 'boomotter',
-    ])
-  ).done(function() {
-    // create menu to add portlets
-    createClickMenu({
-      menu: document.querySelector('#add-portlet-menu'),
-      button: document.querySelector('#add-portlet-icon'),
-      items: Object.keys(Portlet.classes).sort().map(k => {
-        const cls = Portlet.classes[k].prototype;
-        return {
-          node: cls.pretty_name,
-          onselect: () => {
-            //TODO:js pass a class object instead of a name?
-            Portlet.create($('#portlets'), cls.name)
-              //TODO:js
-              .done(function() {
-                this.positionAuto();
-              });
-          },
-        }
-      }),
-    });
+  // load portlets
+  await Portlet.loadAll([
+    'asserv', 'field', 'console', 'meca', 'logs', 'detection',
+    'match', 'boomotter',
+  ]);
 
-    // get a list of robots
-    gs.callMethod('robots', {});
-    // load configurations
-    gs.callMethod('configurations', {});
+  // initialize websocket
+  await gs.start(`ws://${hostname}:${port}/ws`);
+
+  // create menu to add portlets
+  createClickMenu({
+    menu: document.querySelector('#add-portlet-menu'),
+    button: document.querySelector('#add-portlet-icon'),
+    items: Object.keys(Portlet.classes).sort().map(k => {
+      const cls = Portlet.classes[k];
+      return {
+        node: cls.pretty_name,
+        onselect: () => {
+          Portlet.create(document.getElementById('portlets'), cls.portlet_name).then(portlet => portlet.positionAuto());
+        },
+      }
+    }),
   });
+
+  // get a list of robots
+  gs.callMethod('robots', {});
+  // load configurations
+  gs.callMethod('configurations', {});
 
 });
 

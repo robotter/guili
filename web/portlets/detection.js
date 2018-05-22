@@ -1,48 +1,41 @@
-Portlet.register({
-  name: 'detection',
-  pretty_name: 'Detection',
 
-  init: function(options) {
-    Portlet.prototype.init.call(this, options);
-    this.node.css('width', '400px');
-    this.node.resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+Portlet.register('detection', 'Detection', class extends Portlet {
+
+  async init(options) {
+    await super.init(options);
+    this.node.style.width = '400px';
+    $(this.node).resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+    this.detections = new Map();
 
     // wait for the SVG document to be loaded before using it
-    var self = this;
-    var df = $.Deferred();
-    var object = this.content.children('object')[0];
-    object.onload = function() {
-      var field = object.getSVGDocument().getElementById('drawing');
-      // explicitely initialize object height, webkit does not compute it
-      // according to SVG viewBox ratio
-      var viewBox = field.viewBox.baseVal;
-      self.node.height(self.node.width() * viewBox.height / viewBox.width);
+    await new Promise((resolve, reject) => {
+      const object = this.content.querySelector('object');
+      object.onload = () => {
+        this.field = object.getSVGDocument().getElementById('drawing');
+        // explicitely initialize object height, webkit does not compute it
+        // according to SVG viewBox ratio
+        const viewBox = this.field.viewBox.baseVal;
+        this.node.style.height = (this.node.clientWidth * viewBox.height / viewBox.width) + 'px';
 
-      self.detections = {};
-      gs.robots.forEach(function(robot) {
-        self.detections[robot] = [];
-      });
-      self.field = field;
+        gs.robots.forEach(r => { this.detections[r] = []; });
 
-      self.bindFrame(null, 'r3d2_tm_detection', self.updateDetections);
-      self.bindFrame(null, 'r3d2_tm_arcs', self.updateArcs);
-      df.resolve();
-    };
+        this.bindFrame(null, 'r3d2_tm_detection', this.updateDetections);
+        this.bindFrame(null, 'r3d2_tm_arcs', this.updateArcs);
+        resolve();
+      }
+    });
+  }
 
-    return df.promise();
-  },
+  addDetection(robot) {
+    const d = {};
 
-  addDetection: function(robot) {
-    var self = this;
-    var d = {};
-
-    var irobot = gs.robots.indexOf(robot);
+    let irobot = gs.robots.indexOf(robot);
     if(irobot < 0 || irobot > 1) {
       irobot = 1;
     }
 
-    var ref_frame = self.field.getElementById('reference-frame');
-    var txt_frame = self.field.getElementById('coords-frame-' + irobot);
+    const ref_frame = this.field.getElementById('reference-frame');
+    const txt_frame = this.field.getElementById('coords-frame-' + irobot);
 
     // add container SVG object
     d.svg = this.field.createElement('g');
@@ -57,8 +50,8 @@ Portlet.register({
     d.svg.appendChild(d.ping);
 
     // add arc SVG objects (two lines)
-    ['arc1', 'arc2'].forEach(function(name) {
-      var arc = self.field.createElement('line');
+    ['arc1', 'arc2'].forEach((name) => {
+      const arc = this.field.createElement('line');
       arc.setAttributes({
         'class': 'arc arc-'+irobot,
         'x1': '0', 'y1': '0',
@@ -67,7 +60,7 @@ Portlet.register({
       d[name] = arc;
     });
 
-    var detections = this.detections[robot];
+    const detections = this.detections[robot];
 
     // add texts for coordinates
     d.txt_r = this.field.createElement('text');
@@ -91,10 +84,10 @@ Portlet.register({
 
     detections.push(d);
     return d;
-  },
+  }
 
-  updateDetections: function(robot, params) {
-    var d = this.detections[robot][params.i];
+  updateDetections(robot, params) {
+    let d = this.detections[robot][params.i];
     if(d === undefined) {
       d = this.addDetection(robot);
     }
@@ -109,8 +102,8 @@ Portlet.register({
       return;
     }
 
-    var r = params.r/10.0;
-    var radius;
+    let r = params.r/10.0;
+    let radius;
     if(params.r < 0) {
       radius = 40;
       r = 175;
@@ -119,30 +112,30 @@ Portlet.register({
       radius = 4;
     }
 
-    var x = -r*Math.cos(params.a);
-    var y = r*Math.sin(params.a);
+    const x = -r*Math.cos(params.a);
+    const y = r*Math.sin(params.a);
 
     d.ping.setAttributes({
       'r':radius,
       'cx':x,
       'cy':y,
     });
-  },
+  }
 
-  updateArcs: function(robot, params) {
-    var d = this.detections[robot][params.i];
+  updateArcs(robot, params) {
+    let d = this.detections[robot][params.i];
     if(d === undefined) {
       d = this.addDetection(robot);
     }
 
-    var x,y,r = 200;
+    let x,y,r = 200;
     x = -r*Math.cos(params.a1);
     y = r*Math.sin(params.a1);
     d.arc1.setAttributes({'x2':x, 'y2':y});
     x = -r*Math.cos(params.a2);
     y = r*Math.sin(params.a2);
     d.arc2.setAttributes({'x2':x, 'y2':y});
-  },
+  }
 
 });
 

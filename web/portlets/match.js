@@ -1,36 +1,37 @@
 
-Portlet.register({
-  name: 'match',
-  pretty_name: 'Match',
+Portlet.register('match', 'Match', class extends Portlet {
 
-  init: function(options) {
-    Portlet.prototype.init.call(this, options);
+  async init(options) {
+    await super.init(options);
 
-    var tbody = this.content.find('tbody');
-    this.timer = tbody.find('th');
+    const tbody = this.content.querySelector('tbody');
+    this.timer = tbody.querySelector('th');
 
-    var scores = {};
-    gs.robots.forEach(function(r) {
+    this.scores = {};
+    for(const r of gs.robots) {
       if(normalizeRobotName(r) == 'boomotter') {
         return;
       }
-      var tr = $('<tr></tr>');
-      $('<td></td>').text(r).appendTo(tr);
-      scores[r] = $('<td class="data-number">? pts</td>').appendTo(tr);
-      tr.appendTo(tbody);
-    });
-    this.scores = scores;
+      const tr = document.createElement('tr');
+      const td_r = document.createElement('td');
+      td_r.textContent = r;
+      tr.appendChild(td_r);
+      const td_score = createElementFromHtml('<td class="data-number">? pts</td>');
+      tr.appendChild(td_score);
+      this.scores[r] = td_score;
+      tbody.appendChild(tr);
+    }
 
-    this.bindFrame(null, 'tm_match_timer', function(robot, params) {
+    this.bindFrame(null, 'tm_match_timer', (robot, params) => {
       this.updateTimer(params.seconds);
     });
-    this.bindFrame(null, 'tm_score', function(robot, params) {
+    this.bindFrame(null, 'tm_score', (robot, params) => {
       this.scores[robot].text(params.points + ' pts');
     });
-  },
+  }
 
-  updateTimer: function(t) {
-    this.timer.text(t + ' s');
+  updateTimer(t) {
+    this.timer.textContent = t + ' s';
   }
 
 });

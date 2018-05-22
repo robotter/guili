@@ -1,16 +1,14 @@
 
-Portlet.register({
-  name: 'boomotter',
-  pretty_name: 'Boomotter',
+Portlet.register('boomotter', 'Boomotter', class extends Portlet {
 
-  init: function(options) {
-    Portlet.prototype.init.call(this, options);
-    this.node.resizable({ containment: 'parent', minWidth: 100 });
+  async init(options) {
+    await super.init(options);
+    $(this.node).resizable({ containment: 'parent', minWidth: 100 });
 
-    var select_mode = this.content.find('select.boomotter-mode');
-    var submit_button = this.content.find('button.boomotter-submit')
+    const select_mode = this.content.querySelector('select.boomotter-mode');
+    const submit_button = this.content.querySelector('button.boomotter-submit');
 
-    var modes = [
+    const modes = [
       //TODO retrieve values from enum definition
       'match',
       'music',
@@ -18,29 +16,27 @@ Portlet.register({
       'nyancat',
       'loituma',
     ];
-    modes.forEach(function(v) {
-      $('<option value="' + v + '">' + v + '</option>').appendTo(select_mode);
-    });
+    for(const v of modes) {
+      select_mode.appendChild(createElementFromHtml(`<option value="${v}">${v}</option>`));
+    }
 
-    var self = this;
-
-    select_mode.on('change', function() {
-      gs.robots.forEach(function(r) {
+    select_mode.addEventListener('change', () => {
+      gs.robots.forEach(r => {
         if(normalizeRobotName(r) == 'boomotter') {
-          gs.sendRomeMessage(r, 'boomotter_set_mode', {mode: select_mode.val()});
+          gs.sendRomeMessage(r, 'boomotter_set_mode', {mode: select_mode.value});
         }
       });
     });
 
-    submit_button.on('click', function() {
-      var volume = self.content.find('.boomotter-volume').val();
-      gs.robots.forEach(function(r) {
+    submit_button.addEventListener('click', () => {
+      const volume = this.content.querySelector('.boomotter-volume').value;
+      gs.robots.forEach(r => {
         if(normalizeRobotName(r) == 'boomotter') {
           gs.sendRomeMessage(r, 'boomotter_mp3_cmd', {cmd: 6, param: volume});
         }
       });
     });
-  },
+  }
 
 });
 

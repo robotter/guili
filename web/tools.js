@@ -7,9 +7,43 @@ function isString(v) {
 
 // Create an element from HTML
 function createElementFromHtml(html) {
-  const el = document.createElement('div');
+  const el = document.createElement('template');
   el.innerHTML = html;
-  return el.firstChild;
+  return el.content.cloneNode(true).firstChild;
+}
+
+
+// Add time to URLs to avoid cache
+function noCacheUrl(url) {
+  return url + ((/\?/).test(url) ? '&' : '?') + '_=' + (new Date()).getTime();
+}
+
+// Load file, return its content
+async function loadFile(url) {
+  const xhr = new XMLHttpRequest();
+
+  return await new Promise((resolve, reject) => {
+    xhr.onload = function() {
+      if(this.responseText !== null) {
+        resolve(this.responseText);
+      } else {
+        reject();
+      }
+    };
+    xhr.open('GET', noCacheUrl(url));
+    xhr.send();
+  });
+}
+
+// Load a JS script
+async function loadScript(url) {
+  await new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = noCacheUrl(url);
+    script.async = true;
+    script.onload = () => { resolve(); };
+    document.querySelector('head').appendChild(script);
+  });
 }
 
 
@@ -31,7 +65,7 @@ function createClickMenu(options) {
   let menu = options.menu;
   if(menu) {
     for(const el of menu.querySelectorAll(':scope > li')) {
-      menu.removeChild(el);
+      el.remove();
     }
   } else {
     menu = document.createElement('ul');
