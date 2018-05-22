@@ -578,45 +578,47 @@ $(document).ready(function() {
 });
 
 
-$('#edit-configuration-icon').click(function() {
-  var conf = Portlet.getConfiguration();
-  var dlg = $('#edit-configuration-dialog');
-  var txt = dlg.children('textarea');
-  txt.val(JSON.stringify(conf, null, '  '));
-  dlg.dialog({
-    title: "Configuration",
-    width: $(window).width() * 0.6,
-    height: $(window).height() * 0.8,
-    buttons: {
-      "Update": function() {
-        var new_conf;
+// initialize modals
+document.addEventListener('DOMContentLoaded', () => {
+
+  const edit_configuration_modal = new Modal({
+    content: document.querySelector('#edit-configuration-modal'),
+    buttons: new Map([
+      ["Update", (modal, ev) => {
+        let new_conf = null;
         try {
-          new_conf = JSON.parse(txt.val());
+          new_conf = JSON.parse(document.querySelector('#edit-configuration-text').value);
         } catch(e) {
           console.error("invalid configuration:", e);
         }
-        Portlet.setConfiguration(new_conf);
-        $(this).dialog('close');
-      },
-      "Cancel": function() { $(this).dialog('close'); },
-    },
+        if(new_conf !== null) {
+          Portlet.setConfiguration(new_conf);
+        }
+        modal.close();
+      }],
+      ["Cancel", (modal, ev) => modal.close()],
+    ]),
+    id: 'edit-configuration-modal-wrapper',
   });
-});
-
-
-$('#show-info-icon').click(function() {
-  var dlg = $('#show-info-dialog');
-  var bl_url = 'http://' + window.location.host + '/bl/program/';
-  var bootload_commands = $('#show-info-bootload-commands');
-  bootload_commands.empty();
-  gs.robots.forEach(function(robot) {
-    var cmd = 'curl --data-binary @main.hex "' + bl_url + robot + '"';
-    var item = $('<li>' + robot + ': <span style="font-family: monospace">' + cmd + '</span></li>');
-    item.appendTo(bootload_commands);
+  document.querySelector('#edit-configuration-icon').addEventListener('click', (ev) => {
+    const conf = Portlet.getConfiguration();
+    const txt = document.querySelector('#edit-configuration-text');
+    txt.value = JSON.stringify(conf, null, '  ');
+    edit_configuration_modal.open();
   });
-  dlg.dialog({
-    title: "Informations",
-    width: $(window).width() * 0.6,
+
+  const show_info_modal = new Modal({
+    content: document.querySelector('#show-info-modal')
+  });
+  document.querySelector('#show-info-icon').addEventListener('click', (ev) => {
+    const bootload_commands = document.querySelector('#show-info-bootload-commands');
+    bootload_commands.innerHTML = '';
+    gs.robots.forEach(robot => {
+      const cmd = `curl --data-binary @main.hex "http://${window.location.host}/bl/program/${robot}"`;
+      const item = createElementFromHtml(`<li>${robot}: <span style="font-family: monospace">${cmd}</span></li>`);
+      bootload_commands.appendChild(item);
+    });
+    show_info_modal.open();
   });
 });
 

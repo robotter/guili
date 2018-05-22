@@ -46,18 +46,23 @@ body {
 }
 
 
-.ui-dialog {
-  font-size: 80%;
-}
-
-#edit-configuration-dialog {
+#edit-configuration-modal-wrapper .modal-content {
+  display: flex;
+  flex-direction: column;
   height: 80%;
 }
 
-#edit-configuration-dialog textarea {
+#edit-configuration-modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#edit-configuration-modal textarea {
   font-size: 80%;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 #battery-status {
@@ -124,6 +129,41 @@ body {
   color: inherit;
 }
 
+
+/* modal */
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: none;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 0.5em;
+  width: 60%;
+}
+
+.modal-buttons {
+  border-top: 1px solid #888;
+  margin-top: 1ex;
+  text-align: right;
+}
+
+.modal-buttons > button {
+  margin: 1ex 0.2em 0 0.2em;
+}
 
 /* portlets */
 

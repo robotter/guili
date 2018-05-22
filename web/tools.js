@@ -79,3 +79,89 @@ function createClickMenu(options) {
   return menu;
 }
 
+
+// Modal window
+class Modal {
+
+  // Create a modal
+  //
+  // The provided element will be wrapped and moved to `container`.
+  // Buttons will be appended after the content element.
+  //
+  // Note: do not recreate a modal with an already wrapped element.
+  //
+  // options:
+  //   content -- modal content
+  //   container -- modal container (default: `content.parentNode`)
+  //   buttons -- an map of buttons: {text: onclick(modal, ev)}
+  //   id -- ID to set to the wrapper element
+  //
+  constructor(options) {
+    const content = options.content;
+    const container = options.container || content.parentNode;
+
+    // wrap
+    const dom = createElementFromHtml('<div class="modal"><div class="modal-content"></div></div>');
+    if(options.id) {
+      dom.id = options.id;
+    }
+    if(content.parentNode) {
+      content.parentNode.insertBefore(dom, content);
+    }
+    const modal_content = dom.querySelector('.modal-content')
+    modal_content.appendChild(content);
+
+    // add buttons
+    if(options.buttons) {
+      const buttons = createElementFromHtml('<div class="modal-buttons"></div>');
+      for (let [txt, handler] of options.buttons) {
+        const button = document.createElement('button');
+        button.textContent = txt;
+        button.onclick = (ev) => handler(this, ev);
+        buttons.appendChild(button);
+      }
+      modal_content.appendChild(buttons);
+    }
+
+    if(dom.parentNode !== container) {
+      container.appendChild(dom);
+    }
+
+    this.dom = dom;
+
+    // bind handlers
+    this.onOutsideClick = this.onOutsideClick.bind(this);
+    this.onEscapeKey = this.onEscapeKey.bind(this);
+  }
+
+  // Open the modal
+  open() {
+    this.dom.style.display = 'block';
+    this.dom.addEventListener('click', this.onOutsideClick);
+    document.addEventListener('keydown', this.onEscapeKey);
+  }
+
+  // Close the modal
+  close() {
+    this.dom.style.display = 'none';
+    this.dom.removeEventListener('click', this.onOutsideClick);
+    document.removeEventListener('keydown', this.onEscapeKey);
+  }
+
+  // Handler to close the modal when clicking outside of it
+  onOutsideClick(ev) {
+    if(ev.target === this.dom) {
+      this.close();
+      ev.preventDefault();
+    }
+  }
+
+  // Handler to close modal when pressing Escape
+  onEscapeKey(ev) {
+    if(ev.which == 27) {
+      this.close();
+      ev.preventDefault();
+    }
+  }
+}
+
