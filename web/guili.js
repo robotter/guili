@@ -119,10 +119,10 @@ class Portlet {
     Portlet.classes[name] = subclass;
   }
 
-  constructor(node, content) {
+  constructor(node) {
     this.node = node;
-    this.content = content;
-    this.header = node.querySelector('div:first-child');
+    this.header = node.querySelector('div.portlet-header');
+    this.content = node.querySelector('div.portlet-content');
   }
 
   // Initialize the portlet
@@ -286,14 +286,15 @@ class Portlet {
       options = {};
     }
     // create the HTML node
-    const div = $('#portlet-template').clone(false).removeAttr('id')[0];
-    root.appendChild(div);
+    const template = document.querySelector('#portlet-template');
+    const div = document.importNode(template.content.querySelector('div'), true);
 
     // load portlet's content div
-    const content = div.querySelector('div:last-child');
+    const content = div.querySelector('div.portlet-content');
     content.innerHTML = await loadFile(`portlets/${name}.html`)
+    root.appendChild(div);
     // create the Portlet instance and initialize it
-    const portlet = new this.classes[name](div, content);
+    const portlet = new this.classes[name](div);
     await portlet.init(options);
 
     this.instances.push(portlet);

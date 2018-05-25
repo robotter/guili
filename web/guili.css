@@ -175,10 +175,6 @@ body {
   height: 100%;
 }
 
-#portlet-template {
-  display: none;
-}
-
 .portlet {
   border: 1px solid #888;
   display: inline-block;
