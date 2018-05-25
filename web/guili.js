@@ -452,12 +452,11 @@ $(document).on('rome-frame', function(ev, robot, name, params) {
         }
       });
     }
-    $('#battery-status').text(text.join(' | '));
-    $('body').toggleClass('battery-low',
-      // here we could use Object.values(), if supported
-      $.map(gs.voltages, (v,k) => {
+    document.querySelector('#battery-status').textContent = text.join(' | ');
+    document.querySelector('body').classList.toggle('battery-low',
+      Object.entries(gs.voltages).some(([k,v]) => (
         v < (normalizeRobotName(k) == 'boomotter' ? 12000 : 13500)
-      }).some(b => b)
+      ))
     );
   }
 });

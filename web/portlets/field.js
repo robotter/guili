@@ -5,9 +5,9 @@ Portlet.register('field', 'Field', class extends Portlet {
     await super.init(options);
     this.node.style.width = '200px';
     $(this.node).resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
-    this.svg_robots = new Map();
-    this.svg_carrots = new Map();
-    this.pathfindings = new Map();
+    this.svg_robots = {};
+    this.svg_carrots = {};
+    this.pathfindings = {};
 
     // wait for the SVG document to be loaded before using it
     await new Promise((resolve, reject) => {
@@ -90,9 +90,9 @@ Portlet.register('field', 'Field', class extends Portlet {
 
   initSvgElements(robots) {
     // remove existing elements
-    this.svg_robots.forEach(o => o.remove());
-    this.svg_carrots.forEach(o => o.remove());
-    this.pathfindings.forEach(o => o.remove());
+    for(const o of Object.values(this.svg_robots)) o.remove();
+    for(const o of Object.values(this.svg_carrots)) o.remove();
+    for(const o of Object.values(this.pathfindings)) o.remove();
 
     robots.forEach((robot, irobot) => {
       // create SVG robot
