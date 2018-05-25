@@ -146,20 +146,28 @@ class Portlet {
 
   // return portlet's configuration options
   getOptions() {
-    const poffset = $(this.node.parentNode).offset();
-    const offset = $(this.node).offset()
+    return {position: this.getPosition()};
+  }
+
+  // Return a rect of portlet's coordinates (x, y, w, h)
+  // Parent offset is subtracted, border is included
+  getPosition() {
+    const prect = this.node.parentNode.getBoundingClientRect();
+    const rect = this.node.getBoundingClientRect();
     return {
-      position: {
-        x: offset.left-poffset.left, y: offset.top-poffset.top,
-        w: this.node.clientWidth, h: this.node.clientHeight,
-      },
+      x: rect.x - prect.x, y: rect.y - prect.y,
+      w: rect.width,
+      h: rect.height,
     };
   }
 
-  // set portlet's position
-  position(left, top) {
-    const offset = $(this.node.parentNode).offset();
-    $(this.node).offset({ left: left+offset.left, top: top+offset.top });
+  // set portlet's position and/or size
+  setPosition(rect) {
+    // assume a 1px border on each side
+    if(rect.x !== undefined) this.node.style.left = rect.x + 'px';
+    if(rect.y !== undefined) this.node.style.top = rect.y + 'px';
+    if(rect.w !== undefined) this.node.style.width = (rect.w - 2) + 'px';
+    if(rect.h !== undefined) this.node.style.height = (rect.h - 2) + 'px';
   }
 
   // set position to an empty space, if available
@@ -187,7 +195,7 @@ class Portlet {
     const boxes = [];
     Portlet.instances.forEach(p => {
       if(p !== this) {
-        boxes.push(getBox(p.node, margin+2)); // +2 for borders
+        boxes.push(getBox(p.node, margin));
       }
     });
     // sort bonding boxes by y0
@@ -219,7 +227,8 @@ class Portlet {
           }
         }
         if(ok) {
-          $(this.node).offset({ left: x, top: y });
+          const prect = this.node.parentNode.getBoundingClientRect();
+          this.setPosition({x: x - prect.x, y: y - prect.y});
           return;
         }
       }
@@ -289,21 +298,11 @@ class Portlet {
 
     this.instances.push(portlet);
     // set position when element is initialized, because the size needs to be known
-    let pos = options.position;
-    if(options.position === undefined) {
-      pos = {};
-    }
-    if(pos.h) {
-      portlet.node.style.height = pos.h + 'px';
-    }
-    if(pos.w) {
-      portlet.node.style.width = pos.w + 'px';
-    }
+    let pos = options.position || {};
     if(pos.x === undefined && pos.y === undefined) {
       portlet.positionAuto();
-    } else {
-      portlet.position(pos.x, pos.y);
     }
+    portlet.setPosition(pos);
 
     return portlet;
   }
