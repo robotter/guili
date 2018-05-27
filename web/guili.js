@@ -275,7 +275,7 @@ class Portlet {
       el.remmove();
     }
 
-    const icon = createElementFromHtml('<i class="fa fa-eye" />');
+    const icon = createElementFromHtml('<i class="far fa-eye" />');
     const menu = createClickMenu({
       button: icon,
       items: robots.map(robot => ({
@@ -390,19 +390,19 @@ gevents.addHandler('ws-status', function(wsev, type, state) {
   let text;
   switch(state) {
     case WebSocket.CONNECTING:
-      classes = 'status-neutral fa fa-spinner fa-spin';
+      classes = 'status-neutral fas fa-spinner fa-spin';
       text = 'connecting...';
       break;
     case WebSocket.OPEN:
-      classes = 'status-opened fa fa-circle';
+      classes = 'status-opened fas fa-circle';
       text = 'connected';
       break;
     case WebSocket.CLOSING:
-      classes = 'status-closed fa fa-circle';
+      classes = 'status-closed fas fa-circle';
       text = 'closing...'
       break;
     case WebSocket.CLOSED:
-      classes = 'status-closed fa fa-circle';
+      classes = 'status-closed fas fa-circle';
       text = 'disconnected'
       break;
   }
@@ -427,26 +427,26 @@ gevents.addHandler('ws-status', function(wsev, type, state) {
 // change play/pause item on WS status change
 gevents.addHandler('ws-status', function(wsev, type, state) {
   if(type == 'connect') {
-    document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-spin';
+    document.getElementById('play-pause-icon').className = 'fas fa-sync-alt fa-spin';
   } else if(type == 'open') {
-    document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-pause';
+    document.getElementById('play-pause-icon').className = 'fas fa-pause';
   } else if(state == WebSocket.CLOSED) {
-    document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-refresh';
+    document.getElementById('play-pause-icon').className = 'fas fa-sync-alt';
   }
 });
 
 // play/pause actions
 document.querySelector('#play-pause-icon').addEventListener('click', function() {
-  if(this.classList.contains('fa-refresh')) {
+  if(this.classList.contains('fa-sync-alt')) {
     if(gs.ws.readyState == WebSocket.CLOSED) {
       gs.start();
     }
   } else if(this.classList.contains('fa-pause')) {
     gs.callMethod('pause', { paused: true });
-    this.className = 'fa fa-play';
+    this.className = 'fas fa-play';
   } else if(this.classList.contains('fa-play')) {
     gs.callMethod('pause', { paused: false });
-    this.className = 'fa fa-pause';
+    this.className = 'fas fa-pause';
   }
 });
 

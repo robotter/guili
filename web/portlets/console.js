@@ -122,7 +122,7 @@ Portlet.register('console', 'Console', class extends Portlet {
     });
 
     // create the clean icon
-    const clean_icon = createElementFromHtml('<i class="fa fa-trash-o" />');
+    const clean_icon = createElementFromHtml('<i class="far fa-trash-alt" />');
     this.header.insertBefore(clean_icon, this.header.childNodes[0]);
     clean_icon.addEventListener('click', () => { this.backlog.innerHTML = ''; });
   }

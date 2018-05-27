@@ -39,7 +39,7 @@ Portlet.register('logs', 'Logs', class extends Portlet {
       this.backlog.scrollTop = this.backlog.scrollHeight;
     });
 
-    const clean_icon = createElementFromHtml('<i class="fa fa-trash-o" />');
+    const clean_icon = createElementFromHtml('<i class="far fa-trash-alt" />');
     this.header.insertBefore(clean_icon, this.header.childNodes[0]);
     clean_icon.addEventListener('click', () => { this.backlog.innerHTML = ''; });
     this.setRobotViewMenu(gs.robots.concat([null]), robot => { this.robot = robot; });

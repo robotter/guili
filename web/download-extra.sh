@@ -32,13 +32,13 @@ install() {
 
 get_fontawesome() {
   echo "get font-awesome $1"
-  local name="font-awesome-$1"
-  download "https://fontawesome.com/v$1/assets/font-awesome-$1.zip" "$name.zip"
+  local name="fontawesome-free-$1"
+  download "https://use.fontawesome.com/releases/v$1/fontawesome-free-$1.zip" "$name.zip"
   rm -fr "$dl_dir/$name"
   ( cd _dl && unzip -x "$name.zip" )
-  install "$dl_dir/$name/css/font-awesome.min.css" css/
-  for f in "$dl_dir/$name"/fonts/fontawesome-webfont.*; do
-    install "$f" fonts/
+  install "$dl_dir/$name/web-fonts-with-css/css/fontawesome-all.min.css" css/
+  for f in "$dl_dir/$name"/web-fonts-with-css/webfonts/fa-*; do
+    install "$f" webfonts/
   done
   rm -fr "$dl_dir/$name"
 }
@@ -46,5 +46,5 @@ get_fontawesome() {
 
 rm -fr "$inst_dir"/*
 
-get_fontawesome 4.7.0
+get_fontawesome 5.0.13
 
