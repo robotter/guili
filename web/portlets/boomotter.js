@@ -3,7 +3,7 @@ Portlet.register('boomotter', 'Boomotter', class extends Portlet {
 
   async init(options) {
     await super.init(options);
-    $(this.node).resizable({ containment: 'parent', minWidth: 100 });
+    this.enableResize({ min_w: 100 });
 
     const select_mode = this.content.querySelector('select.boomotter-mode');
     const submit_button = this.content.querySelector('button.boomotter-submit');

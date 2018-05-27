@@ -4,7 +4,7 @@ Portlet.register('detection', 'Detection', class extends Portlet {
   async init(options) {
     await super.init(options);
     this.node.style.width = '400px';
-    $(this.node).resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+    this.enableResize({ min_w: 100, ratio: true });
     this.detections = {};
 
     // wait for the SVG document to be loaded before using it

@@ -132,6 +132,7 @@ class Portlet {
   async init(options) {
     const handle = this.node.querySelector('.portlet-header .fa-arrows');
     this.mover = new MouseMover(this.node, { handle: handle, snap_on: 'div.portlet', snap_margin: 5 });
+    this.resize = null;
     this.node.querySelector('.portlet-header .fa-times').addEventListener('click', (ev) => this.destroy());
   }
 
@@ -144,6 +145,21 @@ class Portlet {
     this.unbindFrame();
     this.node.remove();
     this.mover.destroy();
+    if(this.resizer) {
+      this.resizer.destroy();
+    }
+  }
+
+  // Allow to resize the portlet
+  enableResize(options) {
+    if(this.resizer) {
+      this.resizer.destroy();
+    }
+    this.resizer = new MouseResizer(this.node, {
+      snap_on: 'div.portlet',
+      snap_margin: 5,
+      ...options
+    });
   }
 
   // return portlet's configuration options

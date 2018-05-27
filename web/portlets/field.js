@@ -4,7 +4,7 @@ Portlet.register('field', 'Field', class extends Portlet {
   async init(options) {
     await super.init(options);
     this.node.style.width = '200px';
-    $(this.node).resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+    this.enableResize({ min_w: 100, ratio: true });
     this.svg_robots = {};
     this.svg_carrots = {};
     this.pathfindings = {};

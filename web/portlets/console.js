@@ -67,7 +67,7 @@ Portlet.register('console', 'Console', class extends Portlet {
     // init HTML
     this.node.style.width = '300px';
     this.node.style.height = '200px';
-    $(this.node).resizable({ containment: 'parent', minWidth: 100, minHeight: 40 });
+    this.enableResize({ min_w: 100, min_h: 40, ratio: true });
 
     this.input = this.content.querySelector('input');
     this.backlog = this.content.querySelector('div.portlet-code');

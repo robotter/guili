@@ -9,7 +9,7 @@ Portlet.register('logs', 'Logs', class extends Portlet {
     // init HTML
     this.node.style.width = '300px';
     this.node.style.height = '200px';
-    $(this.node).resizable({ containment: 'parent', minWidth: 100, minHeight: 40 });
+    this.enableResize({ min_w: 100, min_h: 40 });
 
     this.backlog = this.content.querySelector('div.portlet-code');
     this.backlog_size = options.backlog_size ? options.backlog_size : 5000;

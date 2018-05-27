@@ -90,10 +90,91 @@ body {
   color: darkred;
 }
 
-/* cancel jQuery's default */
-.ui-state-disabled {
-  opacity: 1;
-  filter: none;
+
+/* resize handles */
+
+.disable-mouse-on-objects {
+  pointer-events: none;
+}
+
+.resize-handle-n {
+  position: absolute;
+  z-index: 5;
+  top: -5px;
+  height: 7px;
+  left: 0;
+  width: 100%;
+  cursor: n-resize;
+}
+
+.resize-handle-e {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  height: 100%;
+  right: -5px;
+  width: 7px;
+  cursor: e-resize;
+}
+
+.resize-handle-s {
+  position: absolute;
+  z-index: 5;
+  bottom: -5px;
+  height: 7px;
+  left: 0;
+  width: 100%;
+  cursor: n-resize;
+}
+
+.resize-handle-w {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  height: 100%;
+  left: -5px;
+  width: 7px;
+  cursor: w-resize;
+}
+
+.resize-handle-ne {
+  position: absolute;
+  z-index: 5;
+  top: -5px;
+  height: 7px;
+  right: -5px;
+  width: 7px;
+  cursor: ne-resize;
+}
+
+.resize-handle-nw {
+  position: absolute;
+  z-index: 5;
+  top: -5px;
+  height: 7px;
+  left: -5px;
+  width: 7px;
+  cursor: nw-resize;
+}
+
+.resize-handle-se {
+  position: absolute;
+  z-index: 5;
+  bottom: -5px;
+  height: 7px;
+  right: -5px;
+  width: 7px;
+  cursor: se-resize;
+}
+
+.resize-handle-sw {
+  position: absolute;
+  z-index: 5;
+  bottom: -5px;
+  height: 7px;
+  left: -5px;
+  width: 7px;
+  cursor: sw-resize;
 }
 
 
@@ -219,10 +300,6 @@ body.battery-low {
   padding: 0.1em 0.2em;
   margin: 0 0 0.1em 0;
   background-color: #ccc;
-}
-
-.portlet-header .ui-corner-all {
-  border-radius: 0;
 }
 
 .portlet-content table {

@@ -4,7 +4,7 @@ Portlet.register('meca', 'Meca', class extends Portlet {
   async init(options) {
     await super.init(options);
     this.node.style.width = '200px';
-    $(this.node).resizable({ containment: 'parent', aspectRatio: true, minWidth: 100 });
+    this.enableResize({ min_w: 100, ratio: true });
 
     // wait for the SVG document to be loaded before using it
     await new Promise((resolve, reject) => {
