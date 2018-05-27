@@ -43,30 +43,8 @@ get_fontawesome() {
   rm -fr "$dl_dir/$name"
 }
 
-get_jquery() {
-  echo "get jquery $1"
-  download "http://code.jquery.com/jquery-$1.min.js"
-  install "$dl_dir/jquery-$1.min.js" js/jquery.min.js
-}
-
-get_jquery_ui() {
-  echo "get jquery-ui $1"
-  local name="jquery-ui-$1"
-  download "http://jqueryui.com/resources/download/jquery-ui-$1.zip"
-  rm -fr "$dl_dir/$name"
-  ( cd _dl && unzip -x "$name.zip" )
-  install "$dl_dir/$name/ui/minified/jquery-ui.min.js" js/
-  install "$dl_dir/$name/themes/base/minified/jquery-ui.min.css" css/
-  for f in "$dl_dir/$name/themes/base/minified/images"/*; do
-    install "$f" css/images/
-  done
-  rm -fr "$dl_dir/$name"
-}
-
 
 rm -fr "$inst_dir"/*
 
 get_fontawesome 4.7.0
-get_jquery 1.11.0
-get_jquery_ui 1.10.4
 
