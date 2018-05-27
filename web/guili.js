@@ -8,8 +8,9 @@ Number.prototype.toFixedHtml = function(n) {
   }
 }
 
-// Disable jQuery caching, especially for portlets' .html
-$.ajaxSetup({ cache: false });
+
+// Global event observer
+const gevents = new EventObserver();
 
 
 /*
@@ -32,19 +33,19 @@ const gs = new class {
     this.event_handler = {
       frame: function(params) {
         Portlet.handleFrame(params.robot, params.name, params.params);
-        $.event.trigger('rome-frame', [params.robot, params.name, params.params]);
+        gevents.trigger('rome-frame', params.robot, params.name, params.params);
       },
       messages: function(params) {
-        $.event.trigger('rome-messages', [params.messages]);
+        gevents.trigger('rome-messages', params.messages);
       },
       log: function(params) {
-        $.event.trigger('ws-log', [params.severity, params.message]);
+        gevents.trigger('ws-log', params.severity, params.message);
       },
       robots: function(params) {
-        $.event.trigger('robots', [params.robots]);
+        gevents.trigger('robots', params.robots);
       },
       configurations: function(params) {
-        $.event.trigger('portlets-configurations', [params.configurations]);
+        gevents.trigger('portlets-configurations', params.configurations);
       },
     };
   }
@@ -70,7 +71,7 @@ const gs = new class {
 
   // trigger a ws-status event
   triggerStatusEvent(ev, type) {
-    $.event.trigger('ws-status', [ev, type, this.ws.readyState]);
+    gevents.trigger('ws-status', ev, type, this.ws.readyState);
   }
 
   // WebSocket onmessage handler
@@ -99,7 +100,6 @@ const gs = new class {
   sendRomeMessage(robot, name, params) {
     this.callMethod('rome', { robot: robot, name: name, params: params });
   }
-
 };
 
 
@@ -138,8 +138,9 @@ class Portlet {
   // destroy the portlet
   destroy() {
     // unregister the portlet instance
-    Portlet.instances.splice($.inArray(this, Portlet.instances), 1);
+    Portlet.instances.splice(Portlet.instances.indexOf(this), 1);
     // unregister the portlet handlers
+    gevents.removeHandlersOf(this);
     this.unbindFrame();
     this.node.remove();
     this.mover.destroy();
@@ -368,7 +369,7 @@ function normalizeRobotName(name, index) {
 
 
 // set handler for WS status display
-$(document).on('ws-status', function(ev, wsev, type, state) {
+gevents.addHandler('ws-status', function(wsev, type, state) {
   let classes;
   let text;
   switch(state) {
@@ -408,7 +409,7 @@ $(document).on('ws-status', function(ev, wsev, type, state) {
 });
 
 // change play/pause item on WS status change
-$(document).on('ws-status', function(ev, wsev, type, state) {
+gevents.addHandler('ws-status', function(wsev, type, state) {
   if(type == 'connect') {
     document.getElementById('play-pause-icon').className = 'fa fa-refresh fa-spin';
   } else if(type == 'open') {
@@ -441,7 +442,7 @@ document.querySelector('#ws-status').addEventListener('click', function() {
 });
 
 // battery check
-$(document).on('rome-frame', function(ev, robot, name, params) {
+gevents.addHandler('rome-frame', function(robot, name, params) {
   if(name == 'tm_battery') {
     gs.voltages[robot] = params.voltage;
     const text = [];
@@ -462,11 +463,11 @@ $(document).on('rome-frame', function(ev, robot, name, params) {
   }
 });
 
-$(document).on('robots', function(ev, robots) {
+gevents.addHandler('robots', function(robots) {
   gs.robots = robots;
 });
 
-$(document).on('portlets-configurations', function(ev, configs) {
+gevents.addHandler('portlets-configurations', function(configs) {
   // create/update the menu to change configuration
 
   const menu = createClickMenu({

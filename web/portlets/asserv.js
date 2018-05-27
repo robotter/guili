@@ -6,7 +6,7 @@ Portlet.register('asserv', 'Asserv', class extends Portlet {
     this.setRobotViewMenu(gs.robots, this.setRobot.bind(this));
     this.setRobot(options.robot ? options.robot : gs.robots[0]);
 
-    $(document).on('field-point-xy', (ev, x, y) => {
+    gevents.addHandlerFor(this, 'field-point-xy', (x, y) => {
       const tds = this.content.querySelectorAll('td');
       tds[6].textContent = x.toFixedHtml(0);
       tds[7].textContent = y.toFixedHtml(0);

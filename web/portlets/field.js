@@ -31,7 +31,7 @@ Portlet.register('field', 'Field', class extends Portlet {
           pos.y = ev.clientY;
           pos = pos.matrixTransform(this.frame.getScreenCTM().inverse());
           // send event
-          $.event.trigger('field-point-xy', [pos.x, pos.y]);
+          gevents.trigger('field-point-xy', pos.x, pos.y);
         });
 
         this.bindFrame(null, 'asserv_tm_xya', this.updatePosition);

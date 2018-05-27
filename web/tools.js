@@ -51,6 +51,62 @@ async function loadScript(url) {
 }
 
 
+// Observer, for custom non-DOM events
+//
+// Handlers can be associated to an owner using addHandlerFor().
+// All events of a given owner can be removed at once using removeHandlersOf().
+class EventObserver {
+  constructor() {
+    this.callbacks = {};
+    this.owners = new Map();
+  }
+
+  addHandler(name, cb) {
+    const callbacks = this.callbacks[name];
+    if(callbacks === undefined) {
+      this.callbacks[name] = [cb];
+    } else {
+      callbacks.push(cb);
+    }
+  }
+
+  removeHandler(name, cb) {
+    const callbacks = this.callbacks[name];
+    if(callbacks !== undefined) {
+      callbacks.splice(callbacks.indexOf(cb), 1);
+    }
+  }
+
+  addHandlerFor(owner, name, cb) {
+    const callbacks = this.owners.get(owner);
+    if(callbacks === undefined) {
+      this.owners.set(owner, [[name, cb]]);
+    } else {
+      callbacks.push([name, cb]);
+    }
+    this.addHandler(name, cb);
+  }
+
+  removeHandlersOf(owner) {
+    const callbacks = this.owners.get(owner);
+    if(callbacks !== undefined) {
+      for(const [name, cb] of callbacks) {
+        this.removeHandler(name, cb);
+      }
+    }
+  }
+
+  trigger(name, ...args) {
+    const callbacks = this.callbacks[name];
+    if(callbacks !== undefined) {
+      for(const cb of callbacks) {
+        cb(...args);
+      }
+    }
+  }
+}
+
+
 // Create a clickable menu
 //
 // The following options are defined:

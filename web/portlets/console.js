@@ -59,7 +59,7 @@ Portlet.register('console', 'Console', class extends Portlet {
       this.worker.postMessage(data);
     };
 
-    $(document).on('rome-messages', (ev, messages) => {
+    gevents.addHandlerFor(this, 'rome-messages', (messages) => {
       this.worker.send('messages', { robots: gs.robots, messages: messages }, null);
     });
     gs.callMethod('rome_messages', {});
