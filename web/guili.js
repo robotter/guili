@@ -131,7 +131,7 @@ class Portlet {
   // In fact, it should be called after subclass initialization.
   async init(options) {
     const handle = this.node.querySelector('.portlet-header .fa-arrows');
-    $(this.node).draggable({ containment: 'parent', handle: handle, snap: true, snapTolerance: 5 });
+    this.mover = new MouseMover(this.node, { handle: handle, snap_on: 'div.portlet', snap_margin: 5 });
     this.node.querySelector('.portlet-header .fa-times').addEventListener('click', (ev) => this.destroy());
   }
 
@@ -142,6 +142,7 @@ class Portlet {
     // unregister the portlet handlers
     this.unbindFrame();
     this.node.remove();
+    this.mover.destroy();
   }
 
   // return portlet's configuration options

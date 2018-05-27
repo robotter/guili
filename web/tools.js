@@ -5,6 +5,10 @@ function isString(v) {
   return Object.prototype.toString.call(v) === '[object String]';
 }
 
+function clamp(v, min, max) {
+  return v < min ? min : v > max ? max : v;
+}
+
 // Create an element from HTML
 function createElementFromHtml(html) {
   const el = document.createElement('template');
@@ -196,6 +200,128 @@ class Modal {
       this.close();
       ev.preventDefault();
     }
+  }
+}
+
+
+// Move an element around
+//
+// The following options are supported:
+//   handle -- element to click on to start moving (default: whole element)
+//   snap_on -- elements on which snap, selector resolved from `offsetParent`
+//   snap_margin -- snapping distance (default: none)
+//
+// Moving is contained to the `offsetParent`.
+//
+// The target element must fulfill these requirements:
+//  - style.position must be set to `absolute)`
+//  - style.left and style.top must be set to a pixel value
+class MouseMover {
+  constructor(el, options) {
+    this.startMove = this.startMove.bind(this);
+    this.updateMove = this.updateMove.bind(this);
+    this.endMove = this.endMove.bind(this);
+
+    this.el = el;
+    this.handle = options.handle || el;
+    this.handle.addEventListener('mousedown', this.startMove);
+    this.snap_on = options.snap_on || null;
+    this.snap_margin = options.snap_margin || null;
+
+    this.cssOffset = null;
+    this.offset0 = null;
+    this.limits = null;
+    this.snap_elements = null;
+  }
+
+  startMove(ev) {
+    const style = window.getComputedStyle(this.el);
+    this.cssOffset = {
+      x: parseInt(style.left, 10) - this.el.offsetLeft,
+      y: parseInt(style.top, 10) - this.el.offsetTop,
+    };
+    this.offset0 = {
+      x: this.el.offsetLeft - ev.clientX,
+      y: this.el.offsetTop - ev.clientY,
+    };
+    this.limits = {
+      x: this.el.offsetParent.offsetWidth - this.el.offsetWidth,
+      y: this.el.offsetParent.offsetHeight - this.el.offsetHeight,
+    };
+    if(this.snap_on) {
+      this.snap_elements = Array.from(this.el.offsetParent.querySelectorAll(this.snap_on))
+        .filter(e => (e !== this));
+    }
+
+    this.handle.removeEventListener('mousedown', this.startMove);
+    window.addEventListener('mousemove', this.updateMove);
+    window.addEventListener('mouseup', this.endMove);
+  }
+
+  updateMove(ev) {
+    let x0 = clamp(ev.clientX + this.offset0.x, 0, this.limits.x);
+    let y0 = clamp(ev.clientY + this.offset0.y, 0, this.limits.y);
+
+    if(this.snap_elements) {
+      const x1 = x0 + this.el.offsetWidth;
+      const y1 = y0 + this.el.offsetHeight;
+      let margin = this.snap_margin;  // get the closer element
+      let snap_side = null;  // side of the moved element
+      let snap_pos = null;
+      for(const e of this.snap_elements) {
+        const e_x0 = e.offsetLeft;
+        const e_y0 = e.offsetTop;
+        const e_x1 = e.offsetLeft + e.offsetWidth;
+        const e_y1 = e.offsetTop + e.offsetHeight;
+        if(e_y0 < y1 && y0 < e_y1) {
+          if(Math.abs(e_x1 - x0) < margin) {
+            margin = Math.abs(e_x1 - x0);
+            snap_side = 'x0';
+            snap_pos = e_x1;
+          }
+          if(Math.abs(e_x0 - x1) < margin) {
+            margin = Math.abs(e_x0 - x1);
+            snap_side = 'x1';
+            snap_pos = e_x0;
+          }
+        }
+        if(e_x0 < x1 && x0 < e_x1) {
+          if(Math.abs(e_y1 - y0) < margin) {
+            margin = Math.abs(e_y1 - y0);
+            snap_side = 'y0';
+            snap_pos = e_y1;
+          }
+          if(Math.abs(e_y0 - y1) < margin) {
+            margin = Math.abs(e_y0 - y1);
+            snap_side = 'y1';
+            snap_pos = e_y0;
+          }
+        }
+      }
+
+      switch(snap_side) {
+        case 'x0': x0 = snap_pos; break;
+        case 'x1': x0 = snap_pos - this.el.offsetWidth; break;
+        case 'y0': y0 = snap_pos; break;
+        case 'y1': y0 = snap_pos - this.el.offsetHeight; break;
+      }
+    }
+
+    this.el.style.left = (x0 + this.cssOffset.x) + 'px';
+    this.el.style.top = (y0 + this.cssOffset.y) + 'px';
+  }
+
+  endMove(ev) {
+    window.removeEventListener('mousemove', this.updateMove);
+    window.removeEventListener('mouseup', this.endMove);
+    this.handle.addEventListener('mousedown', this.startMove);
+  }
+
+  destroy() {
+    // unbind all possible events
+    window.removeEventListener('mousemove', this.updateMove);
+    window.removeEventListener('mouseup', this.endMove);
+    this.handle.removeEventListener('mousedown', this.startMove);
   }
 }
 
