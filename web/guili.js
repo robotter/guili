@@ -130,7 +130,7 @@ class Portlet {
   // The base method should be called after portlet size is known.
   // In fact, it should be called after subclass initialization.
   async init(options) {
-    const handle = this.node.querySelector('.portlet-header .fa-arrows');
+    const handle = this.node.querySelector('.portlet-header .fa-arrows-alt');
     this.mover = new MouseMover(this.node, { handle: handle, snap_on: 'div.portlet', snap_margin: 5 });
     this.resize = null;
     this.node.querySelector('.portlet-header .fa-times').addEventListener('click', (ev) => this.destroy());
