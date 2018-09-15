@@ -14,6 +14,153 @@ const gevents = new EventObserver();
 
 
 /*
+ * Timeline
+ *
+ * Received frames are stored in a FIFO (push front, pop end).
+ * A timestamp property with frame's timestamp is added to parameters.
+ *
+ * When the playing position reaches the live, play speed is reset to 1.
+ */
+
+const gtimeline = new class {
+  constructor() {
+    this.duration = null;
+    this.frames = [];
+    this.position = 0;  // frame index of currently played frame
+    this.play_speed = 1;  // playing speed, 0 if paused
+    this.date0_frame = null;  // wall-clock date of last speed change (non-live)
+    this.date0_clock = null;  // frame date of last speed change (non-live)
+    this._play_timeout_id = null;
+    this._playNextFrame = this.playNextFrame.bind(this);
+    this._slider_interval_id = null;
+  }
+
+  // initialize the timeline (to be called on document load)
+  init(duration) {
+    this.duration = duration;
+
+    const slider = document.querySelector('#timeline-slider');
+    slider.min = -duration;
+    slider.max = 0;
+    slider.value = 0;
+
+    // periodically update the slider
+    this._slider_interval_id = window.setInterval(() => {
+      if(this.position == 0) {
+        slider.value = 0;  // live
+      } else {
+        const d = this.date0_frame + (Date.now() - this.date0_clock) * this.play_speed;
+        slider.value = (d - this.frames[0].timestamp) / 1000;
+      }
+      //TODO update label
+    }, 500);
+
+    // update delay on slider change
+    slider.addEventListener('change', (ev) => {
+      this.play(-slider.value * 1000, null);
+    });
+
+    this.play(0, 1);
+  }
+
+  // method called on new frame
+  onFrame(params) {
+    params.timestamp = Date.now();
+    this.frames.unshift(params);
+
+    // remove old frames
+    const end_date = params.timestamp - this.duration * 1000;
+    while(this.frames[this.frames.length-1].timestamp < end_date) {
+      this.frames.pop();
+    }
+
+    if(this.play_speed != 0) {
+      if(this.position == 0) {
+        // if playing live, play the frame now
+        gs.playFrame(params);
+      } else {
+        // shift current position
+        this.position += 1;
+        // force pause if played position has been removed
+        if(this.position >= this.frames.length) {
+          this.play(null, 0);
+        }
+      }
+    }
+  }
+
+  // change the playing delay (0 for live) and/or speed
+  play(delay, speed) {
+    console.log(`update timeline play: ${delay}, ${speed}`);
+
+    if(speed === null) {
+      speed = this.play_speed;
+    }
+
+    let is_live = delay === 0 || (delay === null && this.position == 0);
+    // compute new date origins
+    const now = Date.now();
+    if(!is_live) {
+      if(delay === null) {
+        this.date0_frame += (now - this.date0_clock) * this.play_speed;
+      } else {
+        this.date0_frame = now - delay;
+      }
+      this.date0_clock = now;
+
+      // reset play position to the first frame after the new date
+      let pos = this.frames.length - 1;
+      while(pos > 0 && this.frames[pos].timestamp < this.date0_frame) {
+        pos--;
+      }
+      this.position = pos;
+      is_live = pos == 0;
+    }
+
+    this.clearPlayNextFrameTimeout();
+    if(is_live) {
+      // switch to live
+      this.position = 0;
+      this.date0_clock = this.date0_frame = now;
+      this.play_speed = 1;
+    } else {
+      this.play_speed = speed;
+      if(speed > 0) {
+        this._play_timeout_id = window.setTimeout(this._playNextFrame, 0);
+      }
+    }
+  }
+
+  // clear the playing timeout if needed
+  clearPlayNextFrameTimeout() {
+    if(this._play_timeout_id !== null) {
+      window.clearTimeout(this._play_timeout_id);
+      this._play_timeout_id = null;
+    }
+  }
+
+  // play the next frames, schedule the next ones
+  playNextFrame() {
+    // compute the current playing date
+    const d = this.date0_frame + (Date.now() - this.date0_clock) * this.play_speed
+    while(this.position > 0 && this.frames[this.position].timestamp <= d) {
+      gs.playFrame(this.frames[this.position--]);
+    }
+
+    // switch to live or schedule the next frames
+    if(this.position == 0) {
+      gs.playFrame(this.frames[this.position]);
+      this.play(0, 1);
+    } else {
+      const dt = this.frames[this.position].timestamp - this.date0_frame;
+      const next_date = this.date0_clock + dt / this.play_speed;
+      this._play_timeout_id = window.setTimeout(this._playNextFrame, next_date - Date.now());
+    }
+  }
+};
+
+
+/*
  * WebSocket
  *
  * A custom 'ws-status' event is triggered on WebSocket status change.
@@ -31,20 +178,19 @@ const gs = new class {
 
     // event handlers
     this.event_handler = {
-      frame: function(params) {
-        Portlet.handleFrame(params.robot, params.name, params.params);
-        gevents.trigger('rome-frame', params.robot, params.name, params.params);
+      frame: (params) => {
+        gtimeline.onFrame(params);
       },
-      messages: function(params) {
+      messages: (params) => {
         gevents.trigger('rome-messages', params.messages);
       },
-      log: function(params) {
+      log: (params) => {
         gevents.trigger('ws-log', params.severity, params.message);
       },
-      robots: function(params) {
+      robots: (params) => {
         gevents.trigger('robots', params.robots);
       },
-      configurations: function(params) {
+      configurations: (params) => {
         gevents.trigger('portlets-configurations', params.configurations);
       },
     };
@@ -86,7 +232,7 @@ const gs = new class {
     if(data.event) {
       const f = this.event_handler[data.event];
       if(f) {
-        f.call(this, data.params);
+        f(data.params);
       }
     }
   }
@@ -100,8 +246,13 @@ const gs = new class {
   sendRomeMessage(robot, name, params) {
     this.callMethod('rome', { robot: robot, name: name, params: params });
   }
-};
 
+  // play a single frame
+  playFrame(params) {
+    Portlet.handleFrame(params.robot, params.name, params.params);
+    gevents.trigger('rome-frame', params.robot, params.name, params.params);
+  }
+};
 
 
 /*
@@ -520,6 +671,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     'match', 'boomotter',
   ]);
 
+  // initialize timeline
+  gtimeline.init(5 * 60);
   // initialize websocket
   await gs.start(`ws://${hostname}:${port}/ws`);
 

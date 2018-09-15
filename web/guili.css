@@ -65,8 +65,24 @@ body {
   box-sizing: border-box;
 }
 
-#battery-status {
+#timeline {
+  display: flex;
   float: left;
+  padding: 0.2ex 1em;
+  width: 30%;
+  margin: 0;
+}
+
+#timeline-slider {
+  flex-grow: 1;
+}
+
+#timeline-label {
+  flex-grow: 0;
+}
+
+#battery-status {
+  float: right;
   font-size: 15px;
   padding: 0.2ex 1em;
   margin: 0;
