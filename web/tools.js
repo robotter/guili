@@ -9,6 +9,18 @@ function clamp(v, min, max) {
   return v < min ? min : v > max ? max : v;
 }
 
+// Format a date into HH:MM:SS
+function formatTime(date, ms) {
+  const hh = date.getHours().toString().padStart(2, '0');
+  const mm = date.getMinutes().toString().padStart(2, '0');
+  const ss = date.getSeconds().toString().padStart(2, '0');
+  let ret = `${hh}:${mm}:${ss}`;
+  if(ms) {
+    ret += '.' + date.getMilliseconds().toString().padStart(3, '0');
+  }
+  return ret;
+}
+
 // Create an element from HTML
 function createElementFromHtml(html) {
   const el = document.createElement('template');

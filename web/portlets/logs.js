@@ -19,12 +19,7 @@ Portlet.register('logs', 'Logs', class extends Portlet {
         return;
       }
       const entry = createElementFromHtml('<div class="portlet-logs-entry" />');
-      const date = new Date(frame.timestamp);
-      const s_hour = date.getHours().toString().padStart(2, '0');
-      const s_min = date.getMinutes().toString().padStart(2, '0');
-      const s_sec = date.getSeconds().toString().padStart(2, '0');
-      const s_ms = date.getMilliseconds().toString().padStart(3, '0');
-      const str_date = `${s_hour}:${s_min}:${s_sec}.${s_ms}`;
+      const str_date = formatTime(new Date(frame.timestamp), true);
       let tag = '';
       if(this.robot_tags[frame.robot]) {
         tag = '<span class="log-tag">' + this.robot_tags[frame.robot] + '</span>';

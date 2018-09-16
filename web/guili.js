@@ -43,16 +43,18 @@ const gtimeline = new class {
     slider.min = -duration;
     slider.max = 0;
     slider.value = 0;
+    const slider_label = document.querySelector('#timeline-label');
 
     // periodically update the slider
     this._slider_interval_id = window.setInterval(() => {
       if(this.position == 0) {
-        slider.value = 0;  // live
+        slider.value = 0;
+        slider_label.innerHTML = formatTime(new Date());
       } else {
         const d = this.date0_frame + (Date.now() - this.date0_clock) * this.play_speed;
         slider.value = (d - this.frames[0].timestamp) / 1000;
+        slider_label.innerHTML = formatTime(new Date(d));
       }
-      //TODO update label
     }, 500);
 
     // update delay on slider change
