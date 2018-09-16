@@ -17,13 +17,13 @@ Portlet.register('meca', 'Meca', class extends Portlet {
         this.rotate_cylinder = svg.getElementById('rotate-cylinder')
         this.last_angle = 0;
 
-        this.bindFrame(null, 'meca_tm_cylinder_state', (robot, params) => {
-          for(const [i, color] of params.color) {
+        this.bindFrame(null, 'meca_tm_cylinder_state', (frame) => {
+          for(const [i, color] of frame.params.color) {
             svg.getElementById('slot-'+i).setAttribute('class', 'slot color-'+color);
           }
         });
-        this.bindFrame(null, 'meca_tm_cylinder_position', (robot, params) => {
-          const angle = params.a * 180 / Math.PI;
+        this.bindFrame(null, 'meca_tm_cylinder_position', (frame) => {
+          const angle = frame.params.a * 180 / Math.PI;
           if(angle == this.last_angle) {
             return;
           }
@@ -34,11 +34,11 @@ Portlet.register('meca', 'Meca', class extends Portlet {
           this.rotate_cylinder.beginElement();
           this.last_angle = angle;
         });
-        this.bindFrame(null, 'meca_tm_state', (robot, params) => {
-          this.state.setAttribute('class', params.state);
+        this.bindFrame(null, 'meca_tm_state', (frame) => {
+          this.state.setAttribute('class', frame.params.state);
         });
-        this.bindFrame(null, 'meca_tm_optimal_emptying_move', (robot, params) => {
-          this.emptying_move.setAttribute('class', params.move);
+        this.bindFrame(null, 'meca_tm_optimal_emptying_move', (frame) => {
+          this.emptying_move.setAttribute('class', frame.params.move);
         });
         resolve();
       }

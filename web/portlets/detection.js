@@ -86,10 +86,11 @@ Portlet.register('detection', 'Detection', class extends Portlet {
     return d;
   }
 
-  updateDetections(robot, params) {
-    let d = this.detections[robot][params.i];
+  updateDetections(frame) {
+    const params = frame.params;
+    let d = this.detections[frame.robot][params.i];
     if(d === undefined) {
-      d = this.addDetection(robot);
+      d = this.addDetection(frame.robot);
     }
     if(params.detected) {
       d.svg.setAttribute('opacity', 1);
@@ -122,10 +123,11 @@ Portlet.register('detection', 'Detection', class extends Portlet {
     });
   }
 
-  updateArcs(robot, params) {
-    let d = this.detections[robot][params.i];
+  updateArcs(frame) {
+    const params = frame.params;
+    let d = this.detections[frame.robot][params.i];
     if(d === undefined) {
-      d = this.addDetection(robot);
+      d = this.addDetection(frame.robot);
     }
 
     let x,y,r = 200;

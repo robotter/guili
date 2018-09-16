@@ -22,11 +22,11 @@ Portlet.register('match', 'Match', class extends Portlet {
       tbody.appendChild(tr);
     }
 
-    this.bindFrame(null, 'tm_match_timer', (robot, params) => {
-      this.updateTimer(params.seconds);
+    this.bindFrame(null, 'tm_match_timer', (frame) => {
+      this.updateTimer(frame.params.seconds);
     });
-    this.bindFrame(null, 'tm_score', (robot, params) => {
-      this.scores[robot].text(params.points + ' pts');
+    this.bindFrame(null, 'tm_score', (frame) => {
+      this.scores[frame.robot].text(frame.params.points + ' pts');
     });
   }
 

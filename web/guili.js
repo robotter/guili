@@ -64,12 +64,12 @@ const gtimeline = new class {
   }
 
   // method called on new frame
-  onFrame(params) {
-    params.timestamp = Date.now();
-    this.frames.unshift(params);
+  onFrame(frame) {
+    frame.timestamp = Date.now();
+    this.frames.unshift(frame);
 
     // remove old frames
-    const end_date = params.timestamp - this.duration * 1000;
+    const end_date = frame.timestamp - this.duration * 1000;
     while(this.frames[this.frames.length-1].timestamp < end_date) {
       this.frames.pop();
     }
@@ -77,7 +77,7 @@ const gtimeline = new class {
     if(this.play_speed != 0) {
       if(this.position == 0) {
         // if playing live, play the frame now
-        gs.playFrame(params);
+        gs.playFrame(frame);
       } else {
         // shift current position
         this.position += 1;
@@ -248,9 +248,9 @@ const gs = new class {
   }
 
   // play a single frame
-  playFrame(params) {
-    Portlet.handleFrame(params.robot, params.name, params.params);
-    gevents.trigger('rome-frame', params.robot, params.name, params.params);
+  playFrame(frame) {
+    Portlet.handleFrame(frame);
+    gevents.trigger('rome-frame', frame);
   }
 };
 
@@ -478,10 +478,10 @@ class Portlet {
   }
 
   // Trigger ROME frame handlers
-  static handleFrame(robot, name, params) {
+  static handleFrame(frame) {
     Portlet.frame_handlers.forEach(handler => {
-      if(handler[2] == name && (!handler[1] || handler[1] == robot)) {
-        handler[3].call(handler[0], robot, params);
+      if(handler[2] == frame.name && (!handler[1] || handler[1] == frame.robot)) {
+        handler[3].call(handler[0], frame);
       }
     });
   }
@@ -609,9 +609,9 @@ document.querySelector('#ws-status').addEventListener('click', function() {
 });
 
 // battery check
-gevents.addHandler('rome-frame', function(robot, name, params) {
-  if(name == 'tm_battery') {
-    gs.voltages[robot] = params.voltage;
+gevents.addHandler('rome-frame', function(frame) {
+  if(frame.name == 'tm_battery') {
+    gs.voltages[frame.robot] = frame.params.voltage;
     const text = [];
     if(gs.robots !== null) {
       gs.robots.forEach(r => {

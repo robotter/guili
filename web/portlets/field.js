@@ -35,12 +35,13 @@ Portlet.register('field', 'Field', class extends Portlet {
         });
 
         this.bindFrame(null, 'asserv_tm_xya', this.updatePosition);
-        this.bindFrame(null, 'asserv_tm_htraj_carrot_xy', (robot, params) => {
-          this.svg_carrots[robot].setAttributes({x: params.x, y: params.y});
+        this.bindFrame(null, 'asserv_tm_htraj_carrot_xy', (frame) => {
+          this.svg_carrots[frame.robot].setAttributes({x: frame.params.x, y: frame.params.y});
         });
 
-        this.bindFrame(null, 'pathfinding_node', (robot, params) => {
-          const pf = this.pathfindings[robot];
+        this.bindFrame(null, 'pathfinding_node', (frame) => {
+          const params = frame.params;
+          const pf = this.pathfindings[frame.robot];
           // remove node and vertices, if any
           pf.svg_nodes.querySelector('.graph-node-'+params.i).remove();
           pf.svg_vertices.querySelector('.graph-vertex-'+params.i).remove();
@@ -67,20 +68,21 @@ Portlet.register('field', 'Field', class extends Portlet {
           });
         });
 
-        this.bindFrame(null, 'pathfinding_path', (robot, params) => {
-          const pf = this.pathfindings[robot];
+        this.bindFrame(null, 'pathfinding_path', (frame) => {
+          const nodes = frame.params.nodes;
+          const pf = this.pathfindings[frame.robot];
           pf.svg.querySelectorAll('.active').forEach(o => { o.classList.remove('active') });
           pf.svg_nodes.querySelectorAll('.start').forEach(o => { o.classList.remove('start') });
           pf.svg_nodes.querySelectorAll('.goal').forEach(o => { o.classList.remove('goal') });
-          for(const [i, node1] of params.nodes.entries()) {
+          for(const [i, node1] of nodes.entries()) {
             pf.svg_nodes.querySelector('.graph-node-'+node1).classList.add('active');
             if(i > 0) {
-              const node2 = params.nodes[i-1];
+              const node2 = nodes[i-1];
               pf.svg_vertices.querySelector(`.graph-vertex-${node1}.graph-vertex-${node2}`).classList.add('active');
             }
           }
-          pf.svg_nodes.querySelector('.graph-node-'+params.nodes[0]).classList.add('start');
-          pf.svg_nodes.querySelector('.graph-node-'+params.nodes[params.nodes.length-1]).classList.add('goal');
+          pf.svg_nodes.querySelector('.graph-node-'+nodes[0]).classList.add('start');
+          pf.svg_nodes.querySelector('.graph-node-'+nodes[nodes.length-1]).classList.add('goal');
         });
 
         resolve();
@@ -132,9 +134,10 @@ Portlet.register('field', 'Field', class extends Portlet {
     });
   }
 
-  updatePosition(robot, params) {
+  updatePosition(frame) {
+    const params = frame.params;
     const a = params.a * 180 / Math.PI;
-    this.svg_robots[robot].setAttributes({
+    this.svg_robots[frame.robot].setAttributes({
       'transform': `translate(${params.x},${params.y}) rotate(${a})`,
     });
   }

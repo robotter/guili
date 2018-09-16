@@ -20,28 +20,33 @@ Portlet.register('asserv', 'Asserv', class extends Portlet {
       this.content.querySelector('div.portlet-title').textContent = "Asserv › "+robot;
     }
 
-    this.bindFrame(robot, 'asserv_tm_xya', (robot, params) => {
+    this.bindFrame(robot, 'asserv_tm_xya', (frame) => {
+      const params = frame.params;
       const tds = this.content.querySelectorAll('td');
       tds[0].textContent = params.x.toFixedHtml(0);
       tds[1].textContent = params.y.toFixedHtml(0);
       tds[2].textContent = params.a.toFixedHtml(2);
     });
-    this.bindFrame(robot, 'asserv_tm_htraj_carrot_xy', (robot, params) => {
+    this.bindFrame(robot, 'asserv_tm_htraj_carrot_xy', (frame) => {
+      const params = frame.params;
       const tds = this.content.querySelectorAll('td');
       tds[3].textContent = params.x.toFixedHtml(0);
       tds[4].textContent = params.y.toFixedHtml(0);
     });
-    this.bindFrame(robot, 'asserv_tm_htraj_done', (robot, params) => {
+    this.bindFrame(robot, 'asserv_tm_htraj_done', (frame) => {
+      const params = frame.params;
       const tds = this.content.querySelectorAll('td');
       tds[0].classList.toggle('portlet-asserv-done', params.xy);
       tds[1].classList.toggle('portlet-asserv-done', params.xy);
       tds[2].classList.toggle('portlet-asserv-done', params.a);
     });
-    this.bindFrame(robot, 'asserv_tm_htraj_path_index', (robot, params) => {
+    this.bindFrame(robot, 'asserv_tm_htraj_path_index', (frame) => {
+      const params = frame.params;
       const tds = this.content.querySelectorAll('td');
       tds[5].textContent = params.i + " / " + params.size;
     });
-    this.bindFrame(robot, 'tm_match_timer', (robot, params) => {
+    this.bindFrame(robot, 'tm_match_timer', (frame) => {
+      const params = frame.params;
       const tds = this.content.querySelectorAll('td');
       tds[8].textContent = params.seconds + 's';
     });

@@ -14,8 +14,8 @@ Portlet.register('logs', 'Logs', class extends Portlet {
     this.backlog = this.content.querySelector('div.portlet-code');
     this.backlog_size = options.backlog_size ? options.backlog_size : 5000;
 
-    this.bindFrame(null, 'log', (robot, params) => {
-      if(this.robot && this.robot != robot) {
+    this.bindFrame(null, 'log', (frame) => {
+      if(this.robot && this.robot != frame.robot) {
         return;
       }
       const entry = createElementFromHtml('<div class="portlet-logs-entry" />');
@@ -26,11 +26,11 @@ Portlet.register('logs', 'Logs', class extends Portlet {
       const s_ms = date.getMilliseconds().toString().padStart(3, '0');
       const str_date = `${s_hour}:${s_min}:${s_sec}.${s_ms}`;
       let tag = '';
-      if(this.robot_tags[robot]) {
-        tag = '<span class="log-tag">' + this.robot_tags[robot] + '</span>';
+      if(this.robot_tags[frame.robot]) {
+        tag = '<span class="log-tag">' + this.robot_tags[frame.robot] + '</span>';
       }
-      entry.innerHTML = '<span class="log-date">'+str_date+'</span>'+tag+'<span class="log-msg">'+params.msg+'</span>';
-      entry.classList.add('log-'+params.sev);
+      entry.innerHTML = '<span class="log-date">'+str_date+'</span>'+tag+'<span class="log-msg">'+frame.params.msg+'</span>';
+      entry.classList.add('log-'+frame.params.sev);
       this.backlog.appendChild(entry);
 
       while(this.backlog.childNodes.length > this.backlog_size) {
