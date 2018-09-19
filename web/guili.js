@@ -27,7 +27,8 @@ const gtimeline = new class {
     this.duration = null;
     this.frames = [];
     this.position = 0;  // frame index of currently played frame
-    this.play_speed = 1;  // playing speed, 0 if paused
+    this.play_speed = 1;  // playing speed (if not paused)
+    this.paused = false;
     this.date0_frame = null;  // wall-clock date of last speed change (non-live)
     this.date0_clock = null;  // frame date of last speed change (non-live)
     this._play_timeout_id = null;
@@ -45,13 +46,26 @@ const gtimeline = new class {
     slider.value = 0;
     const slider_label = document.querySelector('#timeline-label');
 
+    // fill speed list
+    const speed_select = document.querySelector('#timeline-speed');
+    for(const speed of [0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 5, 10]) {
+      const option = createElementFromHtml(`<option value="${speed}">x${speed}</option>`); 
+      if(speed == 1) {
+        option.setAttribute('selected', 'selected');
+      }
+      speed_select.appendChild(option);
+    }
+
     // periodically update the slider
     this._slider_interval_id = window.setInterval(() => {
       if(this.position == 0) {
         slider.value = 0;
         slider_label.innerHTML = formatTime(new Date());
       } else {
-        const d = this.date0_frame + (Date.now() - this.date0_clock) * this.play_speed;
+        let d = this.date0_frame;
+        if(!this.paused) {
+          d += (Date.now() - this.date0_clock) * this.play_speed;
+        }
         slider.value = (d - this.frames[0].timestamp) / 1000;
         slider_label.innerHTML = formatTime(new Date(d));
       }
@@ -59,10 +73,10 @@ const gtimeline = new class {
 
     // update delay on slider change
     slider.addEventListener('change', (ev) => {
-      this.play(-slider.value * 1000, null);
+      this.setPlayDelay(-slider.value * 1000);
     });
 
-    this.play(0, 1);
+    this.setPlayParameters(0, 1, false);
   }
 
   // method called on new frame
@@ -76,37 +90,41 @@ const gtimeline = new class {
       this.frames.pop();
     }
 
-    if(this.play_speed != 0) {
-      if(this.position == 0) {
-        // if playing live, play the frame now
-        gs.playFrame(frame);
-      } else {
-        // shift current position
-        this.position += 1;
-        // force pause if played position has been removed
-        if(this.position >= this.frames.length) {
-          this.play(null, 0);
-        }
+    if(this.position == 0) {
+      // if playing live, play the frame now
+      gs.playFrame(frame);
+    } else {
+      // shift current position
+      this.position += 1;
+      // force pause if played position has been removed
+      if(!this.paused && this.position >= this.frames.length) {
+        this.setPause(true);
       }
     }
   }
 
-  // change the playing delay (0 for live) and/or speed
-  play(delay, speed) {
-    console.log(`update timeline play: ${delay}, ${speed}`);
+  // Internal method to set all playing parameters
+  // If delay is null, is current position.
+  // Note that speed will usually be instantly reset to 1 if changed near live,
+  // because live will be reached almost instantly. This happens even when
+  // slowing down because the latest frame is played and there is no new one.
+  setPlayParameters(delay, speed, paused) {
+    console.log(`setPlayParameters(${delay}, ${speed}, ${paused})`);
 
-    if(speed === null) {
-      speed = this.play_speed;
+    if(delay === 0) {
+      speed = 1;  // delay 0 means live, force speed to 1
     }
 
-    let is_live = delay === 0 || (delay === null && this.position == 0);
+    let is_live = !paused && speed >= 1 && (delay === 0 || (delay === null && this.position == 0));
     // compute new date origins
     const now = Date.now();
     if(!is_live) {
-      if(delay === null) {
+      if(delay !== null) {
+        this.date0_frame = now - delay;
+      } else if(!this.paused) {
         this.date0_frame += (now - this.date0_clock) * this.play_speed;
       } else {
-        this.date0_frame = now - delay;
+        // paused: date0_frame didn't changed
       }
       this.date0_clock = now;
 
@@ -116,21 +134,42 @@ const gtimeline = new class {
         pos--;
       }
       this.position = pos;
-      is_live = pos == 0;
+      is_live = speed >= 1 && pos == 0;
     }
 
     this.clearPlayNextFrameTimeout();
-    if(is_live) {
+    if(paused) {
+      this.paused = true;
+      if(this.position == 0) {
+        this.position = 1;
+      }
+    } else if(is_live) {
       // switch to live
       this.position = 0;
       this.date0_clock = this.date0_frame = now;
       this.play_speed = 1;
+      this.paused = false;
     } else {
       this.play_speed = speed;
-      if(speed > 0) {
-        this._play_timeout_id = window.setTimeout(this._playNextFrame, 0);
-      }
+      this.paused = false;
+      this._play_timeout_id = window.setTimeout(this._playNextFrame, 0);
     }
+
+    // update controls
+    document.querySelector('#timeline-speed').value = this.play_speed;
+    document.querySelector('#timeline-play-pause').className = this.paused ? 'fas fa-play' : 'fas fa-pause';
+  }
+
+  setPause(paused) {
+    this.setPlayParameters(null, this.play_speed, paused);
+  }
+
+  setPlayDelay(delay) {
+    this.setPlayParameters(delay, this.play_speed, this.paused);
+  }
+
+  setPlaySpeed(speed) {
+    this.setPlayParameters(null, speed, this.paused);
   }
 
   // clear the playing timeout if needed
@@ -143,6 +182,10 @@ const gtimeline = new class {
 
   // play the next frames, schedule the next ones
   playNextFrame() {
+    if(this.paused) {
+      return;
+    }
+
     // compute the current playing date
     const d = this.date0_frame + (Date.now() - this.date0_clock) * this.play_speed
     while(this.position > 0 && this.frames[this.position].timestamp <= d) {
@@ -152,7 +195,7 @@ const gtimeline = new class {
     // switch to live or schedule the next frames
     if(this.position == 0) {
       gs.playFrame(this.frames[this.position]);
-      this.play(0, 1);
+      this.setPlayDelay(0);
     } else {
       const dt = this.frames[this.position].timestamp - this.date0_frame;
       const next_date = this.date0_clock + dt / this.play_speed;
@@ -609,6 +652,22 @@ document.querySelector('#ws-status').addEventListener('click', function() {
     gs.start();
   }
 });
+
+
+// timeline play/pause
+document.querySelector('#timeline-play-pause').addEventListener('click', function() {
+  if(this.classList.contains('fa-pause')) {
+    gtimeline.setPause(true);
+  } else if(this.classList.contains('fa-play')) {
+    gtimeline.setPause(false);
+  }
+});
+
+// timeline speed change
+document.querySelector('#timeline-speed').addEventListener('change', function(ev) {
+  gtimeline.setPlaySpeed(ev.target.value);
+});
+
 
 // battery check
 gevents.addHandler('rome-frame', function(frame) {

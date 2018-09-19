@@ -73,13 +73,34 @@ body {
   margin: 0;
 }
 
+#timeline-controls {
+  flex-grow: 0;
+  padding: 0;
+  margin: 0;
+}
+
+#timeline-controls > i {
+  padding: none;
+  cursor: pointer;
+  display: inline-block;
+  color: black;
+  width: 1.5em;
+  line-height: 1.5em;
+  text-align: center;
+  vertical-align: center;
+}
+
 #timeline-slider {
   flex-grow: 1;
+  line-height: 1.7em;
+  text-align: center;
+  vertical-align: center;
 }
 
 #timeline-label {
   flex-grow: 0;
 }
+
 
 #battery-status {
   float: right;
