@@ -126,6 +126,7 @@ class WebSocketRequestHandler(BaseHTTPRequestHandler):
       return self.send_error(400, "Missing 'Sec-WebSocket-Key' header")
 
     # reply, end handshake
+    self.protocol_version = "HTTP/1.1"
     key_hash = hashlib.sha1()
     key_hash.update((websocket_key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').encode('ascii'))
     self.send_response(101, 'Switching Protocols')
