@@ -1,0 +1,247 @@
+<svg version="1.1"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns="http://www.w3.org/2000/svg"
+  width="3160" height="2360"
+  viewBox="-1580 -2280 3160 2360"
+  id="drawing">
+
+  <title>Eurobot 2019 - Atom Factory</title>
+
+  <!-- Colors
+    traffic yellow  RAL1023   #f7b500
+    signal violet   RAL4008   #844c82
+    pebble gray     RAL7032   #b5b0a1
+    traffic red     RAL3020   #bb1e10
+    yellow green    RAL6018   #61993b
+    sky blue        RAL5015   #007cb0
+    jet black       RAL9005   #0e0e10
+  -->
+
+  <defs>
+    <style type="text/css"><![CDATA[
+
+      .default-robot { fill: #00ff00; }
+      #def-default-robot polygon {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-default-robot rect {
+        stroke: black;
+        stroke-width: 5;
+      }
+
+      .galipeur { fill: #00ffff; }
+      #def-galipeur .perimeter {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-galipeur .balleater, #def-galipeur .turbine {
+        stroke: black;
+        stroke-width: 5;
+      }
+      #def-galipeur .balleater { fill: #dd00dd; }
+      #def-galipeur .turbine { fill: #00dd00; }
+
+      .galipette { fill: #ff4da6; }
+      #def-galipette polygon {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-galipette rect {
+        fill: #00ff00;
+        stroke: black;
+        stroke-width: 10;
+      }
+
+      #def-carrot circle {
+        stroke: black;
+        stroke-width: 10;
+      }
+
+      .graph-vertex {
+        stroke-width: 6;
+        stroke: #808080;
+      }
+
+      .graph-node {
+        stroke: none;
+        stroke-width: 6;
+        fill: #808080;
+      }
+
+      .graph-node.active { fill: red; }
+      .graph-node.active.start { fill: yellow; stroke: red; }
+      .graph-node.active.goal { fill: #00ff00; stroke: red; }
+      .graph-vertex.active { stroke: red; }
+
+    ]]></style>
+
+    <!-- robots -->
+
+    <g id="def-default-robot">
+      <polygon points="0,170 147,-85 -147,-85" />
+      <rect x="-80" y="-95" width="160" height="50" />
+    </g>
+    <g id="def-galipeur" transform="scale(0.9)">
+      <g class="perimeter">
+        <polygon points="-21.250000,156.606261 21.250000,156.606261 146.250000,-59.900090 125.000000,-96.706170 -125.000000,-96.706170 -146.250000,-59.900090" />
+      </g>
+      <g class="balleater" transform="translate(-83.750000,48.353085) rotate(60)">
+        <path d="M-35.000000,0.000000 -35.000000,35.000000, 35.000000,35.000000 35.000000,0.000000" />
+      </g>
+      <g class="turbine" transform="translate(83.750000,48.353085) rotate(-60)">
+        <path d="M-40.000000,0 a1,1 0 0,0 80.000000,0" />
+      </g>
+    </g>
+    <g id="def-galipette">
+      <polygon points="55,95 110,0 55,-95 -55,-95 -110,0 -55,95" />
+      <rect x="-55" y="-110" width="110" height="40" />
+    </g>
+    <g id="def-carrot">
+      <circle r="40" />
+    </g>
+
+    <!-- table parts (purple side by default) -->
+
+    <g id="start-area" fill="none" stroke-width="30">
+      <rect x="1065" y="315" width="420" height="270" stroke="#bb1e10" />
+      <rect x="1065" y="615" width="420" height="270" stroke="#61993b" />
+      <rect x="1065" y="915" width="420" height="270" stroke="#007cb0" />
+    </g>
+
+    <g id="chaos-area" stroke-width="5" stroke="black" fill="none">
+      <circle r="150" cx="500" cy="1050" />
+    </g>
+
+    <g id="experience-area" stroke="black" stroke-width="2">
+      <path d="M 1500,0 h -450 v -222 h 220 v 100 a 5,5 0 1,0 10,0 v -100 h 220 v 222 Z" />
+      <line x1="1500" y1="-22" x2="1050" y2="-22" />
+    </g>
+
+    <g id="particle-accelerator" stroke="black" stroke-width="2">
+      <rect x="0" y="0" width="1000" height="35" fill="#b5b0a1" />
+      <rect x="0" y="0" width="250" height="35" />
+      <rect x="685" y="0" width="80" height="35" />
+      <use xlink:href="#atom-side" fill="#007cb0" transform="translate(212,20)"/>
+      <use xlink:href="#atom-side" fill="#eeeeee" transform="translate(725,0)"/>
+      <use xlink:href="#atom-side" fill="#eeeeee" transform="translate(725,25)"/>
+    </g>
+
+    <g id="small-atom-dispenser" stroke="black" stroke-width="2">
+      <g transform="translate(1125,2000)">
+        <rect width="300" height="30" />
+        <use xlink:href="#atom-side" fill="#bb1e10" transform="translate(50,15)"/>
+        <use xlink:href="#atom-side" fill="#61993b" transform="translate(150,15)"/>
+        <use xlink:href="#atom-side" fill="#007cb0" transform="translate(250,15)"/>
+      </g>
+    </g>
+
+    <g id="large-atom-dispenser" fill="#0e0e10" stroke="black" stroke-width="2">
+      <g transform="translate(450,1543)">
+        <rect width="600" height="35" />
+        <use xlink:href="#atom-side" fill="#61993b" transform="translate(50,15)"/>
+        <use xlink:href="#atom-side" fill="#bb1e10" transform="translate(150,15)"/>
+        <use xlink:href="#atom-side" fill="#007cb0" transform="translate(250,15)"/>
+        <use xlink:href="#atom-side" fill="#bb1e10" transform="translate(350,15)"/>
+        <use xlink:href="#atom-side" fill="#61993b" transform="translate(450,15)"/>
+        <use xlink:href="#atom-side" fill="#bb1e10" transform="translate(550,15)"/>
+      </g>
+    </g>
+
+    <g id="balance-slide" fill="#0e0e10" stroke="black" stroke-width="2">
+      <path d="M 250,2000 v -422 h 800 v 22 h -778 v 400 Z" />
+    </g>
+
+    <g id="balance-bottom" stroke="black" stroke-width="2">
+      <rect x="25" y="1578" width="220" height="422" />
+    </g>
+
+
+    <g id="atom-flat" stroke="black" stroke-width="4">
+      <circle r="38" />
+    </g>
+    <g id="atom-side" stroke="black" stroke-width="4">
+      <rect x="-38" y="-12.5" width="76" height="25" />
+    </g>
+
+    <g id="floor-atoms">
+      <use xlink:href="#atom-flat" fill="#bb1e10" transform="translate(1000,450)"/>
+      <use xlink:href="#atom-flat" fill="#bb1e10" transform="translate(1000,750)"/>
+      <use xlink:href="#atom-flat" fill="#61993b" transform="translate(1000,1050)"/>
+
+      <use xlink:href="#atom-flat" fill="#61993b" transform="translate(666,1800)"/>
+
+      <use xlink:href="#atom-flat" fill="#bb1e10" transform="translate(430,1050)"/>
+      <use xlink:href="#atom-flat" fill="#bb1e10" transform="translate(500,1120)"/>
+      <use xlink:href="#atom-flat" fill="#61993b" transform="translate(570,1050)"/>
+      <use xlink:href="#atom-flat" fill="#007cb0" transform="translate(500,980)"/>
+    </g>
+
+  </defs>
+
+  <g transform="translate(0,-2000)">
+
+    <!-- table floor -->
+    <rect x="-1522" y="-22" width="3044" height="2044" fill="#b5b0a1" />
+    <g stroke="black" stroke-width="2" fill="none">
+      <rect x="-1522" y="-22" width="3044" height="2044" />
+      <rect x="-1500" y="0" width="3000" height="2000" />
+      <rect x="-20" y="1378" width="40" height="622" />
+    </g>
+
+    <use xlink:href="#start-area" />
+    <use xlink:href="#start-area" transform="scale(-1,1)" />
+    <use xlink:href="#chaos-area" />
+    <use xlink:href="#chaos-area" transform="scale(-1,1)" />
+    <use xlink:href="#experience-area" fill="#844c82" />
+    <use xlink:href="#experience-area" fill="#f7b500" transform="scale(-1,1)" />
+    <use xlink:href="#particle-accelerator" fill="#844c82" />
+    <use xlink:href="#particle-accelerator" fill="#f7b500" transform="scale(-1,1)" />
+    <use xlink:href="#small-atom-dispenser" fill="#844c82" />
+    <use xlink:href="#small-atom-dispenser" fill="#f7b500" transform="scale(-1,1)" />
+    <use xlink:href="#large-atom-dispenser" />
+    <use xlink:href="#large-atom-dispenser" transform="scale(-1,1)" />
+    <use xlink:href="#balance-slide" />
+    <use xlink:href="#balance-slide" transform="scale(-1,1)" />
+    <use xlink:href="#balance-bottom" fill="#844c82" />
+    <use xlink:href="#balance-bottom" fill="#f7b500" transform="scale(-1,1)" />
+
+    <!-- elements -->
+
+    <use xlink:href="#floor-atoms" />
+    <use xlink:href="#floor-atoms" transform="scale(-1,1)" />
+
+  </g>
+
+  <g id="reference-frame" transform="scale(1, -1)" />
+
+
+  <script type="text/javascript"><![CDATA[
+    const xlinkNS = "http://www.w3.org/1999/xlink";
+
+    var drawing = document.getElementById("drawing");
+
+    // Various helper methods
+
+    drawing.createElement = function(tag) {
+      return document.createElementNS(this.namespaceURI, tag);
+    };
+
+    Element.prototype.setAttributes = function(attrs) {
+      for(var k in attrs) {
+        if(k == "xlink:href") {
+          this.setAttributeNS(xlinkNS, k, attrs[k]);
+        } else {
+          this.setAttribute(k, attrs[k]);
+        }
+      }
+    }
+
+    // compute distance between two objects
+    function distance(a,b) {
+      return Math.sqrt( (a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+    }
+
+  ]]></script>
+
+</svg>
