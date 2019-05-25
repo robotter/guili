@@ -151,7 +151,7 @@ class XBeeAPIPacketStatus(XBeeAPIPacket):
     return cls(payload[1])
 
   def __repr__(self):
-    return "<%s status=%s>" % (self.__class__, self.status)
+    return "<%s status=%s>" % (self.__class__.__name__, self.status)
 
 
 class XBeeAPIPacketATCommand(XBeeAPIPacket):
@@ -216,7 +216,7 @@ class XBeeAPIPacketATResponse(XBeeAPIPacket):
 
   def __repr__(self):
     return "<%s fid=%d AT=%s status=%s %s>" % (
-        self.__class__, self.fid, self.at, self.status, [hex(c) for c in self.value])
+        self.__class__.__name__, self.fid, self.at, self.status, [hex(c) for c in self.value])
 
 
 class XBeeAPITXStatus(XBeeAPIPacket):
@@ -251,7 +251,7 @@ class XBeeAPITXStatus(XBeeAPIPacket):
     return cls(fid, status)
 
   def __repr__(self):
-    return "<%s fid=%d status=%s>" % (self.__class__, self.fid, self.status)
+    return "<%s fid=%d status=%s>" % (self.__class__.__name__, self.fid, self.status)
 
 
 class XBeeAPIPacketRX(XBeeAPIPacket):
@@ -285,7 +285,7 @@ class XBeeAPIPacketRX(XBeeAPIPacket):
     return packet
 
   def __repr__(self):
-    return '<%s addr=0x%04x rssi=%s opt=0x%02x %r>' % (self.__class__, self.addr, self.rssi, self.options, self.data)
+    return '<%s addr=0x%04x rssi=%s opt=0x%02x %r>' % (self.__class__.__name__, self.addr, self.rssi, self.options, self.data)
 
 
 class XBeeAPIPacketRX64(XBeeAPIPacketRX):
@@ -333,7 +333,7 @@ class XBeeAPIPacketTX(XBeeAPIPacket):
     return packet
 
   def __repr__(self):
-    return '<%s fid=0x%X addr=%s>' % (self.__class__, self.fid, self.addr)
+    return '<%s fid=0x%X addr=%s options=%02x data=%s>' % (self.__class__.__name__, self.fid, self.addr, self.options, self.data.hex())
 
 
 class XBeeAPIPacketTX64(XBeeAPIPacketTX):
