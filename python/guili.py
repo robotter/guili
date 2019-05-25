@@ -427,6 +427,16 @@ class RomeClientGuiliServer(GuiliServer):
     GuiliServer.start(self)
 
 
+def open_serial_addr(addr):
+  if addr == '/dev/ptmx':
+    import pty
+    master, slave = pty.openpty()
+    print("created pty, slave is: %s" % os.ttyname(slave))
+    return os.fdopen(master, 'rb')
+  else:
+    return serial.Serial(addr, 38400, timeout=0.5)
+
+
 def main():
   import argparse
   parser = argparse.ArgumentParser()
@@ -447,7 +457,7 @@ def main():
 
   if args.xbee_api:
     import xbeeapi
-    hub = xbeeapi.XBeeAPIHubFiles(serial.Serial(args.xbee_api, 38400, timeout=0.5))
+    hub = xbeeapi.XBeeAPIHubFiles(open_serial_addr(args.xbee_api))
 
   devices = []  # (name, address)
   is_test = None
@@ -469,15 +479,8 @@ def main():
       addr = int(addr, 16)
       hub.add_device(addr)
       devices.append((name, hub.devices[addr]))
-    elif addr == '/dev/ptmx':
-      import pty
-      master, slave = pty.openpty()
-      print(os.ttyname(master), os.ttyname(slave))
-      addr = os.ttyname(master)
-      print("created pty, slave is: %s" % os.ttyname(slave))
-      devices.append((name, os.fdopen(master, 'rb')))
     else:
-      devices.append((name, serial.Serial(addr, 38400, timeout=0.5)))
+      devices.append((name, open_serial_addr(addr)))
 
   if is_test:
     server_class = TestGuiliServer
