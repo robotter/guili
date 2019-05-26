@@ -119,12 +119,12 @@
     </g>
 
     <g id="particle-accelerator" stroke="black" stroke-width="2">
-      <rect x="0" y="0" width="1000" height="35" fill="#b5b0a1" />
-      <rect x="0" y="0" width="250" height="35" />
-      <rect x="685" y="0" width="80" height="35" />
-      <use xlink:href="#atom-side" fill="#007cb0" transform="translate(212,20)"/>
-      <use xlink:href="#atom-side" fill="#eeeeee" transform="translate(725,0)"/>
-      <use xlink:href="#atom-side" fill="#eeeeee" transform="translate(725,25)"/>
+      <rect x="-1000" y="0" width="1000" height="35" fill="#b5b0a1" />
+      <rect x="-250" y="0" width="250" height="35" />
+      <rect x="-765" y="0" width="80" height="35" />
+      <use xlink:href="#atom-side" fill="#007cb0" transform="translate(-212,20)"/>
+      <use xlink:href="#atom-side" fill="#eeeeee" transform="translate(-725,0)"/>
+      <use xlink:href="#atom-side" fill="#eeeeee" transform="translate(-725,25)"/>
     </g>
 
     <g id="small-atom-dispenser" stroke="black" stroke-width="2">
