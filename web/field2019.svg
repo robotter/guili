@@ -179,41 +179,45 @@
 
   </defs>
 
-  <g transform="translate(0,-2000)">
+  <g>
 
-    <!-- table floor -->
-    <rect x="-1522" y="-22" width="3044" height="2044" fill="#b5b0a1" />
-    <g stroke="black" stroke-width="2" fill="none">
-      <rect x="-1522" y="-22" width="3044" height="2044" />
-      <rect x="-1500" y="0" width="3000" height="2000" />
-      <rect x="-20" y="1378" width="40" height="622" />
+    <g transform="translate(0,-2000)">
+
+      <!-- table floor -->
+      <rect x="-1522" y="-22" width="3044" height="2044" fill="#b5b0a1" />
+      <g stroke="black" stroke-width="2" fill="none">
+        <rect x="-1522" y="-22" width="3044" height="2044" />
+        <rect x="-1500" y="0" width="3000" height="2000" />
+        <rect x="-20" y="1378" width="40" height="622" />
+      </g>
+
+      <use xlink:href="#start-area" />
+      <use xlink:href="#start-area" transform="scale(-1,1)" />
+      <use xlink:href="#chaos-area" />
+      <use xlink:href="#chaos-area" transform="scale(-1,1)" />
+      <use xlink:href="#experience-area" fill="#844c82" />
+      <use xlink:href="#experience-area" fill="#f7b500" transform="scale(-1,1)" />
+      <use xlink:href="#particle-accelerator" fill="#844c82" />
+      <use xlink:href="#particle-accelerator" fill="#f7b500" transform="scale(-1,1)" />
+      <use xlink:href="#small-atom-dispenser" fill="#844c82" />
+      <use xlink:href="#small-atom-dispenser" fill="#f7b500" transform="scale(-1,1)" />
+      <use xlink:href="#large-atom-dispenser" />
+      <use xlink:href="#large-atom-dispenser" transform="scale(-1,1)" />
+      <use xlink:href="#balance-slide" />
+      <use xlink:href="#balance-slide" transform="scale(-1,1)" />
+      <use xlink:href="#balance-bottom" fill="#844c82" />
+      <use xlink:href="#balance-bottom" fill="#f7b500" transform="scale(-1,1)" />
+
+      <!-- elements -->
+
+      <use xlink:href="#floor-atoms" />
+      <use xlink:href="#floor-atoms" transform="scale(-1,1)" />
+
     </g>
 
-    <use xlink:href="#start-area" />
-    <use xlink:href="#start-area" transform="scale(-1,1)" />
-    <use xlink:href="#chaos-area" />
-    <use xlink:href="#chaos-area" transform="scale(-1,1)" />
-    <use xlink:href="#experience-area" fill="#844c82" />
-    <use xlink:href="#experience-area" fill="#f7b500" transform="scale(-1,1)" />
-    <use xlink:href="#particle-accelerator" fill="#844c82" />
-    <use xlink:href="#particle-accelerator" fill="#f7b500" transform="scale(-1,1)" />
-    <use xlink:href="#small-atom-dispenser" fill="#844c82" />
-    <use xlink:href="#small-atom-dispenser" fill="#f7b500" transform="scale(-1,1)" />
-    <use xlink:href="#large-atom-dispenser" />
-    <use xlink:href="#large-atom-dispenser" transform="scale(-1,1)" />
-    <use xlink:href="#balance-slide" />
-    <use xlink:href="#balance-slide" transform="scale(-1,1)" />
-    <use xlink:href="#balance-bottom" fill="#844c82" />
-    <use xlink:href="#balance-bottom" fill="#f7b500" transform="scale(-1,1)" />
-
-    <!-- elements -->
-
-    <use xlink:href="#floor-atoms" />
-    <use xlink:href="#floor-atoms" transform="scale(-1,1)" />
+    <g id="reference-frame" transform="scale(1, -1)" />
 
   </g>
-
-  <g id="reference-frame" transform="scale(1, -1)" />
 
 
   <script type="text/javascript"><![CDATA[
