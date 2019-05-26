@@ -43,8 +43,9 @@ Portlet.register('field', 'Field', class extends Portlet {
           const params = frame.params;
           const pf = this.pathfindings[frame.robot];
           // remove node and vertices, if any
-          pf.svg_nodes.querySelector('.graph-node-'+params.i).remove();
-          pf.svg_vertices.querySelector('.graph-vertex-'+params.i).remove();
+          [pf.svg_nodes.querySelector('.graph-node-'+params.i),
+           pf.svg_vertices.querySelector('.graph-vertex-'+params.i)
+          ].forEach(e => { e && e.remove(); });
           // create new node
           const node = this.field.createElement('circle');
           node.setAttributes({
