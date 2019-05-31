@@ -729,7 +729,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // load portlets
   await Portlet.loadAll([
     'asserv', 'field', 'console', 'meca', 'logs', 'detection',
-    'match', 'boomotter',
+    'match', 'boomotter', 'jevois',
   ]);
 
   // initialize timeline
