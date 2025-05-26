@@ -1,6 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" id="drawing" viewBox="-1500 0 3000.0898 2019.2251" height="2019.2251" width="3000.0898" xml:space="preserve" version="1.1" sodipodi:docname="field2025.svg" inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"><sodipodi:namedview id="namedview17117" pagecolor="#ffffff" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" showgrid="false" inkscape:zoom="0.944" inkscape:cx="1867.5847" inkscape:cy="635.06356" inkscape:window-width="2560" inkscape:window-height="1528" inkscape:window-x="0" inkscape:window-y="0" inkscape:window-maximized="1" inkscape:current-layer="g17109"/>
   <defs id="defs2">
+
+    <style type="text/css"><![CDATA[
+
+      .default-robot { fill: #00ff00; }
+      #def-default-robot polygon {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-default-robot rect {
+        stroke: black;
+        stroke-width: 5;
+      }
+
+      .galipeur { fill: #00ffff; }
+      #def-galipeur .perimeter {
+        stroke: black;
+        stroke-width: 10;
+      }
+      #def-galipeur .balleater, #def-galipeur .turbine {
+        stroke: black;
+        stroke-width: 5;
+      }
+      #def-galipeur .balleater { fill: #dd00dd; }
+      #def-galipeur .turbine { fill: #00dd00; }
+
+      #def-carrot circle {
+        stroke: black;
+        stroke-width: 10;
+      }
+
+      .graph-vertex {
+        stroke-width: 6;
+        stroke: #808080;
+      }
+
+      .graph-node {
+        stroke: none;
+        stroke-width: 6;
+        fill: #808080;
+      }
+
+      .graph-node.active { fill: red; }
+      .graph-node.active.start { fill: yellow; stroke: red; }
+      .graph-node.active.goal { fill: #00ff00; stroke: red; }
+      .graph-vertex.active { stroke: red; }
+
+    ]]></style>
+
+    <!-- robots -->
+
+    <g id="def-default-robot">
+      <polygon points="0,170 147,-85 -147,-85" />
+      <rect x="-80" y="-95" width="160" height="50" />
+    </g>
+    <g id="def-galipeur" transform="scale(0.9)">
+      <g class="perimeter">
+        <polygon points="-21.250000,156.606261 21.250000,156.606261 146.250000,-59.900090 125.000000,-96.706170 -125.000000,-96.706170 -146.250000,-59.900090" />
+      </g>
+    </g>
+    <g id="def-carrot">
+      <circle r="40" />
+    </g>
+
     <rect x="3667.7217" y="5694.9951" width="2729.6467" height="2486.0066" id="rect1593"/>
     <rect x="961.09393" y="-330.63498" width="2075.9731" height="212.77008" id="rect1591"/>
     <linearGradient id="swatch1589" inkscape:swatch="solid">
